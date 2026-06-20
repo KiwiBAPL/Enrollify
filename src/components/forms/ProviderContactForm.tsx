@@ -1,33 +1,67 @@
-import type { FormStatus } from '@/types/forms'
+import { trackProviderContactSubmit } from '@/lib/analytics'
+import { useFormSubmit } from '@/lib/forms/useFormSubmit'
+import {
+  parseProviderContactForm,
+  validateProviderContact,
+} from '@/lib/validation/providerContact'
+import { ConsentField, FormField } from '@/components/forms/FormField'
+import { footerContent } from '@/content/site'
 
-type ProviderContactFormProps = {
-  status?: FormStatus
-}
+export function ProviderContactForm() {
+  const { status, fieldErrors, globalError, handleSubmit, isDisabled } = useFormSubmit({
+    formName: 'provider-contact',
+    parse: parseProviderContactForm,
+    validate: validateProviderContact,
+    onSuccess: trackProviderContactSubmit,
+  })
 
-export function ProviderContactForm({ status = 'idle' }: ProviderContactFormProps) {
   return (
     <form
       name="provider-contact"
       method="POST"
       data-netlify="true"
-      netlify-honeypot="bot-field"
+      data-netlify-honeypot="bot-field"
+      onSubmit={handleSubmit}
+      noValidate
       className="grid gap-4"
       aria-label="Provider contact form"
     >
       <input type="hidden" name="form-name" value="provider-contact" />
       <p className="hidden">
         <label>
-          Don&apos;t fill this out: <input name="bot-field" />
+          Don&apos;t fill this out: <input name="bot-field" tabIndex={-1} autoComplete="off" />
         </label>
       </p>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <FormField label="Organisation name" name="organisationName" required />
-        <FormField label="Your name" name="contactName" required />
-        <FormField label="Role / title" name="role" required />
-        <FormField label="Work email" name="workEmail" type="email" required />
-        <FormField label="Phone (optional)" name="phone" type="tel" />
-        <FormField label="Country / region" name="countryRegion" required />
+        <FormField
+          label="Organisation name"
+          name="organisationName"
+          required
+          error={fieldErrors.organisationName}
+        />
+        <FormField
+          label="Your name"
+          name="contactName"
+          required
+          error={fieldErrors.contactName}
+        />
+        <FormField label="Role / title" name="role" required error={fieldErrors.role} />
+        <FormField
+          label="Work email"
+          name="workEmail"
+          type="email"
+          autoComplete="email"
+          required
+          error={fieldErrors.workEmail}
+        />
+        <FormField label="Phone (optional)" name="phone" type="tel" autoComplete="tel" />
+        <FormField
+          label="Country / region"
+          name="countryRegion"
+          required
+          error={fieldErrors.countryRegion}
+        />
       </div>
 
       <FormField
@@ -35,23 +69,26 @@ export function ProviderContactForm({ status = 'idle' }: ProviderContactFormProp
         name="needsDescription"
         as="textarea"
         required
+        rows={4}
+        error={fieldErrors.needsDescription}
       />
 
-      <label className="flex items-start gap-3 text-sm">
-        <input type="checkbox" name="consent" required className="mt-1" />
-        <span>
-          I agree to EnRollifyEdu contacting me about my enquiry and understand my details will be
-          handled in line with the privacy policy.
-        </span>
-      </label>
+      <ConsentField error={fieldErrors.consent}>
+        I agree to EnRollifyEdu contacting me about my enquiry and understand my details will be
+        handled in line with the{' '}
+        <a href={footerContent.privacyHref} className="text-text-secondary underline">
+          privacy policy
+        </a>
+        .
+      </ConsentField>
 
       <div>
         <button
           type="submit"
-          disabled={status === 'submitting'}
+          disabled={isDisabled}
           className="inline-flex items-center justify-center rounded-pill border-2 border-stroke-primary bg-accent-mint px-7 py-3.5 font-body text-base font-semibold text-stroke-primary shadow-hard transition-transform hover:translate-x-0.5 hover:translate-y-0.5 disabled:opacity-60"
         >
-          {status === 'submitting' ? 'Sending…' : 'Submit enquiry'}
+          {status === 'submitting' ? 'Sending…' : status === 'success' ? 'Submitted' : 'Submit enquiry'}
         </button>
       </div>
 
@@ -60,43 +97,11 @@ export function ProviderContactForm({ status = 'idle' }: ProviderContactFormProp
           Thank you — we&apos;ll be in touch shortly.
         </p>
       ) : null}
-      {status === 'error' ? (
+      {globalError ? (
         <p className="text-sm font-semibold text-red-700" role="alert">
-          Something went wrong. Please try again or email us directly.
+          {globalError}
         </p>
       ) : null}
-
-      <p className="text-xs text-text-muted">Form submission wiring — Phase 2.</p>
     </form>
-  )
-}
-
-type FormFieldProps = {
-  label: string
-  name: string
-  type?: string
-  required?: boolean
-  as?: 'input' | 'textarea'
-}
-
-function FormField({
-  label,
-  name,
-  type = 'text',
-  required = false,
-  as = 'input',
-}: FormFieldProps) {
-  const className =
-    'w-full rounded-card border-2 border-accent-primary bg-background-secondary px-4 py-3 font-body text-base text-text-primary outline-none focus:ring-2 focus:ring-accent-lavender'
-
-  return (
-    <label className="grid gap-1.5 text-sm font-semibold text-text-secondary">
-      {label}
-      {as === 'textarea' ? (
-        <textarea name={name} required={required} rows={4} className={className} />
-      ) : (
-        <input name={name} type={type} required={required} className={className} />
-      )}
-    </label>
   )
 }

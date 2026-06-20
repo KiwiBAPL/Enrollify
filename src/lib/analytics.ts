@@ -1,42 +1,35 @@
-type AnalyticsEvent = 'pageview' | 'provider_contact_submit' | 'student_interest_submit'
+import {
+  ANALYTICS_EVENTS,
+  FORM_SUBMIT_ERROR_EVENTS,
+  type FormAnalyticsContext,
+} from '@/lib/analytics/events'
+import { dispatchAnalyticsEvent } from '@/lib/analytics/loadScript'
 
-const provider = import.meta.env.VITE_ANALYTICS_PROVIDER
-const analyticsId = import.meta.env.VITE_ANALYTICS_ID
-
-function isConfigured(): boolean {
-  return Boolean(provider && analyticsId)
-}
+export { initAnalytics, isAnalyticsReady } from '@/lib/analytics/loadScript'
 
 export function trackPageview(): void {
-  if (!isConfigured()) return
-  trackEvent('pageview')
+  dispatchAnalyticsEvent(ANALYTICS_EVENTS.pageview)
 }
 
 export function trackProviderContactSubmit(): void {
-  if (!isConfigured()) return
-  trackEvent('provider_contact_submit')
+  dispatchAnalyticsEvent(ANALYTICS_EVENTS.providerContactSubmit)
 }
 
 export function trackStudentInterestSubmit(): void {
-  if (!isConfigured()) return
-  trackEvent('student_interest_submit')
+  dispatchAnalyticsEvent(ANALYTICS_EVENTS.studentInterestSubmit)
 }
 
-function trackEvent(event: AnalyticsEvent): void {
+export function trackFormSubmitError(form: FormAnalyticsContext, reason: FormSubmitErrorReason): void {
+  dispatchAnalyticsEvent(FORM_SUBMIT_ERROR_EVENTS[form])
   if (import.meta.env.DEV) {
-    console.info('[analytics stub]', event, { provider, analyticsId })
-    return
+    console.warn('[form-error]', form, reason)
   }
+}
 
-  // Phase 4: wire Plausible or GA4 based on VITE_ANALYTICS_PROVIDER
-  switch (provider) {
-    case 'plausible':
-      // window.plausible?.(event)
-      break
-    case 'ga4':
-      // gtag('event', event)
-      break
-    default:
-      break
-  }
+export type FormSubmitErrorReason = 'network' | 'server' | 'unknown'
+
+export function formNameToAnalyticsContext(formName: string): FormAnalyticsContext | null {
+  if (formName === 'provider-contact') return 'provider_contact'
+  if (formName === 'student-interest') return 'student_interest'
+  return null
 }

@@ -1,32 +1,30 @@
 import { processSteps } from '@/content/process'
+import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="scroll-mt-24 bg-background-secondary py-16">
-      <div className="container mx-auto">
-        <h2 className="mb-4 max-w-[20ch] font-display text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-tight tracking-tight text-text-secondary">
-          How it works
-        </h2>
-        <p className="mb-10 max-w-[50ch] text-text-muted">
-          A structured, end-to-end recruitment process — from first contact through to enrolment
-          handoff.
-        </p>
+    <Section id="how-it-works" variant="secondary">
+      <SectionHeader
+        title="How it works"
+        intro="A structured, end-to-end recruitment process — from first contact through to enrolment handoff."
+      />
 
-        <ol className="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-          {processSteps.map((step, index) => (
-            <li
-              key={step.id}
-              className="rounded-card border-2 border-accent-primary bg-background-primary p-5 shadow-hard-accent"
-            >
-              <span className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-accent-primary bg-accent-mint text-sm font-bold text-accent-primary">
-                {index + 1}
-              </span>
-              <h3 className="mb-2 font-display text-lg font-semibold text-text-secondary">{step.title}</h3>
-              <p className="m-0 text-sm leading-relaxed text-text-primary">{step.description}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
+      <ol className="grid list-none gap-5 p-0 md:grid-cols-2 xl:grid-cols-5">
+        {processSteps.map((step, index) => (
+          <li
+            key={step.id}
+            className="rounded-card border-2 border-accent-primary border-l-[6px] border-l-accent-mint bg-background-primary p-5 shadow-hard-accent xl:border-l-2"
+          >
+            <span className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-accent-primary bg-accent-mint text-sm font-bold text-accent-primary">
+              <span className="sr-only">Step {index + 1}: </span>
+              {index + 1}
+            </span>
+            <h3 className="mb-2 font-display text-lg font-semibold text-text-secondary">{step.title}</h3>
+            <p className="m-0 text-sm leading-relaxed text-text-primary">{step.description}</p>
+          </li>
+        ))}
+      </ol>
+    </Section>
   )
 }

@@ -2,6 +2,11 @@
   command = "npm run build"
   publish = "dist"
 
+# Form submissions use Netlify Forms (detected from hidden forms in index.html).
+# Email notifications are configured in the Netlify dashboard:
+#   Site configuration → Forms → Form notifications
+# See Documents/phase-4-integrations.md for the recipient checklist.
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

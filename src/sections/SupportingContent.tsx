@@ -1,18 +1,29 @@
 import { supportingContent } from '@/content/site'
 import { Icon } from '@/components/ui/Icon'
+import { Section } from '@/components/ui/Section'
+import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export function SupportingContent() {
   return (
-    <section id="supporting" className="scroll-mt-24 bg-background-secondary py-16">
-      <div className="container mx-auto grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-        <div>
-          <h2 className="mb-4 max-w-[16ch] font-display text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-tight tracking-tight text-text-secondary">
-            {supportingContent.heading}
-          </h2>
-          <p className="m-0 max-w-[45ch] text-text-primary">{supportingContent.body}</p>
+    <Section id="supporting" variant="secondary">
+      <SectionHeader title={supportingContent.heading} intro={supportingContent.body} />
+
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_1.2fr] lg:items-start">
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          {supportingContent.stats.map((stat) => (
+            <div
+              key={stat.id}
+              className="rounded-card border-2 border-accent-primary bg-background-primary px-5 py-4 shadow-hard-accent"
+            >
+              <p className="m-0 font-display text-[clamp(1.5rem,3vw,2rem)] font-bold leading-none text-text-secondary">
+                {stat.value}
+              </p>
+              <p className="mt-2 m-0 text-sm text-text-muted">{stat.label}</p>
+            </div>
+          ))}
         </div>
 
-        <ul className="grid gap-4">
+        <ul className="grid list-none gap-4 p-0">
           {supportingContent.highlights.map((highlight) => (
             <li
               key={highlight}
@@ -26,6 +37,6 @@ export function SupportingContent() {
           ))}
         </ul>
       </div>
-    </section>
+    </Section>
   )
 }

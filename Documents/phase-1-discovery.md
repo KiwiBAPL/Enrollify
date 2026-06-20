@@ -241,7 +241,11 @@ Phase 5 will repeat validation (HTTPS enforcement, form-data review, insecure lo
 
 ## 11. Next steps (Phase 2)
 
-1. Finalise form field lists with product/design.
-2. Enable Netlify Forms and notification recipients.
-3. Implement client-side validation and submission states.
-4. Remove form placeholder notes from UI.
+Completed — see [phase-2-core-build.md](./phase-2-core-build.md).
+
+1. ~~Finalise form field lists with product/design.~~ (Provisional lists implemented; confirm before launch.)
+2. ~~Enable Netlify Forms and notification recipients.~~ (Forms wired in code; dashboard setup documented in Phase 2 doc.)
+3. ~~Implement client-side validation and submission states.~~
+4. ~~Remove form placeholder notes from UI.~~
+
+**Phase 3:** Section polish, copy review, responsive/a11y pass.

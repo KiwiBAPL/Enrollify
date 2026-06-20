@@ -1,5 +1,7 @@
 export type StudyLevel = 'undergraduate' | 'postgraduate' | 'pathway' | 'other'
 
+export type FormName = 'provider-contact' | 'student-interest'
+
 export type ProviderContactFields = {
   organisationName: string
   contactName: string
@@ -21,3 +23,5 @@ export type StudentInterestFields = {
 }
 
 export type FormStatus = 'idle' | 'submitting' | 'success' | 'error'
+
+export type FieldErrors<T extends Record<string, unknown>> = Partial<Record<keyof T, string>>

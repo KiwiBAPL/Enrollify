@@ -16,6 +16,35 @@
     />
   </head>
   <body>
+    <!-- Hidden forms for Netlify build-time detection (SPA submits via fetch) -->
+    <form name="provider-contact" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="provider-contact" />
+      <input name="bot-field" />
+      <input name="organisationName" />
+      <input name="contactName" />
+      <input name="role" />
+      <input name="workEmail" />
+      <input name="phone" />
+      <input name="countryRegion" />
+      <textarea name="needsDescription"></textarea>
+      <input name="consent" type="checkbox" />
+    </form>
+    <form name="student-interest" data-netlify="true" data-netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="student-interest" />
+      <input name="bot-field" />
+      <input name="fullName" />
+      <input name="email" />
+      <input name="countryOfResidence" />
+      <select name="studyLevel">
+        <option value="undergraduate">Undergraduate</option>
+        <option value="postgraduate">Postgraduate</option>
+        <option value="pathway">Pathway / foundation</option>
+        <option value="other">Other</option>
+      </select>
+      <input name="areaOfStudy" />
+      <input name="consent" type="checkbox" />
+    </form>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

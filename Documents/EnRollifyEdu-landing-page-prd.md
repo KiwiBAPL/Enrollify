@@ -6,13 +6,13 @@
 |------|--------|
 | Product / feature name | EnRollifyEdu Website Landing Page |
 | Product type | IT / software product |
-| Document owner | TBD |
-| Contributors | TBD |
-| Status | Quality-checked with cautions |
-| Version | 0.1 |
+| Document owner | TBD (founder assignment) |
+| Contributors | Engineering (Phases 1–5 implementation) |
+| Status | **PRD implementation complete** — Phases 1–5 and §10 quality check done; Phase 6 deployment and launch prep deferred |
+| Version | 1.0 |
 | Last updated | 2026-06-20 |
-| Target release | TBD |
-| Linked artefacts | EnRollifyEdu brief; logo; this PRD; design mocks (when available) |
+| Target release | Pre-launch (pending Netlify E2E, copy, logo, privacy policy) |
+| Linked artefacts | [quality-check.md](./quality-check.md); [phase-1-discovery.md](./phase-1-discovery.md) through [phase-5-testing-verification.md](./phase-5-testing-verification.md); EnRollifyEdu brief; logo (pending); design.json |
 
 ## 1. Overview
 
@@ -66,7 +66,7 @@ The primary user is a decision-maker at an education provider, such as a directo
 
 ### 3.1 In scope
 
-- Single, scrollable landing page for EnRollifyEdu using Next.js, React, Tailwind CSS, and TypeScript.[cite:10]
+- Single, scrollable landing page for EnRollifyEdu using Vite, React, Tailwind CSS, and TypeScript, hosted on Netlify.[cite:10]
 - Core sections: hero, who-we’re-for, how-it-works process, benefits/outcomes, supporting content, provider contact section, student register-interest section, navigation, and footer.[cite:10]
 - Responsive layout for desktop and mobile.[cite:10]
 - Basic analytics for pageviews and form submissions, plus simple notifications on form submissions.[cite:10]
@@ -160,6 +160,9 @@ Must.[cite:10]
 - Given required fields are blank or invalid, when the provider attempts submission, then inline validation messages appear and submission is blocked until corrected.[cite:10]
 - Given a submission succeeds, when analytics is configured, then a provider-contact submission event is recorded.[cite:10]
 
+**Form fields (finalized)**  
+Required: organisation name, your name, role/title, work email, country/region, brief description of needs, consent. Optional: phone. Honeypot for spam protection. See [phase-1-discovery.md](./phase-1-discovery.md) §5.2.
+
 #### FR-5 International student register-interest form
 
 **Requirement**  
@@ -175,6 +178,9 @@ Should.[cite:10]
 - Given a student submits a valid register-interest form, when the submission is processed, then the data is sent to the designated destination and a confirmation message is displayed.[cite:10]
 - Given required fields are blank or invalid, when the student attempts submission, then clear validation messages are shown and submission is blocked until corrected.[cite:10]
 - Given a student submission succeeds, when analytics is configured, then a student-interest submission event is recorded.[cite:10]
+
+**Form fields (finalized)**  
+Required: full name, email, country of residence, level of study interest (undergraduate, postgraduate, pathway/foundation, other), consent. Optional: area of study. Placement: `#student-interest` section before footer, secondary styling. See [phase-1-discovery.md](./phase-1-discovery.md) §5.2.
 
 #### FR-6 Navigation and footer
 
@@ -258,7 +264,7 @@ Must.[cite:10]
 #### NFR-4 Maintainability
 
 **Requirement**  
-The implementation shall use Next.js, React, Tailwind CSS, and TypeScript and be structured for straightforward updates.[cite:10]
+The implementation shall use Vite, React, Tailwind CSS, and TypeScript and be structured for straightforward updates.[cite:10]
 
 **Category**  
 Maintainability.[cite:10]
@@ -274,11 +280,11 @@ Should.[cite:10]
 
 | Topic | Requirement or guidance | Owner | Status |
 |------|------------------------|-------|-------|
-| Navigation and form factor | Use a single-page layout with clear scrolling anchors, with hero and provider contact emphasised as the primary path. [cite:10] | Design/UX [cite:10] | TBD [cite:10] |
-| CTA hierarchy | Keep the provider contact CTA primary and the student register-interest CTA visually secondary. [cite:10] | Design/UX [cite:10] | TBD [cite:10] |
-| Error states | Show inline, human-readable validation and error messages, plus a recoverable global error state if backend submission fails. [cite:10] | Engineering/Design [cite:10] | TBD [cite:10] |
-| Accessibility | Use semantic HTML, appropriate ARIA where needed, sufficient contrast, and visible focus states. [cite:10] | Engineering/Design [cite:10] | TBD [cite:10] |
-| Content and tone | Use clear, confident, provider-first messaging with concise supporting copy for students. [cite:10] | Product/Marketing [cite:10] | TBD [cite:10] |
+| Navigation and form factor | Use a single-page layout with clear scrolling anchors, with hero and provider contact emphasised as the primary path. [cite:10] | Design/UX [cite:10] | Implemented — [phase-3-implementation.md](./phase-3-implementation.md) |
+| CTA hierarchy | Keep the provider contact CTA primary and the student register-interest CTA visually secondary. [cite:10] | Design/UX [cite:10] | Implemented — [phase-3-implementation.md](./phase-3-implementation.md) |
+| Error states | Show inline, human-readable validation and error messages, plus a recoverable global error state if backend submission fails. [cite:10] | Engineering/Design [cite:10] | Implemented — Phases 2–3 |
+| Accessibility | Use semantic HTML, appropriate ARIA where needed, sufficient contrast, and visible focus states. [cite:10] | Engineering/Design [cite:10] | Implemented — [phase-3-implementation.md](./phase-3-implementation.md); verified Phase 5 |
+| Content and tone | Use clear, confident, provider-first messaging with concise supporting copy for students. [cite:10] | Product/Marketing [cite:10] | Draft copy — pending founder review |
 
 ## 7. Data, integrations, and materials
 
@@ -286,16 +292,16 @@ Should.[cite:10]
 
 | Item | Source | Used for | Sensitivity | Notes |
 |----|--------|---------|-------------|------|
-| Provider contact form fields | Provider user [cite:10] | Follow-up and qualification [cite:10] | Personal/contact [cite:10] | Exact field list to be finalised. [cite:10] |
-| Student register-interest form fields | Student user [cite:10] | Routing to relevant providers and pipeline insight [cite:10] | Personal/contact [cite:10] | Kept minimal in this version. [cite:10] |
-| Analytics events | Frontend [cite:10] | Conversion tracking and optimisation [cite:10] | Pseudonymous [cite:10] | Depends on chosen analytics tool. [cite:10] |
+| Provider contact form fields | Provider user [cite:10] | Follow-up and qualification [cite:10] | Personal/contact [cite:10] | Organisation name, contact name, role, work email, phone (optional), country/region, needs description, consent. [cite:10] |
+| Student register-interest form fields | Student user [cite:10] | Routing to relevant providers and pipeline insight [cite:10] | Personal/contact [cite:10] | Full name, email, country of residence, study level, area of study (optional), consent. [cite:10] |
+| Analytics events | Frontend [cite:10] | Conversion tracking and optimisation [cite:10] | Pseudonymous [cite:10] | `pageview`, `provider_contact_submit`, `student_interest_submit` (+ error events). Plausible or GA4 via env vars. [cite:10] |
 
 ### 7.2 Integrations
 
 | System / service | Purpose | Dependency type | Owner | Risks / notes |
 |----------------|---------|-----------------|-------|--------------|
-| Analytics tool | Track pageviews and form submissions. [cite:10] | Technical [cite:10] | Engineering [cite:10] | Must be configured to respect privacy expectations. [cite:10] |
-| Email / notification channel | Receive provider and student submissions. [cite:10] | Technical / Operational [cite:10] | Engineering / Ops [cite:10] | Manual handling process must exist at launch. [cite:10] |
+| Analytics tool | Track pageviews and form submissions via Plausible or GA4 (`VITE_ANALYTICS_PROVIDER`, `VITE_ANALYTICS_ID`). [cite:10] | Technical [cite:10] | Engineering [cite:10] | Provider choice at Netlify deploy; see [phase-4-integrations.md](./phase-4-integrations.md). [cite:10] |
+| Email / notification channel | Receive provider and student submissions via Netlify Forms email notifications. [cite:10] | Technical / Operational [cite:10] | Engineering / Ops [cite:10] | Configure in Netlify dashboard; manual handling at launch. [cite:10] |
 
 ## 8. Risks, dependencies, and open questions
 
@@ -306,23 +312,23 @@ Should.[cite:10]
 | Over-emphasis on the student path dilutes provider-first messaging. [cite:10] | Medium [cite:10] | Medium–High [cite:10] | Keep the student CTA secondary and concise. [cite:10] |
 | Process explanation is too thin, making EnRollifyEdu appear generic. [cite:10] | Medium [cite:10] | High [cite:10] | Make the how-it-works section clearly structured and differentiated. [cite:10] |
 | Student-interest submissions become operationally heavy. [cite:10] | Medium [cite:10] | Medium [cite:10] | Start with a simple manual handling process and expand later if needed. [cite:10] |
-| Security and privacy expectations for contact data are under-specified. [cite:10] | Low–Medium [cite:10] | High [cite:10] | Use security review in Phase 1 and validation in Phase 5. [cite:3][cite:10] |
+| Security and privacy expectations for contact data are under-specified. [cite:10] | Low–Medium [cite:10] | High [cite:10] | Phase 1 and Phase 5 security reviews completed; see [quality-check.md](./quality-check.md). [cite:3][cite:10] |
 
 ### 8.2 Dependencies
 
 | Dependency | Type | Owner | Status | Notes |
 |----------|------|-------|--------|------|
-| Final messaging and value proposition | Product/Marketing [cite:10] | Founders/Marketing [cite:10] | Not started [cite:10] | Needed for hero, benefits, and process copy. [cite:10] |
-| Logo and brand basics | Design [cite:10] | Founders/Design [cite:10] | In progress [cite:10] | Initial brand direction may be lightweight. [cite:10] |
-| Exact placement of the student register-interest form | Product/Design [cite:10] | Product [cite:10] | Not started [cite:10] | Secondary section versus footer remains open. [cite:10] |
+| Final messaging and value proposition | Product/Marketing [cite:10] | Founders/Marketing [cite:10] | In progress [cite:10] | Draft copy implemented; founder review before public launch. [cite:10] |
+| Logo and brand basics | Design [cite:10] | Founders/Design [cite:10] | In progress [cite:10] | Text wordmark interim; logo asset pending. [cite:10] |
+| Exact placement of the student register-interest form | Product/Design [cite:10] | Product [cite:10] | Resolved [cite:10] | `#student-interest` section before footer, secondary styling. [cite:10] |
 
 ### 8.3 Open questions
 
 | Question | Owner | Due date | Resolution |
 |--------|-------|----------|-----------|
-| Where exactly should the student register-interest form appear? [cite:10] | Product/Design [cite:10] | TBD [cite:10] | TBD [cite:10] |
-| What exact fields are required in each form? [cite:10] | Product/Design/Engineering [cite:10] | TBD [cite:10] | TBD [cite:10] |
-| Which analytics tool will be used initially? [cite:10] | Product/Engineering [cite:10] | TBD [cite:10] | TBD [cite:10] |
+| Where exactly should the student register-interest form appear? [cite:10] | Product/Design [cite:10] | 2026-06-20 [cite:10] | **`#student-interest` section** before footer, secondary styling — [phase-1-discovery.md](./phase-1-discovery.md) |
+| What exact fields are required in each form? [cite:10] | Product/Design/Engineering [cite:10] | 2026-06-20 [cite:10] | Finalized — [phase-1-discovery.md](./phase-1-discovery.md) §5.2; PRD §5 FR-4/FR-5 |
+| Which analytics tool will be used initially? [cite:10] | Product/Engineering [cite:10] | At deploy [cite:10] | **Plausible or GA4** supported; set `VITE_ANALYTICS_*` on Netlify — [phase-4-integrations.md](./phase-4-integrations.md) |
 
 ## 9. Implementation Roadmap
 
@@ -330,7 +336,7 @@ Should.[cite:10]
 
 Goal: understand constraints, confirm scope, and identify security considerations before build starts.[cite:6][cite:3][cite:10]
 
-- Set up or review the base Next.js, React, Tailwind CSS, and TypeScript project structure.[cite:10]
+- Set up or review the base Vite, React, Tailwind CSS, and TypeScript project structure.[cite:10]
 - Confirm routing, hosting, and deployment approach for the landing page.[cite:10]
 - Review the EnRollifyEdu brief and finalise the content outline and core messaging.[cite:10]
 - Define the minimal data-handling approach for provider and student submissions, including storage, forwarding, and retention.[cite:10]
@@ -345,7 +351,7 @@ Goal: understand constraints, confirm scope, and identify security consideration
 
 ### 9.3 Phase 3 – Implementation
 
-- Build the landing page sections in Next.js and React with Tailwind styling.[cite:10]
+- Build the landing page sections in Vite, React, and Tailwind styling.[cite:10]
 - Connect both forms to the configured endpoints or services.[cite:10]
 - Implement responsive behaviour and accessibility essentials.[cite:10]
 
@@ -371,23 +377,31 @@ Goal: understand constraints, confirm scope, and identify security consideration
 
 ## 10. Quality check
 
+See [quality-check.md](./quality-check.md) for the full report. Summary:
+
 ### 10.1 Passed
 
 - The PRD follows the expected structure and includes all major sections required by the template.[cite:3][cite:10]
 - Important functional and non-functional requirements include concrete acceptance criteria.[cite:3][cite:10]
 - The Implementation Roadmap starts with Phase 1 Discovery and setup and includes security review in Phase 1 and Phase 5.[cite:3][cite:6][cite:10]
+- Phases 1–5 complete: all Must FRs implemented; form fields and student placement resolved; security validated; build and local/preview verification pass.[cite:10]
 
 ### 10.2 Issues
 
-- Some document-control items, owners, and due dates remain TBD and require human assignment.[cite:3][cite:10]
-- Exact form fields, analytics tool choice, and final placement of the student register-interest form remain open questions.[cite:3][cite:10]
+- Document owner, contributors, and target release remain TBD (founder assignment).[cite:3][cite:10]
+- Success measure baselines/targets to be set post-launch.[cite:10]
+- Draft copy, logo asset, and privacy policy URL pending founder/legal review before public launch.[cite:10]
+- Netlify live E2E (forms, notifications, production analytics) pending Phase 6 dashboard confirmation.[cite:10]
 
 ### 10.3 Actions
 
-- Assign document owner and contributors.[cite:10]
-- Decide the initial analytics tool and update Section 7.2 accordingly.[cite:10]
-- Finalise provider-contact and student-interest field lists and update Sections 5 and 7.[cite:10]
-- Confirm where the student register-interest form will appear and reflect that in UX notes and requirements if needed.[cite:10]
+| Action | Status |
+|--------|--------|
+| Finalise form field lists → update §5 and §7 | Done |
+| Confirm student form placement → UX/requirements | Done |
+| Decide analytics tool → update §7.2 | Partial — dual-provider; choice at Netlify deploy |
+| Assign document owner and contributors | Open |
+| Phase 6 deployment and smoke tests | Next — §9.6 |
 
 ## 11. Approvals
 

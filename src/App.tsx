@@ -16,9 +16,12 @@ export default function App() {
   }, [])
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background-primary">
+    <div className="min-h-screen overflow-x-clip bg-background-primary">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <Navbar />
-      <main>
+      <main id="main-content">
         <Hero />
         <WhoWereFor />
         <HowItWorks />

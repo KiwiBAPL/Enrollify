@@ -107,6 +107,11 @@ export const supportingContent: SupportingContent = {
   heading: 'More than a lead generator',
   body:
     'Generic recruitment agents and lead generators optimise for volume. EnRollifyEdu optimises for fit — with a transparent process from first contact through to enrolment handoff.',
+  stats: [
+    { id: 'process', value: '5 steps', label: 'End-to-end recruitment process' },
+    { id: 'focus', value: 'Provider-first', label: 'Partnership model built for fit' },
+    { id: 'tech', value: 'Tech-enabled', label: 'Qualification and assessment support' },
+  ],
   highlights: [
     'End-to-end process, not disconnected referrals',
     'Provider-first partnership model',

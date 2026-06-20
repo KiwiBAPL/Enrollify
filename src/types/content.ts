@@ -45,4 +45,11 @@ export type SupportingContent = {
   heading: string
   body: string
   highlights: string[]
+  stats: TrustStat[]
+}
+
+export type TrustStat = {
+  id: string
+  value: string
+  label: string
 }
