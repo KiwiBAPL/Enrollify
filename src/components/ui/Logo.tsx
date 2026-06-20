@@ -1,13 +1,17 @@
+import logo from '@/assets/logo.png'
+
 type LogoProps = {
   className?: string
 }
 
 export function Logo({ className = '' }: LogoProps) {
   return (
-    <span
-      className={`font-display text-[1.35rem] font-extrabold tracking-tight text-text-secondary ${className}`}
-    >
-      EnRollifyEdu
-    </span>
+    <img
+      src={logo}
+      alt="EnRollifyEdu"
+      width={500}
+      height={500}
+      className={`h-10 w-auto shrink-0 ${className}`}
+    />
   )
 }
