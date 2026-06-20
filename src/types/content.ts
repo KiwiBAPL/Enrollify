@@ -34,7 +34,6 @@ export type AudienceCard = {
 }
 
 export type HeroContent = {
-  eyebrow: string
   headline: string
   body: string
   primaryCta: { label: string; href: string }

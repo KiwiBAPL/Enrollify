@@ -16,10 +16,7 @@ export const siteMeta: SiteMeta = {
 }
 
 export const navLinks: NavLink[] = [
-  { label: 'Who we’re for', href: '#who-were-for' },
   { label: 'How it works', href: '#how-it-works' },
-  { label: 'Benefits', href: '#benefits' },
-  { label: 'Contact', href: '#provider-contact' },
 ]
 
 export const footerContent: FooterContent = {
@@ -29,7 +26,6 @@ export const footerContent: FooterContent = {
 }
 
 export const heroContent: HeroContent = {
-  eyebrow: 'For education providers',
   headline: 'Recruit qualified international students with confidence',
   body:
     'EnRollifyEdu is a technology-enabled recruitment service for New Zealand and global education providers — delivering better-matched students, lower recruitment costs, and smoother admissions workflows.',

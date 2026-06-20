@@ -12,9 +12,6 @@ export function Hero() {
     <Section id="hero" className="py-8 pb-20">
       <div className="grid items-start gap-12 sm:gap-16 lg:grid-cols-[42%_58%] lg:gap-12">
         <div className="flex min-w-0 flex-col gap-6 sm:gap-8">
-          <p className="m-0 text-[15px] font-semibold uppercase tracking-[0.08em] text-text-muted">
-            {heroContent.eyebrow}
-          </p>
           <h1 className="m-0 max-w-[14ch] font-display text-[clamp(2.25rem,6vw,6.5rem)] font-extrabold leading-[0.92] tracking-[-0.04em] text-text-secondary sm:max-w-[12ch]">
             {heroContent.headline}
           </h1>
