@@ -8,7 +8,7 @@ export function HeroVisual() {
         alt="Two international students smiling while looking at a smartphone together"
         width={1024}
         height={682}
-        className="relative w-[min(100%,480px)] max-w-full object-contain drop-shadow-[6px_8px_0_rgba(67,50,157,0.25)]"
+        className="relative w-[min(100%,576px)] max-w-full object-contain drop-shadow-[6px_8px_0_rgba(67,50,157,0.25)]"
       />
     </div>
   )

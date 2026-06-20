@@ -20,22 +20,24 @@ export function Footer() {
           </div>
 
           <nav aria-label="Footer" className="grid gap-6 sm:grid-cols-2 md:gap-10">
-            <div>
-              <p className="mb-2 text-sm font-semibold text-text-secondary">Sections</p>
-              <ul className="flex flex-col gap-2 p-0">
-                {navLinks.map((link) => (
-                  <li key={link.href} className="list-none">
-                    <a
-                      href={link.href}
-                      className="text-sm text-text-muted hover:text-text-secondary hover:underline"
-                      onClick={(e) => handleNavClick(e, link.href)}
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {navLinks.length > 0 ? (
+              <div>
+                <p className="mb-2 text-sm font-semibold text-text-secondary">Sections</p>
+                <ul className="flex flex-col gap-2 p-0">
+                  {navLinks.map((link) => (
+                    <li key={link.href} className="list-none">
+                      <a
+                        href={link.href}
+                        className="text-sm text-text-muted hover:text-text-secondary hover:underline"
+                        onClick={(e) => handleNavClick(e, link.href)}
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             <div>
               <p className="mb-2 text-sm font-semibold text-text-secondary">Get in touch</p>
               <ul className="flex flex-col gap-2 p-0">

@@ -15,9 +15,7 @@ export const siteMeta: SiteMeta = {
     'Technology-enabled international student recruitment for New Zealand and global education providers. Better-qualified students, lower costs, smoother admissions.',
 }
 
-export const navLinks: NavLink[] = [
-  { label: 'How it works', href: '#how-it-works' },
-]
+export const navLinks: NavLink[] = []
 
 export const footerContent: FooterContent = {
   contactEmail: 'hello@enrollifyedu.com',
