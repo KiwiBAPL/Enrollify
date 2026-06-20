@@ -1,0 +1,296 @@
+{
+  "meta": {
+    "name": "stwedy-inspired-landing-style",
+    "source": "single screenshot analysis",
+    "pageType": "educational landing page hero",
+    "description": "A playful modern landing page with rounded pill controls, bold geometric typography, soft neutral background, black outlines, and a purple-mint brand palette."
+  },
+  "style": {
+    "visualTone": [
+      "playful",
+      "approachable",
+      "clean",
+      "modern",
+      "friendly",
+      "editorial-hero"
+    ],
+    "designKeywords": [
+      "rounded pills",
+      "bold display typography",
+      "soft neutral canvas",
+      "black outline UI",
+      "offset shadow effect",
+      "blob backdrop",
+      "minimal navigation",
+      "high whitespace"
+    ]
+  },
+  "colors": {
+    "background": {
+      "primary": "#F7F7F7",
+      "secondary": "#FFFFFF"
+    },
+    "text": {
+      "primary": "#0B0B0B",
+      "secondary": "#43329D",
+      "muted": "#6F66A8"
+    },
+    "accent": {
+      "primary": "#43329D",
+      "mint": "#AEE3C8",
+      "lavender": "#8D82CE",
+      "softPurple": "#A49BD4"
+    },
+    "stroke": {
+      "primary": "#111111"
+    },
+    "shadow": {
+      "hard": "#111111"
+    },
+    "brandPalette": {
+      "gigas": "#43329D",
+      "fringyFlower": "#AEE3C8",
+      "moodyBlue": "#8D82CE",
+      "coldPurple": "#A49BD4"
+    }
+  },
+  "typography": {
+    "brandStyle": {
+      "feel": "rounded geometric sans",
+      "weight": 700,
+      "case": "title case"
+    },
+    "heroHeading": {
+      "fontFamily": "Poppins, Nunito Sans, Avenir Next, sans-serif",
+      "style": "geometric rounded sans",
+      "weight": 800,
+      "lineHeight": 0.9,
+      "letterSpacing": "-0.04em",
+      "fontSize": {
+        "desktop": "88px-104px",
+        "tablet": "64px-76px",
+        "mobile": "40px-52px"
+      }
+    },
+    "body": {
+      "fontFamily": "Poppins, Nunito Sans, Inter, sans-serif",
+      "weight": 400,
+      "lineHeight": 1.65,
+      "fontSize": {
+        "desktop": "20px",
+        "mobile": "16px-18px"
+      }
+    },
+    "nav": {
+      "fontFamily": "Poppins, Nunito Sans, sans-serif",
+      "weight": 400,
+      "fontSize": "16px-18px"
+    },
+    "stats": {
+      "fontFamily": "Poppins, Nunito Sans, sans-serif",
+      "weight": 700,
+      "fontSize": "34px-40px"
+    },
+    "cardTitle": {
+      "fontFamily": "Poppins, Nunito Sans, sans-serif",
+      "weight": 600,
+      "fontSize": "18px-20px"
+    }
+  },
+  "layout": {
+    "container": {
+      "maxWidth": "1280px-1360px",
+      "paddingX": "48px-72px",
+      "paddingY": "28px-40px"
+    },
+    "header": {
+      "height": "72px-88px",
+      "alignment": "logo left, nav centered, auth actions right"
+    },
+    "hero": {
+      "grid": "2-column asymmetrical",
+      "leftColumnWidth": "42%",
+      "rightColumnWidth": "58%",
+      "verticalAlignment": "top-aligned heading, mid visual balance",
+      "spacing": "large whitespace between content groups"
+    },
+    "sections": {
+      "belowHero": "split lower content with stats left, video center, headline+icons right"
+    }
+  },
+  "components": {
+    "navbar": {
+      "background": "transparent",
+      "linkColor": "#3F3F3F",
+      "activeLinkColor": "#111111",
+      "linkSpacing": "32px-40px"
+    },
+    "buttons": {
+      "primary": {
+        "background": "#AEE3C8",
+        "text": "#111111",
+        "border": "2px solid #111111",
+        "radius": "999px",
+        "shadow": "4px 4px 0 #111111",
+        "padding": "14px 28px"
+      },
+      "secondary": {
+        "background": "transparent",
+        "text": "#43329D",
+        "border": "2px solid #43329D",
+        "radius": "999px",
+        "shadow": "none",
+        "padding": "12px 26px"
+      }
+    },
+    "pills": {
+      "default": {
+        "background": "#FFFFFF",
+        "border": "2px solid #43329D",
+        "radius": "999px",
+        "textColor": "#43329D",
+        "padding": "10px 22px"
+      },
+      "active": {
+        "background": "#AEE3C8",
+        "border": "2px solid #43329D",
+        "textColor": "#43329D"
+      }
+    },
+    "infoCard": {
+      "background": "#FFFFFF",
+      "border": "2px solid #43329D",
+      "radius": "24px",
+      "shadow": "4px 4px 0 #43329D",
+      "padding": "18px 20px"
+    },
+    "videoCard": {
+      "background": "#FFFFFF",
+      "border": "2px solid #43329D",
+      "radius": "999px",
+      "shadow": "none",
+      "padding": "8px"
+    },
+    "iconBadges": {
+      "style": "outlined circular icons",
+      "size": "48px-56px",
+      "border": "2px solid #43329D",
+      "background": "#FFFFFF"
+    }
+  },
+  "imagery": {
+    "heroImageTreatment": {
+      "type": "cutout portrait over layered organic blob",
+      "blobLayers": [
+        {
+          "color": "#AEE3C8",
+          "offset": "rear layer"
+        },
+        {
+          "color": "#8D82CE",
+          "offset": "front layer"
+        },
+        {
+          "color": "#A49BD4",
+          "offset": "supporting highlight layer"
+        }
+      ],
+      "outline": "subtle purple offset shadow around composition"
+    },
+    "supportingMedia": {
+      "videoThumbnail": "rounded capsule frame with embedded play indicator",
+      "iconography": "simple black line icons"
+    }
+  },
+  "shapeLanguage": {
+    "cornerStyle": "fully rounded or heavily rounded",
+    "motifs": [
+      "pills",
+      "capsules",
+      "organic blobs",
+      "circles",
+      "soft cards"
+    ],
+    "borderStyle": "consistent black outline",
+    "shadowStyle": "hard offset comic-like shadow used selectively"
+  },
+  "spacing": {
+    "scale": [
+      4,
+      8,
+      12,
+      16,
+      24,
+      32,
+      40,
+      48,
+      64,
+      80
+    ],
+    "usage": {
+      "micro": "4-8px for icon and decorative clusters",
+      "component": "12-24px for pills, cards, buttons",
+      "section": "40-80px for hero grouping and bottom row spacing"
+    }
+  },
+  "composition": {
+    "balance": "large text mass on left balanced by large portrait and blob on right",
+    "contrast": "heavy black typography against airy white background",
+    "density": "sparse with focused clusters",
+    "visualFlow": [
+      "top nav",
+      "hero headline",
+      "portrait focal point",
+      "category pills",
+      "supporting card",
+      "cta and stats",
+      "video and secondary headline"
+    ]
+  },
+  "implementationHints": {
+    "css": {
+      "borderRadius": {
+        "pill": "999px",
+        "card": "24px",
+        "blob": "40% 60% 55% 45% / 42% 38% 62% 58%"
+      },
+      "boxShadow": {
+        "hardOffset": "4px 4px 0 #43329D",
+        "softNone": "none"
+      }
+    },
+    "recommendedFonts": [
+      "Poppins",
+      "Nunito Sans",
+      "Satoshi",
+      "General Sans"
+    ]
+  },
+  "responsiveNotes": {
+    "tablet": "stack hero with text first, image second, preserve pills beside or below image",
+    "mobile": "single-column layout; reduce hero heading to 3-4 lines; convert floating right-side callouts into stacked cards"
+  },
+  "paletteUsage": {
+    "primaryBrand": "#43329D",
+    "primaryCTA": "#AEE3C8",
+    "secondaryAccent": "#8D82CE",
+    "softAccent": "#A49BD4",
+    "recommendedUse": {
+      "headings": "#43329D",
+      "ctaBackgrounds": "#AEE3C8",
+      "heroBlobs": [
+        "#AEE3C8",
+        "#8D82CE",
+        "#A49BD4"
+      ],
+      "chipsAndBadges": [
+        "#FFFFFF with #43329D border",
+        "#AEE3C8 active state"
+      ],
+      "supportSurfaces": [
+        "#8D82CE",
+        "#A49BD4"
+      ]
+    }
+  }
+}

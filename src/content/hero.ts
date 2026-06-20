@@ -1,0 +1,1 @@
+export { heroContent } from './site'
