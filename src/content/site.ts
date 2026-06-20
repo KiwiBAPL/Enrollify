@@ -27,7 +27,7 @@ export const heroContent: HeroContent = {
   headline: 'Recruit qualified international students with confidence',
   body:
     'EnRollifyEdu is a technology-enabled recruitment service for New Zealand and global education providers — delivering better-matched students, lower recruitment costs, and smoother admissions workflows.',
-  primaryCta: { label: 'Contact us', href: '#provider-contact' },
+  primaryCta: { label: 'Contact us', href: '/contact' },
   secondaryCta: { label: 'How it works', href: '#how-it-works' },
 }
 

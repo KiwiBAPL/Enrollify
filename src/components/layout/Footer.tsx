@@ -1,10 +1,12 @@
+import { Link } from 'react-router-dom'
 import { footerContent, navLinks } from '@/content/site'
 import { handleNavClick } from '@/lib/scroll'
+import { routes } from '@/lib/routes'
 import { Logo } from '@/components/ui/Logo'
 
 const footerExtraLinks = [
-  { label: 'Student interest', href: '#student-interest' },
-  { label: 'Contact', href: '#provider-contact' },
+  { label: 'Student interest', href: routes.studentInterest },
+  { label: 'Contact', href: routes.contact },
 ]
 
 export function Footer() {
@@ -43,13 +45,12 @@ export function Footer() {
               <ul className="flex flex-col gap-2 p-0">
                 {footerExtraLinks.map((link) => (
                   <li key={link.href} className="list-none">
-                    <a
-                      href={link.href}
+                    <Link
+                      to={link.href}
                       className="text-sm text-text-muted hover:text-text-secondary hover:underline"
-                      onClick={(e) => handleNavClick(e, link.href)}
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
                 <li className="list-none">

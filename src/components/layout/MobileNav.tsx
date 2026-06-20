@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useId, useState, type MouseEvent } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { navLinks } from '@/content/site'
+import { routes } from '@/lib/routes'
 import { handleNavClick } from '@/lib/scroll'
 
 const mobileExtraLinks = [
-  { label: 'Student interest', href: '#student-interest' },
-  { label: 'Contact', href: '#provider-contact' },
+  { label: 'Student interest', href: routes.studentInterest },
+  { label: 'Contact', href: routes.contact },
 ]
 
 export function MobileNav() {
@@ -12,11 +14,6 @@ export function MobileNav() {
   const panelId = useId()
 
   const close = useCallback(() => setOpen(false), [])
-
-  const onNavClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
-    handleNavClick(event, href)
-    close()
-  }
 
   useEffect(() => {
     if (!open) return
@@ -64,7 +61,10 @@ export function MobileNav() {
                 <a
                   href={link.href}
                   className="block rounded-card px-3 py-3 font-body text-base font-semibold text-nav-link hover:bg-accent-mint/30 hover:text-stroke-primary"
-                  onClick={(e) => onNavClick(e, link.href)}
+                  onClick={(e) => {
+                    handleNavClick(e, link.href)
+                    close()
+                  }}
                 >
                   {link.label}
                 </a>
@@ -72,13 +72,13 @@ export function MobileNav() {
             ))}
             {mobileExtraLinks.map((link) => (
               <li key={link.href}>
-                <a
-                  href={link.href}
+                <Link
+                  to={link.href}
                   className="block rounded-card px-3 py-3 font-body text-base font-semibold text-nav-link hover:bg-accent-mint/30 hover:text-stroke-primary"
-                  onClick={(e) => onNavClick(e, link.href)}
+                  onClick={close}
                 >
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

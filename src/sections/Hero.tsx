@@ -1,11 +1,6 @@
 import { heroContent } from '@/content/hero'
-import { handleNavClick } from '@/lib/scroll'
-import { Button } from '@/components/ui/Button'
-import { Pill } from '@/components/ui/Pill'
 import { HeroVisual } from '@/components/ui/HeroVisual'
 import { Section } from '@/components/ui/Section'
-
-const heroPills = ['NZ providers', 'Global reach', 'Qualified pipeline']
 
 export function Hero() {
   return (
@@ -16,29 +11,6 @@ export function Hero() {
             {heroContent.headline}
           </h1>
           <p className="m-0 max-w-[34ch] text-text-primary">{heroContent.body}</p>
-
-          <div className="flex flex-wrap gap-3" aria-label="Service highlights">
-            {heroPills.map((label, index) => (
-              <Pill key={label} label={label} active={index === 0} />
-            ))}
-          </div>
-
-          <div className="flex flex-wrap gap-4 pt-2">
-            <a
-              href={heroContent.primaryCta.href}
-              onClick={(e) => handleNavClick(e, heroContent.primaryCta.href)}
-            >
-              <Button>{heroContent.primaryCta.label}</Button>
-            </a>
-            {heroContent.secondaryCta ? (
-              <a
-                href={heroContent.secondaryCta.href}
-                onClick={(e) => handleNavClick(e, heroContent.secondaryCta!.href)}
-              >
-                <Button variant="secondary">{heroContent.secondaryCta.label}</Button>
-              </a>
-            ) : null}
-          </div>
         </div>
 
         <HeroVisual />
