@@ -9,7 +9,7 @@ export function StudentInterest() {
         <SectionHeader
           eyebrow="For students"
           title="Register your interest"
-          intro="Planning to study in New Zealand? Share a few details and we'll connect you with relevant education providers when opportunities arise."
+          intro="Planning to study in New Zealand? Share a few details and we'll connect you with relevant colleges in New Zealand when opportunities arise."
           className="mb-8 [&_h2]:text-[clamp(1.5rem,2.5vw,2rem)]"
         />
 

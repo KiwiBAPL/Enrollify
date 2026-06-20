@@ -6,7 +6,7 @@ export function Benefits() {
   return (
     <Section id="benefits">
       <SectionHeader
-        title="Outcomes for education providers"
+        title="Outcomes for colleges in New Zealand"
         intro="Measure EnRollifyEdu by the operational and enrolment outcomes it creates — not enquiry volume alone."
       />
 

@@ -24,9 +24,9 @@ export const footerContent: FooterContent = {
 }
 
 export const heroContent: HeroContent = {
-  headline: 'Recruit qualified international students with confidence',
+  headline: 'Recruiting qualified international students with confidence',
   body:
-    'EnRollifyEdu is a technology-enabled recruitment service for New Zealand and global education providers — delivering better-matched students, lower recruitment costs, and smoother admissions workflows.',
+    'EnRollifyEdu is a technology-enabled recruitment service for New Zealand and colleges in New Zealand — delivering better-matched students, lower recruitment costs, and smoother admissions workflows.',
   primaryCta: { label: 'Contact us', href: '/contact' },
   secondaryCta: { label: 'How it works', href: '#how-it-works' },
 }
@@ -34,7 +34,7 @@ export const heroContent: HeroContent = {
 export const audienceContent: AudienceCard[] = [
   {
     id: 'providers',
-    title: 'Education providers',
+    title: 'Colleges in New Zealand',
     description:
       'Directors and managers of international recruitment, marketing, and admissions who need reliable, qualified enrolments — not raw enquiry volume.',
     emphasis: 'primary',

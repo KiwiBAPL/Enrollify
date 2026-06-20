@@ -17,7 +17,7 @@ export function Footer() {
           <div>
             <Logo />
             <p className="mt-2 max-w-xs text-sm text-text-muted">
-              International student recruitment for education providers.
+              International student recruitment for colleges in New Zealand.
             </p>
           </div>
 

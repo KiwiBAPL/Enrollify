@@ -8,7 +8,7 @@ export function WhoWereFor() {
     <Section id="who-were-for">
       <SectionHeader
         title="Who we're for"
-        intro="EnRollifyEdu serves education providers first, with a lightweight path for international students researching study in New Zealand."
+        intro="EnRollifyEdu serves colleges in New Zealand first, with a lightweight path for international students researching study in New Zealand."
       />
 
       <div className="grid gap-6 md:grid-cols-2">
