@@ -11,7 +11,7 @@ export function Logo({ className = '' }: LogoProps) {
       alt="EnRollifyEdu"
       width={500}
       height={500}
-      className={`h-[52px] w-auto shrink-0 ${className}`}
+      className={`h-[140px] w-auto shrink-0 ${className}`}
     />
   )
 }
