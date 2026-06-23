@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express'
 import { pinoHttp } from 'pino-http'
 import { loadEnv } from './config/env.js'

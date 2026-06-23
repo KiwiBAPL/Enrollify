@@ -12,7 +12,7 @@ cp .env.example .env
 npm run dev
 ```
 
-The server refuses to start if any required environment variable is missing or invalid (NFR-9).
+The server refuses to start if any required environment variable is missing or invalid (NFR-9). Local dev loads `apps/backend/.env` automatically via `dotenv`; production (e.g. Railway) uses platform env vars.
 
 ## Scripts
 
