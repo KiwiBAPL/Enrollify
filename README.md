@@ -37,7 +37,7 @@ Separate apps under `apps/` — does not affect the Netlify website build.
 | App | Path | Docs |
 |-----|------|------|
 | Backend API | [`apps/backend/`](apps/backend/) | [Phase 1 discovery](Documents/Bot/phase-1-discovery.md) |
-| Admin panel | [`apps/admin/`](apps/admin/) | Phase 3 (stub) |
+| Admin panel | [`apps/admin/`](apps/admin/) | [Phase 3](Documents/Bot/phase-3-core-services.md) |
 | PRD | — | [`Documents/Bot/enrollify-ai-prd.md`](Documents/Bot/enrollify-ai-prd.md) |
 
 Backend env vars: [`apps/backend/.env.example`](apps/backend/.env.example) (server-only — never `VITE_*`).
@@ -62,6 +62,7 @@ Backend env vars: [`apps/backend/.env.example`](apps/backend/.env.example) (serv
 |-------|----------|
 | 1 — Discovery | [`Documents/Bot/phase-1-discovery.md`](Documents/Bot/phase-1-discovery.md) |
 | 2 — Schema | [`Documents/Bot/phase-2-schema.md`](Documents/Bot/phase-2-schema.md) |
+| 3 — Core services | [`Documents/Bot/phase-3-core-services.md`](Documents/Bot/phase-3-core-services.md) |
 | PRD | [`Documents/Bot/enrollify-ai-prd.md`](Documents/Bot/enrollify-ai-prd.md) |
 
 ## Design source

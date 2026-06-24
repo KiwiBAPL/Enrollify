@@ -96,7 +96,7 @@ Location: [`apps/backend/`](../../apps/backend/)
 | Structured logging | Done | pino + pino-http |
 | `.env.example` | Done | All required secrets documented |
 
-**Required env vars:** `PORT`, `FB_PAGE_ACCESS_TOKEN`, `FB_VERIFY_TOKEN`, `FB_APP_SECRET`, `CLAUDE_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET` (min 32 chars).
+**Required env vars (Phase 1):** `PORT`, `FB_PAGE_ACCESS_TOKEN`, `FB_VERIFY_TOKEN`, `FB_APP_SECRET`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `JWT_SECRET` (min 32 chars). AI provider env vars added in Phase 3 — see [phase-3-core-services.md](./phase-3-core-services.md).
 
 ---
 
@@ -131,7 +131,7 @@ No Enrollify-specific Supabase project existed at Phase 1 discovery. Existing pr
 | S-2 | RLS deny-all for anon on all 8 tables | Phase 2 migrations | Phase 5 |
 | S-3 | Service role key server-only | `SUPABASE_SERVICE_ROLE_KEY` in backend env — never `VITE_*` | Phase 5 |
 | S-4 | Meta App Secret env-only | `FB_APP_SECRET` in backend/Railway env | Phase 5 |
-| S-5 | Claude API key env-only | `CLAUDE_API_KEY` in backend env | Phase 5 |
+| S-5 | AI provider keys server-only | Encrypted in `ai_providers` table; `AI_PROVIDER_ENCRYPTION_KEY` in backend env | Phase 5 |
 | S-6 | Webhook signature before parse/DB | Raw body HMAC-SHA256 check first | Phase 4 |
 | S-7 | Webhook CORS | No CORS on `/webhook` (Meta server-to-server) | Phase 4 |
 | S-8 | No PII in logs | Log student UUID / conversation ID only | Phase 5 |

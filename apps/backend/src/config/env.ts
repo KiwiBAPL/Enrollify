@@ -6,10 +6,17 @@ const envSchema = z.object({
   FB_PAGE_ACCESS_TOKEN: z.string().min(1),
   FB_VERIFY_TOKEN: z.string().min(1),
   FB_APP_SECRET: z.string().min(1),
-  CLAUDE_API_KEY: z.string().min(1),
+  PERPLEXITY_API_KEY: z.string().optional(),
+  PERPLEXITY_MODEL: z.string().default('sonar-pro'),
+  AI_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
+  AI_PROVIDER_ENCRYPTION_KEY: z.string().min(32),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   JWT_SECRET: z.string().min(32),
+  JWT_EXPIRES_IN: z.string().default('8h'),
+  ADMIN_EMAIL: z.string().email(),
+  ADMIN_PASSWORD: z.string().min(8),
+  CORS_ORIGIN: z.string().url().default('http://localhost:3000'),
 })
 
 export type Env = z.infer<typeof envSchema>
@@ -26,4 +33,11 @@ export function loadEnv(): Env {
   }
 
   return result.data
+}
+
+const PLACEHOLDER_KEYS = new Set(['dev-placeholder', 'placeholder', ''])
+
+export function isMockAiKey(apiKey: string | undefined): boolean {
+  if (!apiKey || PLACEHOLDER_KEYS.has(apiKey)) return true
+  return !apiKey.startsWith('pplx-') && !apiKey.startsWith('sk-ant-') && !apiKey.startsWith('sk-')
 }

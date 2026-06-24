@@ -1,24 +1,32 @@
 # Enrollify AI — Admin Panel
 
-Internal admin dashboard for reviewing leads, conversations, and pipeline status.
+Internal Next.js dashboard for reviewing leads, conversations, and pipeline.
 
-**Status:** Placeholder — full Next.js app built in Phase 3 (PRD §9.3, Task 3.7).
+## Setup
 
-## Planned stack
+```bash
+cd apps/admin
+npm install
+cp .env.example .env.local   # optional — defaults work for local dev
+npm run dev
+```
 
-- **Framework:** Next.js + TypeScript + Tailwind v4
-- **Hosting:** Vercel (root directory: `apps/admin`)
-- **Auth:** JWT issued by `apps/backend`
-- **Data:** Supabase via backend API (publishable key + RLS for admin role)
+Open http://localhost:3000 (backend must run on :3001).
 
-## Planned routes
+Default login matches `apps/backend/.env` (`ADMIN_EMAIL` / `ADMIN_PASSWORD`).
 
-| Route | Purpose |
-|-------|---------|
-| `/login` | Staff authentication |
-| `/` | Dashboard analytics |
-| `/students` | Student list + search |
-| `/students/:id` | Conversation view + enrolment status |
-| `/pipeline` | Hot / Warm / Cold lead board |
+## Scripts
 
-See [Documents/Bot/enrollify-ai-prd.md](../../Documents/Bot/enrollify-ai-prd.md) for full requirements.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Dev server on port 3000 |
+| `npm run build` | Production build |
+| `npm run start` | Production server |
+
+## API proxy
+
+`/api/*` requests rewrite to the backend (`BACKEND_URL` or `http://localhost:3001`).
+
+## Deploy
+
+Vercel: set root directory to `apps/admin`, env `BACKEND_URL` to Railway backend URL.

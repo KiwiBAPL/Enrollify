@@ -1,3 +1,4 @@
+export { AIProviderRepository } from './AIProviderRepository.js'
 export { ConversationRepository } from './ConversationRepository.js'
 export { KnowledgeRepository } from './KnowledgeRepository.js'
 export { LeadScoreRepository } from './LeadScoreRepository.js'
