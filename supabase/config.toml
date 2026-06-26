@@ -1,0 +1,13 @@
+# Enrollify Edu — Supabase local config
+# Project: Enrollify Edu (ap-southeast-2)
+# Ref: lissrpaczvrvcolrxafx
+
+project_id = "lissrpaczvrvcolrxafx"
+
+[api]
+enabled = true
+schemas = ["public"]
+max_rows = 1000
+
+[db]
+major_version = 17

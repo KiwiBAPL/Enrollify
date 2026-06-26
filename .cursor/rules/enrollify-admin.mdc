@@ -1,0 +1,51 @@
+---
+description: Enrollify admin panel — auth, staff profiles, lead notes, and API conventions
+globs: src/pages/admin/**,src/components/admin/**,src/lib/admin/**,apps/backend/src/routes/admin/**,apps/backend/src/middleware/authJwt.ts,apps/backend/src/services/AdminBootstrapService.ts,apps/backend/src/repositories/*Profile*,apps/backend/src/repositories/StudentNote*
+alwaysApply: false
+---
+
+# Enrollify admin conventions
+
+## Stack
+
+- **Canonical admin UI:** Vite SPA at `/enrollify-manage` (`src/pages/admin/`, `src/lib/admin/`)
+- **Legacy:** `apps/admin/` Next.js app is deprecated — do not extend
+- **API:** Express backend at `/api/admin/*` — all admin data flows through here, not direct Supabase from SPA (except auth session + email change)
+
+## Auth
+
+| Layer | Rule |
+|-------|------|
+| Login gate | `app_metadata.role === 'admin'` only (`isAdminUser` in `src/lib/supabase.ts`) |
+| Consultant | `staff_role` enum + `staff_profiles.role` exist for future RBAC — **do not** widen login until RBAC is designed |
+| API middleware | Validates Supabase JWT + admin role + **requires `staff_profiles` row** |
+| Bootstrap | `AdminBootstrapService` creates auth user + profile; `ensureStaffProfileForAdmins()` runs every startup |
+
+Missing profile → `401 Staff profile not found`. Fix: restart backend after migrations.
+
+## Leads and notes
+
+- **Leads = `students` table** — no separate leads entity
+- **Notes = `student_notes`** — one-to-many per student; full CRUD via `/api/admin/students/:id/notes`
+- Dashboard list includes `latest_note`; full history in `LeadNotesModal`
+- Note author: use `req.auth.email` (not raw `sub` unless aliased)
+
+## Staff profiles
+
+- Table: `staff_profiles` (1:1 with `auth.users.id`)
+- Read/update own profile: `GET/PATCH /api/admin/me` via `src/lib/admin/profile.ts`
+- **Email change:** `supabase.auth.updateUser({ email })` on client (confirmation required), then sync to `staff_profiles` when session email updates — do not PATCH profile email before JWT reflects the new address
+- Profile rows inserted by backend service role only (no client insert RLS policy)
+- Default bootstrap names: `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` (Paul / Benn)
+
+## Env separation
+
+- Browser: `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` only
+- Server: `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_*`, `AI_PROVIDER_ENCRYPTION_KEY` in `apps/backend/.env` — never `VITE_*`
+
+## UI patterns
+
+- Layout: `AdminShell` sidebar + `<Outlet />`
+- Errors: `ErrorBanner` with optional retry
+- Modals: lightweight fixed overlay (see `LeadNotesModal`) — no modal library unless justified
+- Hidden from public nav; `robots.txt` disallows `/enrollify-manage`

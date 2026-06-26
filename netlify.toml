@@ -1,11 +1,14 @@
 [build]
-  command = "npm run build"
+  command = "npm run build && if [ -n \"$BACKEND_URL\" ]; then printf '/api/*  %s/api/:splat  200!\\n' \"$BACKEND_URL\" >> dist/_redirects; fi"
   publish = "dist"
 
 # Form submissions use Netlify Forms (detected from hidden forms in index.html).
 # Email notifications are configured in the Netlify dashboard:
 #   Site configuration → Forms → Form notifications
 # See Documents/phase-4-integrations.md for the recipient checklist.
+#
+# Admin API proxy: set BACKEND_URL in Netlify env (Railway backend URL, no trailing slash).
+# Example: BACKEND_URL=https://enrollify-backend.up.railway.app
 
 [[redirects]]
   from = "/*"
