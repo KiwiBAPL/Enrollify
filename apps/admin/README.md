@@ -1,32 +1,30 @@
-# Enrollify AI — Admin Panel
+# Enrollify AI — Admin Panel (deprecated)
 
-Internal Next.js dashboard for reviewing leads, conversations, and pipeline.
+**This Next.js app is deprecated.** Staff admin now lives in the main site at:
 
-## Setup
+**`/enrollify-manage`** on enrollifyedu.com (Vite + React Router in `src/`)
+
+Use this folder as reference only. Do not deploy to Vercel.
+
+## Local development (legacy)
+
+If you still need the Next.js admin locally:
 
 ```bash
 cd apps/admin
 npm install
-cp .env.example .env.local   # optional — defaults work for local dev
 npm run dev
 ```
 
-Open http://localhost:3000 (backend must run on :3001).
+Prefer the integrated admin instead:
 
-Default login matches `apps/backend/.env` (`ADMIN_EMAIL` / `ADMIN_PASSWORD`).
+```bash
+# Terminal 1
+cd apps/backend && npm run dev
 
-## Scripts
+# Terminal 2 — from repo root
+npm run dev
+# Open http://localhost:5173/enrollify-manage
+```
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Dev server on port 3000 |
-| `npm run build` | Production build |
-| `npm run start` | Production server |
-
-## API proxy
-
-`/api/*` requests rewrite to the backend (`BACKEND_URL` or `http://localhost:3001`).
-
-## Deploy
-
-Vercel: set root directory to `apps/admin`, env `BACKEND_URL` to Railway backend URL.
+See [Documents/Bot/phase-4-messenger-deploy.md](../../Documents/Bot/phase-4-messenger-deploy.md) for deployment.

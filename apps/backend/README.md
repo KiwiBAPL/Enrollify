@@ -8,7 +8,8 @@ Express + TypeScript API for Facebook Messenger webhooks, AI conversation handli
 cd apps/backend
 npm install
 cp .env.example .env
-# Fill in SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL, ADMIN_PASSWORD, AI_PROVIDER_ENCRYPTION_KEY
+# Fill in SUPABASE_SERVICE_ROLE_KEY, AI_PROVIDER_ENCRYPTION_KEY
+# One-time bootstrap: set ADMIN_EMAIL + ADMIN_PASSWORD (plain) — remove after first startup
 # Optional: PERPLEXITY_API_KEY (pplx-…) auto-seeds first AI provider on startup
 npm run dev
 ```
@@ -31,11 +32,13 @@ The server refuses to start if any required environment variable is missing or i
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/health` | Public | `{ status, database }` probe |
-| `POST` | `/api/auth/login` | Public | Admin JWT login |
-| `GET/PATCH/…` | `/api/admin/*` | JWT | Students, pipeline, analytics, AI providers |
+| `GET/PATCH/…` | `/api/admin/*` | Supabase JWT | Students, pipeline, analytics, AI providers |
+| `GET` | `/webhook` | Public | Meta webhook verification (FR-1) |
+| `POST` | `/webhook` | Signed | Inbound Messenger messages (FR-2, FR-3) |
 | `POST` | `/dev/simulate-message` | Dev only | Test conversation pipeline locally |
+| `POST` | `/dev/simulate-webhook` | Dev only | Test signed webhook locally |
 
-Full route list: [Phase 3 doc](../../Documents/Bot/phase-3-core-services.md).
+Full route list: [Phase 3 doc](../../Documents/Bot/phase-3-core-services.md) · Webhook/deploy: [Phase 4 doc](../../Documents/Bot/phase-4-messenger-deploy.md).
 
 ## Environment variables
 
@@ -45,9 +48,8 @@ Key vars for Phase 3:
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server DB access |
-| `JWT_SECRET` | Yes | Admin JWT signing (min 32 chars) |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Yes | Admin login |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server DB access + admin bootstrap |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | One-time | Bootstrap admin user in Supabase Auth; remove after first startup |
 | `AI_PROVIDER_ENCRYPTION_KEY` | Yes | Encrypts AI API keys in Supabase (min 32 chars) |
 | `PERPLEXITY_API_KEY` | No | Bootstrap first provider if DB empty |
 
@@ -90,8 +92,18 @@ AI_PROVIDER_ENCRYPTION_KEY=dev-local-ai-encryption-key-32ch
 
 ### Admin login fails
 
-Email and password must match `ADMIN_EMAIL` and `ADMIN_PASSWORD` in **this** `.env` file exactly.
+1. Ensure backend started once with `ADMIN_EMAIL` + `ADMIN_PASSWORD` to bootstrap the Supabase Auth user (plain password, not bcrypt).
+2. Admin SPA requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in root `.env.local` (or Netlify env).
+3. Sign in at `/enrollify-manage/login` with the bootstrapped email/password.
+4. In Supabase dashboard: disable public sign-ups; confirm Email provider is enabled.
 
 ## Deployment
 
-Target: **Railway**. Set all vars from `.env.example`. Run `npm run build && npm run start` (not tsx).
+Target: **Railway**. Config: [`railway.toml`](railway.toml), [`Procfile`](Procfile).
+
+1. Set Railway root directory to `apps/backend`
+2. Add all vars from `.env.example` (production values)
+3. Deploy; health check: `GET /health`
+4. Register `https://<railway-host>/webhook` in Meta Developer Console
+
+See [Phase 4 deploy doc](../../Documents/Bot/phase-4-messenger-deploy.md) for Meta setup, Vercel admin deploy, and troubleshooting.

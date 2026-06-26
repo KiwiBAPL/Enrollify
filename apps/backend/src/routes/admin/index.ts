@@ -15,7 +15,7 @@ const ENROLMENT_STATUSES: EnrolmentStatus[] = [
 
 export function createAdminRouter(container: Container): Router {
   const router = Router()
-  const auth = createAuthMiddleware(container.env)
+  const auth = createAuthMiddleware(container.db)
 
   router.use(auth)
 
@@ -27,8 +27,21 @@ export function createAdminRouter(container: Container): Router {
       const pageSize = Number(req.query.pageSize) || 25
       const search = typeof req.query.search === 'string' ? req.query.search : undefined
       const country = typeof req.query.country === 'string' ? req.query.country : undefined
-      const minScore = req.query.minScore ? Number(req.query.minScore) : undefined
-      const maxScore = req.query.maxScore ? Number(req.query.maxScore) : undefined
+      const leadBand = typeof req.query.leadBand === 'string' ? req.query.leadBand : undefined
+
+      let minScore = req.query.minScore ? Number(req.query.minScore) : undefined
+      let maxScore = req.query.maxScore ? Number(req.query.maxScore) : undefined
+
+      if (leadBand === 'hot') {
+        minScore = 70
+        maxScore = undefined
+      } else if (leadBand === 'warm') {
+        minScore = 40
+        maxScore = 69
+      } else if (leadBand === 'cold') {
+        minScore = undefined
+        maxScore = 39
+      }
 
       const result = await container.repositories.students.list({
         page,

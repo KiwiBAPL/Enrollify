@@ -44,6 +44,7 @@ export class ConversationService {
 
     await this.messageRepository.createUserMessage(conversation.id, text, timestamp)
 
+    await adapter.markSeen(channelUserId)
     await adapter.sendTypingOn(channelUserId)
 
     try {

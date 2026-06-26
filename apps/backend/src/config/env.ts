@@ -12,11 +12,9 @@ const envSchema = z.object({
   AI_PROVIDER_ENCRYPTION_KEY: z.string().min(32),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  JWT_SECRET: z.string().min(32),
-  JWT_EXPIRES_IN: z.string().default('8h'),
-  ADMIN_EMAIL: z.string().email(),
-  ADMIN_PASSWORD: z.string().min(8),
-  CORS_ORIGIN: z.string().url().default('http://localhost:3000'),
+  ADMIN_EMAIL: z.string().email().optional(),
+  ADMIN_PASSWORD: z.string().min(8).optional(),
+  CORS_ORIGIN: z.string().url().default('http://localhost:5173'),
 })
 
 export type Env = z.infer<typeof envSchema>

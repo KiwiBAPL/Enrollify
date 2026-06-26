@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
-import type { Env } from '../config/env.js'
+import type { ServiceSupabaseClient } from '../db/supabase.js'
 
 export interface AuthPayload {
   sub: string
@@ -15,8 +14,8 @@ declare global {
   }
 }
 
-export function createAuthMiddleware(env: Env) {
-  return (req: Request, res: Response, next: NextFunction): void => {
+export function createAuthMiddleware(db: ServiceSupabaseClient) {
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const header = req.headers.authorization
     if (!header?.startsWith('Bearer ')) {
       res.status(401).json({ error: 'Unauthorized' })
@@ -24,22 +23,22 @@ export function createAuthMiddleware(env: Env) {
     }
 
     const token = header.slice(7)
-    try {
-      const payload = jwt.verify(token, env.JWT_SECRET) as AuthPayload
-      if (payload.role !== 'admin') {
-        res.status(401).json({ error: 'Unauthorized' })
-        return
-      }
-      req.auth = payload
-      next()
-    } catch {
-      res.status(401).json({ error: 'Unauthorized' })
-    }
-  }
-}
+    const { data, error } = await db.auth.getUser(token)
 
-export function signAdminToken(env: Env, email: string): string {
-  return jwt.sign({ sub: email, role: 'admin' } satisfies AuthPayload, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
-  })
+    if (error || !data.user) {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+
+    if (data.user.app_metadata?.role !== 'admin') {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+
+    req.auth = {
+      sub: data.user.email ?? data.user.id,
+      role: 'admin',
+    }
+    next()
+  }
 }

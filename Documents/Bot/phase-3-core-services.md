@@ -57,10 +57,8 @@ See [`apps/backend/.env.example`](../../apps/backend/.env.example):
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `ADMIN_EMAIL` | — | Single admin login |
-| `ADMIN_PASSWORD` | — | Plain or bcrypt hash (`$2…`) |
-| `JWT_EXPIRES_IN` | `8h` | Admin session length |
-| `CORS_ORIGIN` | `http://localhost:3000` | Admin frontend origin |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | — | One-time bootstrap into Supabase Auth; remove after first startup |
+| `CORS_ORIGIN` | `http://localhost:5173` | Admin frontend origin |
 | `PERPLEXITY_API_KEY` | — | Optional bootstrap key (`pplx-…`) |
 | `PERPLEXITY_MODEL` | `sonar-pro` | Default model for env bootstrap |
 | `AI_PROVIDER_ENCRYPTION_KEY` | — | Encrypts provider keys in DB (min 32 chars) |
@@ -72,11 +70,11 @@ See [`apps/backend/.env.example`](../../apps/backend/.env.example):
 
 ### Auth
 
-| Method | Path | Auth |
-|--------|------|------|
-| `POST` | `/api/auth/login` | Public |
+Admin login uses **Supabase Auth** (SPA `signInWithPassword`). Backend `/api/admin/*` routes verify the Supabase access token and require `app_metadata.role = 'admin'`.
 
-### Admin (Bearer JWT required)
+Root SPA env (public): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
+
+### Admin (Bearer Supabase JWT required)
 
 | Method | Path | PRD |
 |--------|------|-----|
@@ -109,18 +107,20 @@ curl -X POST http://localhost:3001/dev/simulate-message \
 
 ## 6. Admin panel
 
-Location: [`apps/admin/`](../../apps/admin/)
+Location: **`/enrollify-manage`** on the Netlify site ([`src/pages/admin/`](../../src/pages/admin/))
 
 | Route | Feature |
 |-------|---------|
-| `/login` | Email/password → JWT in sessionStorage |
-| `/` | Analytics dashboard |
-| `/students` | Search, pagination, CSV export |
-| `/students/[id]` | Chat view, enrolment status |
-| `/pipeline` | Hot / Warm / Cold columns |
-| `/settings/ai-providers` | Manage AI providers, failover order, API keys |
+| `/enrollify-manage/login` | Email/password → Supabase Auth session |
+| `/enrollify-manage` | Unified dashboard — all leads, Hot/Warm/Cold filters, search, CSV export |
+| `/enrollify-manage/leads/[id]` | Chat view, enrolment status |
+| `/enrollify-manage/settings/ai-providers` | AI provider management |
 
-API proxy: `/api/*` → backend via [`next.config.ts`](../../apps/admin/next.config.ts) rewrite.
+Not linked from public navigation. Blocked in [`public/robots.txt`](../../public/robots.txt).
+
+API proxy: `/api/*` → Railway backend via Netlify `BACKEND_URL` env (production) or Vite dev proxy (local).
+
+Legacy Next.js admin in [`apps/admin/`](../../apps/admin/) is deprecated.
 
 ---
 
@@ -130,19 +130,19 @@ Terminal 1 — backend:
 
 ```bash
 cd apps/backend
-cp .env.example .env   # fill SUPABASE_SERVICE_ROLE_KEY + admin creds
+cp .env.example .env   # fill SUPABASE_SERVICE_ROLE_KEY + one-time ADMIN_* bootstrap
 npm run dev
 ```
 
-Terminal 2 — admin:
+Terminal 2 — site + admin (from repo root):
 
 ```bash
-cd apps/admin
+cp .env.example .env.local   # fill VITE_SUPABASE_URL + VITE_SUPABASE_PUBLISHABLE_KEY
 npm run dev
 ```
 
-1. Open http://localhost:3000/login
-2. Sign in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`
+1. Open http://localhost:5173/enrollify-manage/login
+2. Sign in with bootstrapped admin credentials (same as one-time `ADMIN_EMAIL` / `ADMIN_PASSWORD`)
 3. Simulate a message via curl (above)
 4. Refresh Students / Pipeline in admin
 
@@ -164,7 +164,9 @@ Always use `npm run dev` locally — not `node dist/index.js` at the same time.
 
 ### Admin login fails
 
-Credentials must match `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `apps/backend/.env` exactly. The admin app proxies `/api/*` to the backend on port 3001.
+1. Bootstrap: start backend once with `ADMIN_EMAIL` + plain `ADMIN_PASSWORD` in `apps/backend/.env`.
+2. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in root `.env.local`.
+3. Disable public sign-ups in Supabase Auth settings.
 
 ### Missing `AI_PROVIDER_ENCRYPTION_KEY`
 
@@ -187,8 +189,4 @@ Required since multi-provider AI (min 32 chars). See [`apps/backend/.env.example
 
 ## 10. Phase 4 handoff
 
-1. Implement `GET/POST /webhook` with HMAC validation (FR-1, FR-2, FR-3)
-2. Wire webhook POST → `ConversationService` + `MessengerChannelAdapter`
-3. Deploy backend to Railway; admin to Vercel
-4. Register Meta webhook URL; configure Page Access Token
-5. End-to-end Messenger test (Phase 5)
+See [phase-4-messenger-deploy.md](./phase-4-messenger-deploy.md) for webhook integration, Railway/Vercel deploy, and Meta registration.

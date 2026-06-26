@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt'
 import type { Env } from './config/env.js'
 import { MockChannelAdapter } from './channels/MockChannelAdapter.js'
 import { MessengerChannelAdapter } from './channels/MessengerChannelAdapter.js'
@@ -65,10 +64,3 @@ export function createContainer(env: Env) {
 }
 
 export type Container = ReturnType<typeof createContainer>
-
-export async function verifyAdminPassword(env: Env, password: string): Promise<boolean> {
-  if (env.ADMIN_PASSWORD.startsWith('$2')) {
-    return bcrypt.compare(password, env.ADMIN_PASSWORD)
-  }
-  return password === env.ADMIN_PASSWORD
-}
