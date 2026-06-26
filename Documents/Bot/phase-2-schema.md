@@ -82,6 +82,9 @@ Pipeline bands (FR-12): Hot ≥ 70, Warm 40–69, Cold < 40.
 | `supabase/migrations/20260623140000_ai_providers.sql` | `ai_providers` table |
 | `supabase/migrations/20260626120000_student_notes.sql` | Lead notes (Phase 5) |
 | `supabase/migrations/20260626140000_staff_profiles.sql` | Staff profiles + `staff_role` enum (Phase 5) |
+| `supabase/migrations/20260626180000_staff_profiles_insert_own.sql` | Client insert-own RLS for admin profile bootstrap (Phase 5) |
+
+Remote may also list `20260626040047_staff_profiles_insert_own` — same policy, applied earlier via MCP.
 
 Migrations applied to remote project via Supabase MCP (initial schema + RLS). Apply `20260623120200_security_hardening.sql` if not yet run:
 
@@ -98,6 +101,7 @@ supabase db push
 | `anon` | Deny all (no policies) |
 | `authenticated` + `app_metadata.role = 'admin'` | Full CRUD on core tables via `is_admin()` |
 | `authenticated` + own `auth.uid()` | Select/update own `staff_profiles` row (Phase 5) |
+| `authenticated` + `app_metadata.role = 'admin'` + own `auth.uid()` | Insert own `staff_profiles` row (`staff_profiles_insert_own`, Phase 5) |
 | `service_role` (backend) | Bypasses RLS |
 
 Admin role check uses **`app_metadata.role`** (not `user_metadata`) per Supabase security guidance.

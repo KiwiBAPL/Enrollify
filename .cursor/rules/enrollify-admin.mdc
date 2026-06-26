@@ -10,18 +10,23 @@ alwaysApply: false
 
 - **Canonical admin UI:** Vite SPA at `/enrollify-manage` (`src/pages/admin/`, `src/lib/admin/`)
 - **Legacy:** `apps/admin/` Next.js app is deprecated — do not extend
-- **API:** Express backend at `/api/admin/*` — all admin data flows through here, not direct Supabase from SPA (except auth session + email change)
+- **Hybrid data access:**
+  - **Supabase (SPA):** auth session, own `staff_profiles` read/update/insert, email change via `updateUser`
+  - **Express API (`/api/admin/*`):** leads, notes, analytics, AI providers, exports — via `src/lib/admin/api.ts`
 
 ## Auth
 
 | Layer | Rule |
 |-------|------|
 | Login gate | `app_metadata.role === 'admin'` only (`isAdminUser` in `src/lib/supabase.ts`) |
+| Session check | Prefer `auth.getUser()` over `getSession()` for gate checks (validates JWT server-side) |
 | Consultant | `staff_role` enum + `staff_profiles.role` exist for future RBAC — **do not** widen login until RBAC is designed |
 | API middleware | Validates Supabase JWT + admin role + **requires `staff_profiles` row** |
 | Bootstrap | `AdminBootstrapService` creates auth user + profile; `ensureStaffProfileForAdmins()` runs every startup |
 
-Missing profile → `401 Staff profile not found`. Fix: restart backend after migrations.
+On login, `signInAsAdmin` calls `ensureStaffProfile` (client insert if row missing). Backend startup backfill is the fallback.
+
+Missing profile on API routes → `401 Staff profile not found`. Fix: sign in again (client bootstrap) or restart backend.
 
 ## Leads and notes
 
@@ -33,10 +38,12 @@ Missing profile → `401 Staff profile not found`. Fix: restart backend after mi
 ## Staff profiles
 
 - Table: `staff_profiles` (1:1 with `auth.users.id`)
-- Read/update own profile: `GET/PATCH /api/admin/me` via `src/lib/admin/profile.ts`
-- **Email change:** `supabase.auth.updateUser({ email })` on client (confirmation required), then sync to `staff_profiles` when session email updates — do not PATCH profile email before JWT reflects the new address
-- Profile rows inserted by backend service role only (no client insert RLS policy)
+- **SPA canonical:** `getStaffProfile`, `updateStaffProfile`, `ensureStaffProfile` in `src/lib/admin/profile.ts` — direct Supabase with RLS
+- **Backend fallback:** `GET/PATCH /api/admin/me` still exists for API consumers and middleware consistency
+- **Insert RLS:** `staff_profiles_insert_own` — `auth.uid() = id` and `app_metadata.role = 'admin'`
+- **Email change:** `supabase.auth.updateUser({ email })` on client (confirmation required), then sync to `staff_profiles` via `updateStaffProfile` when session email updates — do not update profile email before JWT reflects the new address
 - Default bootstrap names: `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` (Paul / Benn)
+- Password reset: `requestPasswordReset` on login page — redirect URL must be in Supabase Auth allowlist (`/enrollify-manage/login`)
 
 ## Env separation
 

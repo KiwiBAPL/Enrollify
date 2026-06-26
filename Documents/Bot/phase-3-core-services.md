@@ -59,7 +59,7 @@ See [`apps/backend/.env.example`](../../apps/backend/.env.example):
 |----------|---------|---------|
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | — | One-time bootstrap into Supabase Auth; remove after first startup |
 | `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` | `Paul` / `Benn` | Staff profile name on bootstrap/backfill (Phase 5) |
-| `CORS_ORIGIN` | `http://localhost:5173` | Admin frontend origin |
+| `CORS_ORIGIN` | `http://localhost:5180` | Admin frontend origin (Vite `strictPort`) |
 | `PERPLEXITY_API_KEY` | — | Optional bootstrap key (`pplx-…`) |
 | `PERPLEXITY_MODEL` | `sonar-pro` | Default model for env bootstrap |
 | `AI_PROVIDER_ENCRYPTION_KEY` | — | Encrypts provider keys in DB (min 32 chars) |
@@ -71,7 +71,9 @@ See [`apps/backend/.env.example`](../../apps/backend/.env.example):
 
 ### Auth
 
-Admin login uses **Supabase Auth** (SPA `signInWithPassword`). Backend `/api/admin/*` routes verify the Supabase access token, require `app_metadata.role = 'admin'`, and load `staff_profiles` for the authenticated user (Phase 5).
+Admin login uses **Supabase Auth** (SPA `signInWithPassword` via `signInAsAdmin`). Backend `/api/admin/*` routes verify the Supabase access token, require `app_metadata.role = 'admin'`, and load `staff_profiles` for the authenticated user (Phase 5).
+
+**Staff profile (hybrid):** SPA reads/writes own profile directly via Supabase + RLS (`src/lib/admin/profile.ts`). `GET/PATCH /api/admin/me` remain as backend fallback.
 
 Root SPA env (public): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
@@ -79,8 +81,8 @@ Root SPA env (public): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
 | Method | Path | PRD |
 |--------|------|-----|
-| `GET` | `/api/admin/me` | Staff profile (Phase 5) |
-| `PATCH` | `/api/admin/me` | Update profile name / sync email (Phase 5) |
+| `GET` | `/api/admin/me` | Staff profile — backend fallback (SPA uses Supabase direct) |
+| `PATCH` | `/api/admin/me` | Update profile name / sync email — backend fallback |
 | `GET` | `/api/admin/students` | FR-10 (+ `latest_note` per row, Phase 5) |
 | `GET` | `/api/admin/students/:id` | FR-10 |
 | `PATCH` | `/api/admin/students/:id/enrolment-status` | FR-13 |

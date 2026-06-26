@@ -146,7 +146,16 @@ Staff admin is integrated into the marketing site at **`/enrollify-manage`** (no
    - Example: `https://enrollify-backend.up.railway.app`
 2. Set **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_PUBLISHABLE_KEY`** in Netlify env (admin auth)
 3. Build command appends `/api/*` proxy to `dist/_redirects` (see [`netlify.toml`](../../netlify.toml))
-4. Set Railway **`CORS_ORIGIN=https://enrollifyedu.com`** (and `http://localhost:5173` for local dev)
+4. Set Railway **`CORS_ORIGIN=https://enrollifyedu.com`** (and `http://localhost:5180` for local dev)
+
+### Supabase Auth (password reset)
+
+Add redirect URLs under **Authentication → URL configuration**:
+
+- `https://enrollifyedu.com/enrollify-manage/login`
+- `http://localhost:5180/enrollify-manage/login`
+
+Required for forgot-password on the login page (`requestPasswordReset`).
 
 ### Local dev
 
@@ -156,7 +165,7 @@ cd apps/backend && npm run dev
 
 # Terminal 2 — site + admin
 npm run dev
-# Open http://localhost:5173/enrollify-manage
+# Open http://localhost:5180/enrollify-manage
 ```
 
 Vite proxies `/api/*` → `localhost:3001` (see [`vite.config.ts`](../../vite.config.ts)).

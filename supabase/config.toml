@@ -11,3 +11,10 @@ max_rows = 1000
 
 [db]
 major_version = 17
+
+[auth]
+site_url = "http://localhost:5180"
+additional_redirect_urls = [
+  "http://localhost:5180/enrollify-manage/login",
+  "https://enrollifyedu.com/enrollify-manage/login",
+]

@@ -94,14 +94,14 @@ AI_PROVIDER_ENCRYPTION_KEY=dev-local-ai-encryption-key-32ch
 ### Admin login fails
 
 1. Ensure backend started once with `ADMIN_EMAIL` + `ADMIN_PASSWORD` to bootstrap the Supabase Auth user (plain password, not bcrypt).
-2. **Restart backend** after applying `staff_profiles` migration so `ensureStaffProfileForAdmins()` backfills your profile (required for API access).
-3. Admin SPA requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in root `.env.local` (or Netlify env).
-4. Sign in at `/enrollify-manage/login` with the bootstrapped email/password.
-5. In Supabase dashboard: disable public sign-ups; confirm Email provider is enabled.
+2. Admin SPA requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in root `.env.local` (or Netlify env).
+3. Sign in at `/enrollify-manage/login` with the bootstrapped email/password — login calls `ensureStaffProfile` (client insert via RLS if row missing).
+4. In Supabase dashboard: disable public sign-ups; confirm Email provider is enabled.
+5. For password reset: add `/enrollify-manage/login` redirect URLs in Supabase Auth (see [phase-4 deploy doc](../../Documents/Bot/phase-4-messenger-deploy.md)).
 
 ### `401 Staff profile not found`
 
-The admin auth user exists but has no `staff_profiles` row. Restart the backend — startup bootstrap creates missing profiles. Set `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` in `.env` if you need a custom display name.
+The admin auth user exists but has no `staff_profiles` row for **API routes** (leads, notes, etc.). Primary fix: sign out and sign in again (`ensureStaffProfile` on login). Fallback: restart the backend — `ensureStaffProfileForAdmins()` creates missing profiles on startup. Set `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` in `.env` if you need a custom display name.
 
 ## Deployment
 

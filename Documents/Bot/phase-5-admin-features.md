@@ -20,6 +20,7 @@ Extend the admin panel with per-lead staff notes and staff user profiles (name, 
 |-----------|--------------|---------|
 | `20260626120000_student_notes.sql` | `student_notes` | Multiple dated notes per lead (`students.id`) |
 | `20260626140000_staff_profiles.sql` | `staff_role` enum, `staff_profiles` | 1:1 with `auth.users` — name, email, role |
+| `20260626180000_staff_profiles_insert_own.sql` | RLS policy | Admin users can insert own profile row on login |
 
 ### `student_notes`
 
@@ -47,7 +48,8 @@ RLS:
 
 - Staff can `select` / `update` own row (`auth.uid() = id`)
 - Admin can `select` all rows via `is_admin()`
-- **Insert** only via backend service role (bootstrap) — no client insert policy
+- Admin can `insert` own row (`staff_profiles_insert_own`): `auth.uid() = id` and `app_metadata.role = 'admin'`
+- Backend service role bypasses RLS for bootstrap/backfill (`AdminBootstrapService`)
 
 **Auth gate vs profile role:** `app_metadata.role = 'admin'` controls who can sign in and call `/api/admin/*`. `staff_profiles.role` is for display and future consultant RBAC.
 
@@ -76,7 +78,7 @@ Env vars (see [`apps/backend/.env.example`](../../apps/backend/.env.example)):
 | `ADMIN_FIRST_NAME` | `Paul` | Bootstrap / backfill first name |
 | `ADMIN_LAST_NAME` | `Benn` | Bootstrap / backfill last name |
 
-Restart the backend after migration so profiles are backfilled for existing admins.
+Restart the backend after migration so profiles are backfilled for existing admins (fallback if client insert on login did not run).
 
 ### Auth middleware
 
@@ -88,8 +90,8 @@ Restart the backend after migration so profiles are backfilled for existing admi
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/api/admin/me` | Current staff profile |
-| `PATCH` | `/api/admin/me` | Update `first_name`, `last_name`; optional `email` sync (must match JWT email) |
+| `GET` | `/api/admin/me` | Staff profile — backend fallback (SPA uses Supabase direct) |
+| `PATCH` | `/api/admin/me` | Update `first_name`, `last_name`; optional `email` sync — backend fallback |
 | `GET` | `/api/admin/students/:id/notes` | List notes for lead |
 | `POST` | `/api/admin/students/:id/notes` | Create note |
 | `PATCH` | `/api/admin/students/:id/notes/:noteId` | Edit note |
@@ -105,17 +107,25 @@ Location: [`src/pages/admin/`](../../src/pages/admin/)
 
 | Route | Feature |
 |-------|---------|
+| `/enrollify-manage/login` | Supabase Auth login + forgot password |
 | `/enrollify-manage` | Leads dashboard — **Welcome, {name}** + Notes column |
 | `/enrollify-manage/settings/profile` | Edit first/last name and email |
 | Notes modal | `LeadNotesModal` — view/add/edit/delete notes per lead |
 
+### Profile (SPA — direct Supabase)
+
+Client helpers in [`src/lib/admin/profile.ts`](../../src/lib/admin/profile.ts):
+
+- `ensureStaffProfile` — called on login; inserts own row if missing (RLS `staff_profiles_insert_own`)
+- `getStaffProfile` / `updateStaffProfile` — read/update via Supabase `staff_profiles` table
+
+Leads, notes, analytics, and AI providers still use `/api/admin/*` via `apiFetch`.
+
 ### Profile email change
 
-1. Names saved via `PATCH /api/admin/me`
+1. Names saved via `updateStaffProfile` (Supabase direct)
 2. Email changed via `supabase.auth.updateUser({ email })` (confirmation email sent)
-3. After confirmation, `onAuthStateChange` syncs email to `staff_profiles` via `PATCH /api/admin/me`
-
-Client helpers: [`src/lib/admin/profile.ts`](../../src/lib/admin/profile.ts)
+3. After confirmation, `onAuthStateChange` syncs email to `staff_profiles` via `updateStaffProfile`
 
 ---
 
@@ -123,7 +133,7 @@ Client helpers: [`src/lib/admin/profile.ts`](../../src/lib/admin/profile.ts)
 
 - Consultant login or RBAC enforcement
 - Consultant user creation UI
-- Password change on profile page
+- In-app password change on profile page (forgot-password on login page is in scope)
 - Notes on lead detail page (dashboard modal only)
 - Legacy `apps/admin/` Next.js app
 
@@ -131,9 +141,12 @@ Client helpers: [`src/lib/admin/profile.ts`](../../src/lib/admin/profile.ts)
 
 ## 6. Verification checklist
 
-- [ ] `supabase db push` applied both migrations
-- [ ] Backend restarted — admin has `staff_profiles` row (Paul Benn)
+- [ ] `supabase db push` applied all three Phase 5 migrations (notes, profiles, insert-own policy)
+- [ ] Supabase Auth redirect URLs include `/enrollify-manage/login` (prod + `localhost:5180`)
+- [ ] Sign in creates or loads `staff_profiles` row (client `ensureStaffProfile`)
+- [ ] Backend restarted — admin has `staff_profiles` row for API routes (Paul Benn)
 - [ ] Dashboard shows welcome message with name
 - [ ] Profile page loads and saves name changes
+- [ ] Forgot password sends email and redirects to login page
 - [ ] Notes modal: create, edit, delete; latest note on dashboard updates
 - [ ] Non-admin JWT → 401 on admin routes

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ErrorBanner } from '@/components/admin/ErrorBanner'
-import { getStaffProfile, updateStaffProfile, type StaffProfile } from '@/lib/admin/profile'
+import { getStaffProfile, ProfileError, updateStaffProfile, type StaffProfile } from '@/lib/admin/profile'
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export function AdminProfilePage() {
@@ -20,8 +20,8 @@ export function AdminProfilePage() {
       setFirstName(data.first_name)
       setLastName(data.last_name)
       setEmail(data.email)
-    } catch {
-      setError('Failed to load profile')
+    } catch (err) {
+      setError(err instanceof ProfileError ? err.message : 'Failed to load profile')
     }
   }, [])
 
@@ -91,8 +91,8 @@ export function AdminProfilePage() {
         setEmail(updated.email)
         setSuccess('Profile saved.')
       }
-    } catch {
-      setError('Failed to save profile')
+    } catch (err) {
+      setError(err instanceof ProfileError ? err.message : 'Failed to save profile')
     } finally {
       setSaving(false)
     }
