@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
+import { AdminConfigError } from '@/components/admin/AdminConfigError'
 import { ADMIN_BASE } from '@/lib/admin/constants'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { isAdminUser, supabase } from '@/lib/supabase'
+import { getSupabase, isAdminUser, isSupabaseConfigured } from '@/lib/supabase'
 
 export function AdminLoginPage() {
   const navigate = useNavigate()
@@ -38,6 +39,10 @@ export function AdminLoginPage() {
     )
   }
 
+  if (!isSupabaseConfigured) {
+    return <AdminConfigError />
+  }
+
   if (alreadyAuthed) {
     return <Navigate to={ADMIN_BASE} replace />
   }
@@ -47,7 +52,7 @@ export function AdminLoginPage() {
     setLoading(true)
     setError('')
 
-    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+    const { data, error: signInError } = await getSupabase().auth.signInWithPassword({
       email,
       password,
     })
@@ -59,7 +64,7 @@ export function AdminLoginPage() {
     }
 
     if (!isAdminUser(data.user)) {
-      await supabase.auth.signOut()
+      await getSupabase().auth.signOut()
       setError('Invalid email or password')
       setLoading(false)
       return

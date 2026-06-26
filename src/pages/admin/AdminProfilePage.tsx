@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ErrorBanner } from '@/components/admin/ErrorBanner'
 import { getStaffProfile, updateStaffProfile, type StaffProfile } from '@/lib/admin/profile'
-import { supabase } from '@/lib/supabase'
+import { getSupabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export function AdminProfilePage() {
   const [profile, setProfile] = useState<StaffProfile | null>(null)
@@ -30,9 +30,11 @@ export function AdminProfilePage() {
   }, [load])
 
   useEffect(() => {
+    if (!isSupabaseConfigured) return
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = getSupabase().auth.onAuthStateChange(async (_event, session) => {
       if (!session?.user?.email || !profile) return
       if (session.user.email.toLowerCase() !== profile.email.toLowerCase()) {
         try {
@@ -78,7 +80,7 @@ export function AdminProfilePage() {
       setLastName(updated.last_name)
 
       if (emailChanged) {
-        const { error: emailError } = await supabase.auth.updateUser({ email: trimmedEmail })
+        const { error: emailError } = await getSupabase().auth.updateUser({ email: trimmedEmail })
         if (emailError) {
           setError(emailError.message)
           setSaving(false)

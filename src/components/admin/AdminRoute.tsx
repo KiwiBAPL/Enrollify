@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { AdminConfigError } from '@/components/admin/AdminConfigError'
 import { ADMIN_BASE } from '@/lib/admin/constants'
 import { isAdminAuthenticated } from '@/lib/admin/auth'
-import { supabase } from '@/lib/supabase'
+import { getSupabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export function AdminRoute() {
   const [state, setState] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading')
 
   useEffect(() => {
+    if (!isSupabaseConfigured) return
+
     let cancelled = false
 
     async function checkAuth() {
@@ -21,7 +24,7 @@ export function AdminRoute() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
+    } = getSupabase().auth.onAuthStateChange(() => {
       void checkAuth()
     })
 
@@ -30,6 +33,10 @@ export function AdminRoute() {
       subscription.unsubscribe()
     }
   }, [])
+
+  if (!isSupabaseConfigured) {
+    return <AdminConfigError />
+  }
 
   if (state === 'loading') {
     return (
