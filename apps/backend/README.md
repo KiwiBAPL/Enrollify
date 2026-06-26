@@ -32,13 +32,13 @@ The server refuses to start if any required environment variable is missing or i
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/health` | Public | `{ status, database }` probe |
-| `GET/PATCH/…` | `/api/admin/*` | Supabase JWT | Students, pipeline, analytics, AI providers |
+| `GET/PATCH/…` | `/api/admin/*` | Supabase JWT | Students, notes, profile, pipeline, analytics, AI providers |
 | `GET` | `/webhook` | Public | Meta webhook verification (FR-1) |
 | `POST` | `/webhook` | Signed | Inbound Messenger messages (FR-2, FR-3) |
 | `POST` | `/dev/simulate-message` | Dev only | Test conversation pipeline locally |
 | `POST` | `/dev/simulate-webhook` | Dev only | Test signed webhook locally |
 
-Full route list: [Phase 3 doc](../../Documents/Bot/phase-3-core-services.md) · Webhook/deploy: [Phase 4 doc](../../Documents/Bot/phase-4-messenger-deploy.md).
+Full route list: [Phase 3 doc](../../Documents/Bot/phase-3-core-services.md) · [Phase 5 admin features](../../Documents/Bot/phase-5-admin-features.md) · Webhook/deploy: [Phase 4 doc](../../Documents/Bot/phase-4-messenger-deploy.md).
 
 ## Environment variables
 
@@ -50,6 +50,7 @@ Key vars for Phase 3:
 |----------|----------|---------|
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server DB access + admin bootstrap |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | One-time | Bootstrap admin user in Supabase Auth; remove after first startup |
+| `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` | `Paul` / `Benn` | Staff profile name on bootstrap and backfill |
 | `AI_PROVIDER_ENCRYPTION_KEY` | Yes | Encrypts AI API keys in Supabase (min 32 chars) |
 | `PERPLEXITY_API_KEY` | No | Bootstrap first provider if DB empty |
 
@@ -93,9 +94,14 @@ AI_PROVIDER_ENCRYPTION_KEY=dev-local-ai-encryption-key-32ch
 ### Admin login fails
 
 1. Ensure backend started once with `ADMIN_EMAIL` + `ADMIN_PASSWORD` to bootstrap the Supabase Auth user (plain password, not bcrypt).
-2. Admin SPA requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in root `.env.local` (or Netlify env).
-3. Sign in at `/enrollify-manage/login` with the bootstrapped email/password.
-4. In Supabase dashboard: disable public sign-ups; confirm Email provider is enabled.
+2. **Restart backend** after applying `staff_profiles` migration so `ensureStaffProfileForAdmins()` backfills your profile (required for API access).
+3. Admin SPA requires `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in root `.env.local` (or Netlify env).
+4. Sign in at `/enrollify-manage/login` with the bootstrapped email/password.
+5. In Supabase dashboard: disable public sign-ups; confirm Email provider is enabled.
+
+### `401 Staff profile not found`
+
+The admin auth user exists but has no `staff_profiles` row. Restart the backend — startup bootstrap creates missing profiles. Set `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` in `.env` if you need a custom display name.
 
 ## Deployment
 

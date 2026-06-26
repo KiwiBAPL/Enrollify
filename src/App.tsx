@@ -8,6 +8,7 @@ import { AdminAIProvidersPage } from '@/pages/admin/AdminAIProvidersPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { AdminLeadDetailPage } from '@/pages/admin/AdminLeadDetailPage'
 import { AdminLoginPage } from '@/pages/admin/AdminLoginPage'
+import { AdminProfilePage } from '@/pages/admin/AdminProfilePage'
 import { ADMIN_BASE } from '@/lib/admin/constants'
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
               path={`${ADMIN_BASE}/settings/ai-providers`}
               element={<AdminAIProvidersPage />}
             />
+            <Route path={`${ADMIN_BASE}/settings/profile`} element={<AdminProfilePage />} />
           </Route>
         </Route>
 

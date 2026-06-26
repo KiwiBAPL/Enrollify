@@ -1,11 +1,10 @@
 import type { ServiceSupabaseClient } from '../db/supabase.js'
 import type { Env } from '../config/env.js'
 import type { Logger } from '../lib/logger.js'
+import type { StaffProfileRepository } from '../repositories/StaffProfileRepository.js'
 
-async function findUserByEmail(
-  db: ServiceSupabaseClient,
-  email: string,
-): Promise<boolean> {
+async function listAllAuthUsers(db: ServiceSupabaseClient) {
+  const users = []
   let page = 1
   const perPage = 1000
 
@@ -15,31 +14,67 @@ async function findUserByEmail(
       throw new Error(`Failed to list auth users: ${error.message}`)
     }
 
-    if (data.users.some((user) => user.email?.toLowerCase() === email.toLowerCase())) {
-      return true
-    }
+    users.push(...data.users)
 
     if (data.users.length < perPage) {
-      return false
+      break
     }
 
     page += 1
+  }
+
+  return users
+}
+
+async function findUserByEmail(
+  db: ServiceSupabaseClient,
+  email: string,
+): Promise<{ id: string; email: string } | null> {
+  const users = await listAllAuthUsers(db)
+  const match = users.find((user) => user.email?.toLowerCase() === email.toLowerCase())
+  if (!match?.email) return null
+  return { id: match.id, email: match.email }
+}
+
+async function ensureStaffProfileForAdmins(
+  db: ServiceSupabaseClient,
+  staffProfiles: StaffProfileRepository,
+  env: Env,
+  logger: Logger,
+): Promise<void> {
+  const users = await listAllAuthUsers(db)
+  const adminUsers = users.filter((user) => user.app_metadata?.role === 'admin')
+
+  for (const user of adminUsers) {
+    if (!user.email) continue
+
+    await staffProfiles.ensureProfile({
+      id: user.id,
+      email: user.email,
+      first_name: env.ADMIN_FIRST_NAME,
+      last_name: env.ADMIN_LAST_NAME,
+      role: 'admin',
+    })
+
+    logger.debug({ userId: user.id, email: user.email }, 'Staff profile ensured for admin')
   }
 }
 
 export async function ensureAdminUser(
   env: Env,
   db: ServiceSupabaseClient,
+  staffProfiles: StaffProfileRepository,
   logger: Logger,
 ): Promise<void> {
   const bootstrapEmail = env.ADMIN_EMAIL
   const bootstrapPassword = env.ADMIN_PASSWORD
 
   if (bootstrapEmail) {
-    const exists = await findUserByEmail(db, bootstrapEmail)
+    const existing = await findUserByEmail(db, bootstrapEmail)
 
-    if (exists) {
+    if (existing) {
       logger.debug({ email: bootstrapEmail }, 'Admin auth user already exists')
+      await ensureStaffProfileForAdmins(db, staffProfiles, env, logger)
       return
     }
 
@@ -55,7 +90,7 @@ export async function ensureAdminUser(
       )
     }
 
-    const { error } = await db.auth.admin.createUser({
+    const { data, error } = await db.auth.admin.createUser({
       email: bootstrapEmail,
       password: bootstrapPassword,
       email_confirm: true,
@@ -64,6 +99,16 @@ export async function ensureAdminUser(
 
     if (error) {
       throw new Error(`Failed to bootstrap admin user: ${error.message}`)
+    }
+
+    if (data.user?.id && data.user.email) {
+      await staffProfiles.create({
+        id: data.user.id,
+        email: data.user.email,
+        first_name: env.ADMIN_FIRST_NAME,
+        last_name: env.ADMIN_LAST_NAME,
+        role: 'admin',
+      })
     }
 
     logger.info(
@@ -84,27 +129,13 @@ export async function ensureAdminUser(
     logger.warn(
       'No admin user in Supabase Auth. Set ADMIN_EMAIL and ADMIN_PASSWORD in .env to bootstrap.',
     )
+    return
   }
+
+  await ensureStaffProfileForAdmins(db, staffProfiles, env, logger)
 }
 
 async function hasAdminUser(db: ServiceSupabaseClient): Promise<boolean> {
-  let page = 1
-  const perPage = 1000
-
-  while (true) {
-    const { data, error } = await db.auth.admin.listUsers({ page, perPage })
-    if (error) {
-      throw new Error(`Failed to list auth users: ${error.message}`)
-    }
-
-    if (data.users.some((user) => user.app_metadata?.role === 'admin')) {
-      return true
-    }
-
-    if (data.users.length < perPage) {
-      return false
-    }
-
-    page += 1
-  }
+  const users = await listAllAuthUsers(db)
+  return users.some((user) => user.app_metadata?.role === 'admin')
 }

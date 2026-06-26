@@ -1,14 +1,22 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ErrorBanner } from '@/components/admin/ErrorBanner'
+import { LeadNotesModal } from '@/components/admin/LeadNotesModal'
 import { ADMIN_BASE, LEAD_BANDS, type LeadBand } from '@/lib/admin/constants'
 import { apiFetch } from '@/lib/admin/api'
+import { getStaffProfile } from '@/lib/admin/profile'
 
 interface Analytics {
   totalConversations: number | string
   averageFirstResponseTimeSeconds: number | string
   leadCaptureRate: number | string
   conversionRate: number | string
+}
+
+interface LatestNote {
+  id: string
+  content: string
+  created_at: string
 }
 
 interface StudentRow {
@@ -20,6 +28,7 @@ interface StudentRow {
   enrolment_status: string
   last_activity_at: string | null
   overall_score: number
+  latest_note: LatestNote | null
 }
 
 interface StudentsResponse {
@@ -44,6 +53,10 @@ function bandClass(band: LeadBand, active: boolean): string {
   }
 }
 
+function truncateNote(text: string, max = 60): string {
+  return text.length <= max ? text : `${text.slice(0, max)}…`
+}
+
 export function AdminDashboardPage() {
   const [leadBand, setLeadBand] = useState<LeadBand>('all')
   const [search, setSearch] = useState('')
@@ -51,6 +64,16 @@ export function AdminDashboardPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [result, setResult] = useState<StudentsResponse | null>(null)
   const [error, setError] = useState('')
+  const [notesModal, setNotesModal] = useState<{ studentId: string; studentName: string | null } | null>(
+    null,
+  )
+  const [welcomeName, setWelcomeName] = useState<string | null>(null)
+
+  useEffect(() => {
+    getStaffProfile()
+      .then((profile) => setWelcomeName(`${profile.first_name} ${profile.last_name}`.trim()))
+      .catch(() => setWelcomeName(null))
+  }, [])
 
   const load = useCallback(async () => {
     setError('')
@@ -104,6 +127,9 @@ export function AdminDashboardPage() {
 
   return (
     <>
+      {welcomeName && (
+        <p className="mb-2 text-gray-600">Welcome, {welcomeName}</p>
+      )}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-2xl font-bold">Leads Dashboard</h2>
         <button
@@ -178,6 +204,7 @@ export function AdminDashboardPage() {
                 <th className="px-4 py-3 font-medium">Country</th>
                 <th className="px-4 py-3 font-medium">Score</th>
                 <th className="px-4 py-3 font-medium">Status</th>
+                <th className="px-4 py-3 font-medium">Notes</th>
                 <th className="px-4 py-3 font-medium">Last activity</th>
               </tr>
             </thead>
@@ -198,6 +225,29 @@ export function AdminDashboardPage() {
                   <td className="px-4 py-3">{s.overall_score}</td>
                   <td className="px-4 py-3 capitalize">{s.enrolment_status.replace(/_/g, ' ')}</td>
                   <td className="px-4 py-3">
+                    {s.latest_note ? (
+                      <div className="max-w-[200px]">
+                        <p className="truncate text-gray-900" title={s.latest_note.content}>
+                          {truncateNote(s.latest_note.content)}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(s.latest_note.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNotesModal({ studentId: s.id, studentName: s.name })
+                      }
+                      className="mt-1 text-xs text-[var(--accent-primary)] hover:underline focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
+                    >
+                      View all
+                    </button>
+                  </td>
+                  <td className="px-4 py-3">
                     {s.last_activity_at
                       ? new Date(s.last_activity_at).toLocaleString()
                       : '—'}
@@ -207,6 +257,15 @@ export function AdminDashboardPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {notesModal && (
+        <LeadNotesModal
+          studentId={notesModal.studentId}
+          studentName={notesModal.studentName}
+          onClose={() => setNotesModal(null)}
+          onNotesChanged={load}
+        />
       )}
 
       {totalPages > 1 && (

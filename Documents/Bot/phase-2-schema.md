@@ -42,6 +42,8 @@ Store `SUPABASE_SERVICE_ROLE_KEY` in `apps/backend/.env` only — never commit.
 | `knowledge_articles` | RAG knowledge base with full-text `search_vector` |
 | `lead_scores` | One score record per student (upsert on `student_id`) |
 | `appointments` | Future appointment booking (out of scope release 1) |
+| `student_notes` | Staff notes per lead (Phase 5) — see [phase-5-admin-features.md](./phase-5-admin-features.md) |
+| `staff_profiles` | Staff identity linked to `auth.users` (Phase 5) |
 
 ### 3.2 Enums
 
@@ -50,6 +52,7 @@ Store `SUPABASE_SERVICE_ROLE_KEY` in `apps/backend/.env` only — never commit.
 | `channel_type` | `facebook`, `webchat` |
 | `message_type` | `user`, `assistant` |
 | `enrolment_status` | `enquiry`, `qualified_lead`, `appointment_booked`, `application_submitted`, `enrolled`, `not_qualified` |
+| `staff_role` | `admin`, `consultant` (Phase 5) |
 
 ### 3.3 Key constraints
 
@@ -76,6 +79,9 @@ Pipeline bands (FR-12): Hot ≥ 70, Warm 40–69, Cold < 40.
 | `supabase/migrations/20260623084818_initial_schema.sql` | Tables, indexes, `updated_at` triggers |
 | `supabase/migrations/20260623084836_rls_policies.sql` | RLS + `is_admin()` helper + admin policies |
 | `supabase/migrations/20260623120200_security_hardening.sql` | `set_updated_at` search_path fix; revoke `is_admin` from `anon` |
+| `supabase/migrations/20260623140000_ai_providers.sql` | `ai_providers` table |
+| `supabase/migrations/20260626120000_student_notes.sql` | Lead notes (Phase 5) |
+| `supabase/migrations/20260626140000_staff_profiles.sql` | Staff profiles + `staff_role` enum (Phase 5) |
 
 Migrations applied to remote project via Supabase MCP (initial schema + RLS). Apply `20260623120200_security_hardening.sql` if not yet run:
 
@@ -90,7 +96,8 @@ supabase db push
 | Role | Access |
 |------|--------|
 | `anon` | Deny all (no policies) |
-| `authenticated` + `app_metadata.role = 'admin'` | Full CRUD on all 8 tables via `is_admin()` |
+| `authenticated` + `app_metadata.role = 'admin'` | Full CRUD on core tables via `is_admin()` |
+| `authenticated` + own `auth.uid()` | Select/update own `staff_profiles` row (Phase 5) |
 | `service_role` (backend) | Bypasses RLS |
 
 Admin role check uses **`app_metadata.role`** (not `user_metadata`) per Supabase security guidance.
@@ -108,6 +115,8 @@ Location: [`apps/backend/src/repositories/`](../../apps/backend/src/repositories
 | `MessageRepository` | `createUserMessage`, `createAssistantMessage`, `listByConversationId` |
 | `LeadScoreRepository` | `upsert`, `findByStudentId`, `listByScoreBand`, `computeOverallScore` |
 | `KnowledgeRepository` | `searchRelevant` (full-text, limit 3), `create` |
+| `StudentNoteRepository` | `listByStudentId`, `findLatestByStudentIds`, CRUD (Phase 5) |
+| `StaffProfileRepository` | `findById`, `create`, `update`, `ensureProfile` (Phase 5) |
 
 All repositories receive `ServiceSupabaseClient` via constructor injection (NFR-8).
 

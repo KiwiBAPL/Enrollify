@@ -13,13 +13,93 @@ const ENROLMENT_STATUSES: EnrolmentStatus[] = [
   'not_qualified',
 ]
 
+function parseNoteContent(body: unknown): string | null {
+  if (typeof body !== 'object' || body === null) return null
+  const content = (body as { content?: unknown }).content
+  if (typeof content !== 'string') return null
+  const trimmed = content.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
+
 export function createAdminRouter(container: Container): Router {
   const router = Router()
-  const auth = createAuthMiddleware(container.db)
+  const auth = createAuthMiddleware(container.db, container.repositories.staffProfiles)
 
   router.use(auth)
 
   router.use('/ai-providers', createAIProvidersRouter(container))
+
+  router.get('/me', async (req, res, next) => {
+    try {
+      const profile = await container.repositories.staffProfiles.findById(req.auth!.userId)
+      if (!profile) {
+        res.status(404).json({ error: 'Profile not found' })
+        return
+      }
+      res.json({ profile })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  function parseNameField(value: unknown): string | null {
+    if (typeof value !== 'string') return null
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : null
+  }
+
+  router.patch('/me', async (req, res, next) => {
+    try {
+      const body = req.body as {
+        first_name?: unknown
+        last_name?: unknown
+        email?: unknown
+      }
+
+      const updates: { first_name?: string; last_name?: string; email?: string } = {}
+
+      if (body.first_name !== undefined) {
+        const firstName = parseNameField(body.first_name)
+        if (!firstName) {
+          res.status(400).json({ error: 'First name is required' })
+          return
+        }
+        updates.first_name = firstName
+      }
+
+      if (body.last_name !== undefined) {
+        const lastName = parseNameField(body.last_name)
+        if (!lastName) {
+          res.status(400).json({ error: 'Last name is required' })
+          return
+        }
+        updates.last_name = lastName
+      }
+
+      if (body.email !== undefined) {
+        if (typeof body.email !== 'string' || !body.email.trim()) {
+          res.status(400).json({ error: 'Invalid email' })
+          return
+        }
+        const email = body.email.trim().toLowerCase()
+        if (email !== req.auth!.email.toLowerCase()) {
+          res.status(400).json({ error: 'Email must match your authenticated account' })
+          return
+        }
+        updates.email = email
+      }
+
+      if (Object.keys(updates).length === 0) {
+        res.status(400).json({ error: 'No valid fields to update' })
+        return
+      }
+
+      const profile = await container.repositories.staffProfiles.update(req.auth!.userId, updates)
+      res.json({ profile })
+    } catch (err) {
+      next(err)
+    }
+  })
 
   router.get('/students', async (req, res, next) => {
     try {
@@ -66,11 +146,17 @@ export function createAdminRouter(container: Container): Router {
         studentIds.map((id: string, i: number) => [id, scores[i]?.overall_score ?? 0]),
       )
 
+      const latestNotesMap =
+        studentIds.length > 0
+          ? await container.repositories.studentNotes.findLatestByStudentIds(studentIds)
+          : new Map()
+
       res.json({
         ...result,
         data: result.data.map((s: Student) => ({
           ...s,
           overall_score: scoreMap.get(s.id) ?? 0,
+          latest_note: latestNotesMap.get(s.id) ?? null,
         })),
       })
     } catch (err) {
@@ -196,6 +282,81 @@ export function createAdminRouter(container: Container): Router {
         offset,
       })
       res.json({ messages, limit, offset })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.get('/students/:id/notes', async (req, res, next) => {
+    try {
+      const student = await container.repositories.students.findById(req.params.id)
+      if (!student) {
+        res.status(404).json({ error: 'Student not found' })
+        return
+      }
+      const notes = await container.repositories.studentNotes.listByStudentId(student.id)
+      res.json({ notes })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.post('/students/:id/notes', async (req, res, next) => {
+    try {
+      const content = parseNoteContent(req.body)
+      if (!content) {
+        res.status(400).json({ error: 'Note content is required' })
+        return
+      }
+
+      const student = await container.repositories.students.findById(req.params.id)
+      if (!student) {
+        res.status(404).json({ error: 'Student not found' })
+        return
+      }
+
+      const note = await container.repositories.studentNotes.create({
+        student_id: student.id,
+        content,
+        author_email: req.auth?.email ?? 'unknown',
+      })
+      res.status(201).json({ note })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.patch('/students/:id/notes/:noteId', async (req, res, next) => {
+    try {
+      const content = parseNoteContent(req.body)
+      if (!content) {
+        res.status(400).json({ error: 'Note content is required' })
+        return
+      }
+
+      const note = await container.repositories.studentNotes.findById(req.params.noteId)
+      if (!note || note.student_id !== req.params.id) {
+        res.status(404).json({ error: 'Note not found' })
+        return
+      }
+
+      const updated = await container.repositories.studentNotes.update(note.id, content)
+      res.json({ note: updated })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.delete('/students/:id/notes/:noteId', async (req, res, next) => {
+    try {
+      const note = await container.repositories.studentNotes.findById(req.params.noteId)
+      if (!note || note.student_id !== req.params.id) {
+        res.status(404).json({ error: 'Note not found' })
+        return
+      }
+
+      await container.repositories.studentNotes.delete(note.id)
+      res.status(204).send()
     } catch (err) {
       next(err)
     }

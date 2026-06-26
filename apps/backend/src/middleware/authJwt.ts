@@ -1,9 +1,15 @@
 import type { NextFunction, Request, Response } from 'express'
 import type { ServiceSupabaseClient } from '../db/supabase.js'
+import type { StaffProfileRepository } from '../repositories/StaffProfileRepository.js'
 
 export interface AuthPayload {
-  sub: string
+  userId: string
+  email: string
   role: 'admin'
+  firstName: string
+  lastName: string
+  /** @deprecated Use email instead */
+  sub: string
 }
 
 declare global {
@@ -14,7 +20,10 @@ declare global {
   }
 }
 
-export function createAuthMiddleware(db: ServiceSupabaseClient) {
+export function createAuthMiddleware(
+  db: ServiceSupabaseClient,
+  staffProfiles: StaffProfileRepository,
+) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const header = req.headers.authorization
     if (!header?.startsWith('Bearer ')) {
@@ -35,9 +44,21 @@ export function createAuthMiddleware(db: ServiceSupabaseClient) {
       return
     }
 
+    const profile = await staffProfiles.findById(data.user.id)
+    if (!profile) {
+      res.status(401).json({ error: 'Staff profile not found' })
+      return
+    }
+
+    const email = data.user.email ?? profile.email
+
     req.auth = {
-      sub: data.user.email ?? data.user.id,
+      userId: data.user.id,
+      email,
       role: 'admin',
+      firstName: profile.first_name,
+      lastName: profile.last_name,
+      sub: email,
     }
     next()
   }

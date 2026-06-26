@@ -58,6 +58,7 @@ See [`apps/backend/.env.example`](../../apps/backend/.env.example):
 | Variable | Default | Purpose |
 |----------|---------|---------|
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | — | One-time bootstrap into Supabase Auth; remove after first startup |
+| `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` | `Paul` / `Benn` | Staff profile name on bootstrap/backfill (Phase 5) |
 | `CORS_ORIGIN` | `http://localhost:5173` | Admin frontend origin |
 | `PERPLEXITY_API_KEY` | — | Optional bootstrap key (`pplx-…`) |
 | `PERPLEXITY_MODEL` | `sonar-pro` | Default model for env bootstrap |
@@ -70,7 +71,7 @@ See [`apps/backend/.env.example`](../../apps/backend/.env.example):
 
 ### Auth
 
-Admin login uses **Supabase Auth** (SPA `signInWithPassword`). Backend `/api/admin/*` routes verify the Supabase access token and require `app_metadata.role = 'admin'`.
+Admin login uses **Supabase Auth** (SPA `signInWithPassword`). Backend `/api/admin/*` routes verify the Supabase access token, require `app_metadata.role = 'admin'`, and load `staff_profiles` for the authenticated user (Phase 5).
 
 Root SPA env (public): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
@@ -78,10 +79,13 @@ Root SPA env (public): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
 
 | Method | Path | PRD |
 |--------|------|-----|
-| `GET` | `/api/admin/students` | FR-10 |
+| `GET` | `/api/admin/me` | Staff profile (Phase 5) |
+| `PATCH` | `/api/admin/me` | Update profile name / sync email (Phase 5) |
+| `GET` | `/api/admin/students` | FR-10 (+ `latest_note` per row, Phase 5) |
 | `GET` | `/api/admin/students/:id` | FR-10 |
 | `PATCH` | `/api/admin/students/:id/enrolment-status` | FR-13 |
 | `GET` | `/api/admin/students/:id/messages` | FR-11 |
+| `GET/POST/PATCH/DELETE` | `/api/admin/students/:id/notes[...]` | Lead notes (Phase 5) |
 | `GET` | `/api/admin/students/export` | FR-14 |
 | `GET` | `/api/admin/pipeline` | FR-12 |
 | `GET` | `/api/admin/analytics` | FR-15 |
@@ -112,8 +116,9 @@ Location: **`/enrollify-manage`** on the Netlify site ([`src/pages/admin/`](../.
 | Route | Feature |
 |-------|---------|
 | `/enrollify-manage/login` | Email/password → Supabase Auth session |
-| `/enrollify-manage` | Unified dashboard — all leads, Hot/Warm/Cold filters, search, CSV export |
+| `/enrollify-manage` | Unified dashboard — welcome message, leads, notes, Hot/Warm/Cold filters, search, CSV export |
 | `/enrollify-manage/leads/[id]` | Chat view, enrolment status |
+| `/enrollify-manage/settings/profile` | Staff profile — name and email (Phase 5) |
 | `/enrollify-manage/settings/ai-providers` | AI provider management |
 
 Not linked from public navigation. Blocked in [`public/robots.txt`](../../public/robots.txt).
@@ -189,4 +194,8 @@ Required since multi-provider AI (min 32 chars). See [`apps/backend/.env.example
 
 ## 10. Phase 4 handoff
 
-See [phase-4-messenger-deploy.md](./phase-4-messenger-deploy.md) for webhook integration, Railway/Vercel deploy, and Meta registration.
+See [phase-4-messenger-deploy.md](./phase-4-messenger-deploy.md) for webhook integration, Railway/Netlify deploy, and Meta registration.
+
+## 11. Phase 5 handoff
+
+See [phase-5-admin-features.md](./phase-5-admin-features.md) for lead notes, staff profiles, and profile API details.

@@ -6,6 +6,7 @@ import { signOut } from '@/lib/admin/auth'
 const navItems = [
   { href: ADMIN_BASE, label: 'Dashboard', end: true },
   { href: `${ADMIN_BASE}/settings/ai-providers`, label: 'AI Providers', end: false },
+  { href: `${ADMIN_BASE}/settings/profile`, label: 'Profile', end: false },
 ]
 
 export function AdminShell() {

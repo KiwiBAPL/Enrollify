@@ -9,6 +9,8 @@ import {
   KnowledgeRepository,
   LeadScoreRepository,
   MessageRepository,
+  StaffProfileRepository,
+  StudentNoteRepository,
   StudentRepository,
 } from './repositories/index.js'
 import { AIService } from './services/AIService.js'
@@ -25,6 +27,8 @@ export function createContainer(env: Env) {
     conversations: new ConversationRepository(db),
     messages: new MessageRepository(db),
     leadScores: new LeadScoreRepository(db),
+    studentNotes: new StudentNoteRepository(db),
+    staffProfiles: new StaffProfileRepository(db),
     knowledge: new KnowledgeRepository(db),
     aiProviders: new AIProviderRepository(db),
   }

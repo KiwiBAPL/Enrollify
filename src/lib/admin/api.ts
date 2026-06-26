@@ -40,5 +40,9 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     return (await response.text()) as T
   }
 
+  if (response.status === 204) {
+    return undefined as T
+  }
+
   return response.json() as Promise<T>
 }

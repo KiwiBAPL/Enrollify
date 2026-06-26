@@ -97,6 +97,44 @@ export interface KnowledgeArticle {
   updated_at: string
 }
 
+export interface StudentNote {
+  id: string
+  student_id: string
+  content: string
+  author_email: string
+  created_at: string
+  updated_at: string
+}
+
+export type StudentNoteInsert = Pick<StudentNote, 'student_id' | 'content' | 'author_email'>
+
+export interface LatestStudentNote {
+  id: string
+  content: string
+  created_at: string
+}
+
+export type StaffRole = 'admin' | 'consultant'
+
+export interface StaffProfile {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+  role: StaffRole
+  created_at: string
+  updated_at: string
+}
+
+export type StaffProfileInsert = Pick<
+  StaffProfile,
+  'id' | 'email' | 'first_name' | 'last_name' | 'role'
+>
+
+export type StaffProfileUpdate = Partial<
+  Pick<StaffProfile, 'first_name' | 'last_name' | 'email'>
+>
+
 export interface StudentListFilters {
   search?: string
   country?: string

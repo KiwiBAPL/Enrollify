@@ -64,6 +64,7 @@ Backend env vars: [`apps/backend/.env.example`](apps/backend/.env.example) (serv
 | 2 — Schema | [`Documents/Bot/phase-2-schema.md`](Documents/Bot/phase-2-schema.md) |
 | 3 — Core services | [`Documents/Bot/phase-3-core-services.md`](Documents/Bot/phase-3-core-services.md) |
 | 4 — Messenger + deploy | [`Documents/Bot/phase-4-messenger-deploy.md`](Documents/Bot/phase-4-messenger-deploy.md) |
+| 5 — Admin features (notes, profiles) | [`Documents/Bot/phase-5-admin-features.md`](Documents/Bot/phase-5-admin-features.md) |
 | PRD | [`Documents/Bot/enrollify-ai-prd.md`](Documents/Bot/enrollify-ai-prd.md) |
 
 ## Design source

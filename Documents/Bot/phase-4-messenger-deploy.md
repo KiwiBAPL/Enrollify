@@ -119,6 +119,7 @@ Config: [`apps/backend/railway.toml`](../../apps/backend/railway.toml), [`apps/b
 | `SUPABASE_URL` | Enrollify Edu project |
 | `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_…` (server only) |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | One-time bootstrap only — remove after admin exists in Supabase Auth |
+| `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` | Default `Paul` / `Benn` — staff profile on bootstrap/backfill |
 | `AI_PROVIDER_ENCRYPTION_KEY` | Min 32 chars; unique production value |
 | `CORS_ORIGIN` | Netlify site URL (e.g. `https://enrollifyedu.com`) |
 | `PERPLEXITY_API_KEY` | Optional if providers already in DB |
@@ -134,8 +135,9 @@ Staff admin is integrated into the marketing site at **`/enrollify-manage`** (no
 | Route | Purpose |
 |-------|---------|
 | `/enrollify-manage/login` | Supabase Auth login |
-| `/enrollify-manage` | Unified leads dashboard (Hot/Warm/Cold filters) |
+| `/enrollify-manage` | Unified leads dashboard — welcome, notes, Hot/Warm/Cold filters |
 | `/enrollify-manage/leads/:id` | Conversation + enrolment status |
+| `/enrollify-manage/settings/profile` | Staff profile (name, email) |
 | `/enrollify-manage/settings/ai-providers` | AI provider settings |
 
 ### Netlify configuration

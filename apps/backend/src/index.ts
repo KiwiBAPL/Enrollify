@@ -7,7 +7,7 @@ import { ensureAdminUser } from './services/AdminBootstrapService.js'
 const env = loadEnv()
 const container = createContainer(env)
 
-await ensureAdminUser(env, container.db, container.logger)
+await ensureAdminUser(env, container.db, container.repositories.staffProfiles, container.logger)
 
 const app = createApp(container)
 

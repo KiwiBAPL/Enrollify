@@ -14,6 +14,8 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   ADMIN_EMAIL: z.string().email().optional(),
   ADMIN_PASSWORD: z.string().min(8).optional(),
+  ADMIN_FIRST_NAME: z.string().min(1).default('Paul'),
+  ADMIN_LAST_NAME: z.string().min(1).default('Benn'),
   CORS_ORIGIN: z.string().url().default('http://localhost:5173'),
 })
 
