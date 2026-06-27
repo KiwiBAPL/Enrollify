@@ -39,7 +39,7 @@ Security comes from RLS, not key secrecy. Never expose secret keys in `VITE_*` v
 | `/blog` | `BlogListingPage` | Filters: `?category`, `?series`, `?search`, `?sort` |
 | `/blog/:slug` | `BlogPostDetailPage` | 404 for draft or unknown slug |
 | `/blog/rss.xml` | Static (build-time) | Published posts only, summary entries |
-| `/sitemap.xml` | Static (build-time) | Static routes + `/blog/{slug}` per published post |
+| `/sitemap.xml` | Static (build-time) | Static routes (`/`, `/contact`, `/blog`, `/study-in-new-zealand`) + `/blog/{slug}` per published post |
 
 "Blog" link in site header → `/blog`. Admin routes are not linked publicly.
 

@@ -18,7 +18,7 @@ export interface FeedPost {
 export const BLOG_DESCRIPTION =
   'Insights on international student recruitment, admissions workflows, and technology-enabled enrolment for education providers.'
 
-export const SITEMAP_STATIC_ROUTES = ['/', '/contact', '/blog'] as const
+export const SITEMAP_STATIC_ROUTES = ['/', '/contact', '/blog', '/study-in-new-zealand'] as const
 
 function feedAbsoluteUrl(pathOrUrl: string): string {
   return pathOrUrl.startsWith('http') ? pathOrUrl : `${FEED_SITE_URL}${pathOrUrl}`

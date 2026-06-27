@@ -87,3 +87,41 @@ export type TrustStat = {
   value: string
   label: string
 }
+
+export type GuideTextSegment =
+  | string
+  | { type: 'strong'; text: string }
+  | { type: 'em'; text: string }
+  | { type: 'link'; label: string; href: string; external?: boolean }
+
+export type GuideBlock =
+  | { type: 'paragraph'; content: GuideTextSegment[] }
+  | { type: 'list'; items: GuideTextSegment[][] }
+  | { type: 'subsection'; id: string; title: string; blocks: GuideBlock[] }
+
+export type GuideSection = {
+  id: string
+  title: string
+  blocks: GuideBlock[]
+}
+
+export type GuidePageContent = {
+  meta: {
+    title: string
+    description: string
+  }
+  hero: {
+    title: string
+    subtitle: string
+    intro: GuideTextSegment[][]
+    imageAlt: string
+  }
+  tableOfContents: { id: string; label: string }[]
+  sections: GuideSection[]
+  cta: {
+    heading: string
+    body: string
+    primaryLabel: string
+    secondaryLabel: string
+  }
+}

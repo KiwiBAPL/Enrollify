@@ -1,6 +1,6 @@
 # EnRollifyEdu Marketing Site
 
-Marketing site for EnRollifyEdu — technology-enabled international student recruitment for New Zealand and global education providers. Includes a provider-first landing page, contact page, public blog, and hidden admin panel.
+Marketing site for EnRollifyEdu — technology-enabled international student recruitment for New Zealand and global education providers. Includes a student-focused landing page, Study in New Zealand guide, SEO pillar routes, contact page, public blog, and hidden admin panel.
 
 Built with **Vite**, **React 19**, **TypeScript**, **Tailwind CSS v4**, **React Router 7**, and **Supabase**. Visual design tokens from [`design.json`](design.json).
 
@@ -27,11 +27,19 @@ npm run netlify:dev
 | Route | Purpose |
 |-------|---------|
 | `/` | Landing page (anchor navigation) |
+| `/study-in-new-zealand` | Study in New Zealand guide (full content) |
+| `/find-a-course` | Course finder hub |
+| `/find-a-course/:categorySlug` | Course category pages |
+| `/career-guides` | Career guides hub (placeholder) |
+| `/student-resources` | Student resources hub (placeholder) |
+| `/student-resources/:topic` | Student resource topic pages (placeholder) |
+| `/city-guides` | City guides hub (placeholder) |
+| `/book-consultation` | Free consultation booking |
 | `/contact` | Contact page |
 | `/blog` | Blog listing (filters, search, sort) |
 | `/blog/:slug` | Blog post detail |
 | `/blog/rss.xml` | RSS feed (build-time static) |
-| `/sitemap.xml` | Sitemap (build-time static) |
+| `/sitemap.xml` | Sitemap (build-time static; includes `/study-in-new-zealand`) |
 
 ## Build
 
