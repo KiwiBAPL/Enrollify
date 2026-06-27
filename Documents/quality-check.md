@@ -3,14 +3,14 @@
 | Field | Details |
 |-------|---------|
 | Section | PRD §10 — Quality check |
-| Status | Complete — PRD implementation cycle closed (Phase 6 deferred) |
-| Date | 2026-06-20 |
+| Status | Complete — landing PRD §10 closed (Phases 1–5); blog module added in Phase 6 |
+| Date | 2026-06-20 (updated 2026-06-27 for Phase 6 blog) |
 | Linked PRD | [EnRollifyEdu-landing-page-prd.md](./EnRollifyEdu-landing-page-prd.md) |
-| Implementation phases | [phase-1-discovery.md](./phase-1-discovery.md) through [phase-5-testing-verification.md](./phase-5-testing-verification.md) |
+| Implementation phases | [phase-1-discovery.md](./phase-1-discovery.md) through [phase-6-blog.md](./phase-6-blog.md) |
 
 ## 1. Purpose
 
-This document executes PRD §10 after Phases 1–5. It reconciles the PRD with what was built and verified, records resolved open questions, and lists remaining cautions before Phase 6 deployment.
+This document executes PRD §10 after Phases 1–5. It reconciles the PRD with what was built and verified, records resolved open questions, and lists remaining cautions before Phase 7 deployment. Phase 6 blog verification is documented separately in [phase-6-blog.md](./phase-6-blog.md).
 
 ---
 
@@ -34,7 +34,8 @@ The original PRD referenced **Next.js**. Phase 1 resolved the stack as **Vite + 
 |------|----------|--------|
 | All Must FRs implemented | [phase-3-implementation.md](./phase-3-implementation.md) §3; [phase-5-testing-verification.md](./phase-5-testing-verification.md) §5 | Pass (local/preview) |
 | FR-5 student form | Implemented with secondary styling | Pass (validation); live submit pending Netlify |
-| Single-page scope | [`src/App.tsx`](../src/App.tsx) — hero through student interest + footer | Pass |
+| Single-page landing scope | [`src/pages/LandingPage.tsx`](../src/pages/LandingPage.tsx) — hero through student interest + footer at `/` | Pass |
+| Blog module (Phase 6) | Public `/blog`, admin `/enrollify-manage/posts`, RLS, feeds — [phase-6-blog.md](./phase-6-blog.md) | Pass (local/build); deploy smoke pending Phase 7 |
 | Form fields finalized | [phase-1-discovery.md](./phase-1-discovery.md) §5.2; [`src/types/forms.ts`](../src/types/forms.ts) | Pass |
 | Student form placement | `#student-interest` section before footer — [`StudentInterest.tsx`](../src/sections/StudentInterest.tsx) | Pass |
 | UX §6 guidance | Nav anchors, CTA hierarchy, error states, a11y — Phases 3 and 5 | Pass |
@@ -65,7 +66,7 @@ The original PRD referenced **Next.js**. Phase 1 resolved the stack as **Vite + 
 | Success measure baselines/targets | Marketing | Post-launch measurement |
 | Draft copy + text wordmark logo | Founders/Marketing/Design | Founder review before public launch |
 | Privacy policy URL | Legal/Founders | Placeholder `#privacy` in footer |
-| Netlify live E2E | Engineering/Ops | Forms, notifications, analytics — Phase 6 gate ([phase-5-testing-verification.md](./phase-5-testing-verification.md) §3.2) |
+| Netlify live E2E | Engineering/Ops | Forms, notifications, analytics, blog feeds — Phase 7 gate ([phase-5-testing-verification.md](./phase-5-testing-verification.md) §3.2) |
 | Analytics provider at deploy | Product/Engineering | Set `VITE_ANALYTICS_PROVIDER` + `VITE_ANALYTICS_ID` on Netlify |
 
 ---
@@ -78,7 +79,8 @@ The original PRD referenced **Next.js**. Phase 1 resolved the stack as **Vite + 
 | Confirm student form placement → UX/requirements | **Done** — `#student-interest`, secondary styling |
 | Decide analytics tool → update §7.2 | **Partial** — dual-provider documented; single-tool choice at Netlify deploy |
 | Assign document owner and contributors | **Open** — requires founder input |
-| Proceed to Phase 6 deployment and smoke tests | **Next** — PRD §9.6 |
+| Proceed to Phase 7 deployment and smoke tests | **Next** — PRD §9.7 |
+| Phase 6 blog module | **Done** — [phase-6-blog.md](./phase-6-blog.md) |
 
 ---
 
@@ -129,8 +131,9 @@ Source: [phase-1-discovery.md](./phase-1-discovery.md) §5.2; verified against [
 | NFR-2 Accessibility | Should | Phases 3, 5 | Pass |
 | NFR-3 Security/privacy | Must | Phases 1, 5 | Pass |
 | NFR-4 Maintainability | Should | Phases 1–3 | Pass |
+| FR-8 Blog module | Should | Phase 6 | Pass — [phase-6-blog.md](./phase-6-blog.md) |
 
-Full test steps: [phase-5-testing-verification.md](./phase-5-testing-verification.md) §5.
+Full test steps: [phase-5-testing-verification.md](./phase-5-testing-verification.md) §5. Blog tests: `npm test`, `npm run test:security` — [phase-6-blog.md](./phase-6-blog.md) §9.
 
 ---
 
@@ -145,9 +148,9 @@ Full test steps: [phase-5-testing-verification.md](./phase-5-testing-verificatio
 
 ## 9. Next steps
 
-Phase 6 — Deployment and rollout (PRD §9.6):
+Phase 7 — Deployment and rollout (PRD §9.7):
 
 1. Complete Netlify dashboard checklist ([phase-5-testing-verification.md](./phase-5-testing-verification.md) §3.2)
-2. Production smoke tests: page load, forms, analytics
+2. Production smoke tests: page load, forms, analytics, blog routes and feeds
 3. Monitoring/alerting and rollback plan
 4. Founder sign-off on copy, logo, privacy policy before broad traffic

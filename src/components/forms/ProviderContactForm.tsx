@@ -74,7 +74,7 @@ export function ProviderContactForm() {
       />
 
       <ConsentField error={fieldErrors.consent}>
-        I agree to EnRollifyEdu contacting me about my enquiry and understand my details will be
+        I agree to Enrollify contacting me about my enquiry and understand my details will be
         handled in line with the{' '}
         <a href={footerContent.privacyHref} className="text-text-secondary underline">
           privacy policy

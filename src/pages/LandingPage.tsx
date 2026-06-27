@@ -1,19 +1,29 @@
+import { HomeMetaTags } from '@/components/seo/HomeMetaTags'
 import { Hero } from '@/sections/Hero'
-import { WhoWereFor } from '@/sections/WhoWereFor'
+import { TrustBar } from '@/sections/TrustBar'
+import { ExploreFeatured } from '@/sections/ExploreFeatured'
 import { HowItWorks } from '@/sections/HowItWorks'
 import { Benefits } from '@/sections/Benefits'
 import { SupportingContent } from '@/sections/SupportingContent'
-import { StudentInterest } from '@/sections/StudentInterest'
+import { StudentJourney } from '@/sections/StudentJourney'
+import { CourseCategories } from '@/sections/CourseCategories'
+import { AboutEnrollifyNz } from '@/sections/AboutEnrollifyNz'
+import { FinalCta } from '@/sections/FinalCta'
 
 export function LandingPage() {
   return (
     <>
+      <HomeMetaTags />
       <Hero />
-      <WhoWereFor />
+      <TrustBar />
+      <ExploreFeatured />
       <HowItWorks />
       <Benefits />
       <SupportingContent />
-      <StudentInterest />
+      <StudentJourney />
+      <CourseCategories />
+      <AboutEnrollifyNz />
+      <FinalCta />
     </>
   )
 }

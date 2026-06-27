@@ -1,4 +1,15 @@
-type IconName = 'calendar' | 'shield' | 'spark' | 'play' | 'users' | 'globe' | 'check'
+type IconName =
+  | 'calendar'
+  | 'shield'
+  | 'spark'
+  | 'play'
+  | 'users'
+  | 'globe'
+  | 'check'
+  | 'compass'
+  | 'search'
+  | 'path'
+  | 'document'
 
 type IconProps = {
   name: IconName
@@ -34,6 +45,31 @@ const paths: Record<IconName, React.ReactNode> = {
     </>
   ),
   check: <path d="M20 6L9 17l-5-5" />,
+  compass: (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="8" />
+      <path d="M21 21l-4.35-4.35" />
+    </>
+  ),
+  path: (
+    <>
+      <circle cx="6" cy="18" r="2" />
+      <circle cx="18" cy="6" r="2" />
+      <path d="M8 16l8-8" />
+    </>
+  ),
+  document: (
+    <>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+    </>
+  ),
 }
 
 export function Icon({ name, className = 'h-6 w-6' }: IconProps) {

@@ -120,8 +120,13 @@ Location: **`/enrollify-manage`** on the Netlify site ([`src/pages/admin/`](../.
 | `/enrollify-manage/login` | Email/password → Supabase Auth session |
 | `/enrollify-manage` | Unified dashboard — welcome message, leads, notes, Hot/Warm/Cold filters, search, CSV export |
 | `/enrollify-manage/leads/[id]` | Chat view, enrolment status |
+| `/enrollify-manage/posts` | Blog post list (Supabase direct — not `/api/admin/*`) |
+| `/enrollify-manage/posts/new` | Create blog post |
+| `/enrollify-manage/posts/:id` | Edit blog post |
 | `/enrollify-manage/settings/profile` | Staff profile — name and email (Phase 5) |
 | `/enrollify-manage/settings/ai-providers` | AI provider management |
+
+**Data access:** Leads, notes, analytics, and AI providers use `/api/admin/*` via `apiFetch`. Blog posts use Supabase client directly (`src/lib/blog.ts`) — see [phase-6-blog.md](../../Documents/phase-6-blog.md).
 
 Not linked from public navigation. Blocked in [`public/robots.txt`](../../public/robots.txt).
 

@@ -20,10 +20,12 @@ Phase 1 establishes project structure, hosting approach, content outline, data-h
 
 | Layer | Choice | Notes |
 |-------|--------|-------|
-| Framework | **Vite + React 19** | Single-page landing page; no client router required |
+| Framework | **Vite + React 19** | Landing page at `/`; React Router 7 added in Phase 6 for blog and contact |
 | Language | **TypeScript** | Strict mode enabled |
 | Styling | **Tailwind CSS v4** + CSS vars from `design.json` | Theme mapped in `tailwind.config.ts` |
-| Hosting | **Netlify** | HTTPS by default; SPA fallback configured |
+| Routing | **React Router DOM 7** | `/`, `/contact`, `/blog`, `/blog/:slug`, `/enrollify-manage/*` (Phase 6) |
+| Database | **Supabase** (Postgres + Auth + Storage) | Blog posts + admin auth; publishable key + RLS (Phase 6) |
+| Hosting | **Netlify** | HTTPS by default; SPA fallback; blog edge function |
 
 ### 2.2 Deviation from PRD
 
@@ -31,15 +33,15 @@ The PRD (§3.1, NFR-4) specifies **Next.js**. The team confirmed keeping **Vite 
 
 **Rationale:** Single scrollable page with anchor navigation does not require Next.js routing or SSR. Form handling will use Netlify Forms (Phase 2) or Netlify Functions instead of Next.js API routes.
 
-**Risk:** Low for v1 scope. Revisit if multi-page marketing site or SSR/SEO requirements emerge.
+**Risk:** Low for v1 landing scope. Phase 6 added React Router for blog and contact routes — see [phase-6-blog.md](./phase-6-blog.md).
 
 ---
 
 ## 3. Routing, hosting, and deployment
 
-### 3.1 Routing model
+### 3.1 Routing model (landing page — Phase 1)
 
-Single-page application at `/` with in-page anchor navigation:
+Single scrollable landing page at `/` with in-page anchor navigation:
 
 | Section | Anchor ID | PRD |
 |---------|-----------|-----|
@@ -52,6 +54,8 @@ Single-page application at `/` with in-page anchor navigation:
 | Student interest | `#student-interest` | FR-5 (secondary) |
 
 Primary hero CTA scrolls to `#provider-contact` (FR-1 acceptance criteria).
+
+**Post-v1 (Phase 6):** Additional SPA routes — `/contact`, `/blog`, `/blog/:slug`, and hidden admin at `/enrollify-manage/*`. Documented in [phase-6-blog.md](./phase-6-blog.md).
 
 ### 3.2 Netlify configuration
 

@@ -1,1 +1,1 @@
-export { benefitItems } from './site'
+export { benefitItems, whyEnrollifyContent } from './site'

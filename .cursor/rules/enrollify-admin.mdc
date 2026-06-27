@@ -1,6 +1,6 @@
 ---
-description: Enrollify admin panel — auth, staff profiles, lead notes, and API conventions
-globs: src/pages/admin/**,src/components/admin/**,src/lib/admin/**,apps/backend/src/routes/admin/**,apps/backend/src/middleware/authJwt.ts,apps/backend/src/services/AdminBootstrapService.ts,apps/backend/src/repositories/*Profile*,apps/backend/src/repositories/StudentNote*
+description: Enrollify admin panel — auth, staff profiles, lead notes, blog, and API conventions
+globs: src/pages/admin/**,src/components/admin/**,src/lib/admin/**,src/components/admin/blog/**,src/lib/blog*.ts,src/hooks/useBlog.ts,apps/backend/src/routes/admin/**,apps/backend/src/middleware/authJwt.ts,apps/backend/src/services/AdminBootstrapService.ts,apps/backend/src/repositories/*Profile*,apps/backend/src/repositories/StudentNote*
 alwaysApply: false
 ---
 
@@ -11,7 +11,7 @@ alwaysApply: false
 - **Canonical admin UI:** Vite SPA at `/enrollify-manage` (`src/pages/admin/`, `src/lib/admin/`)
 - **Legacy:** `apps/admin/` Next.js app is deprecated — do not extend
 - **Hybrid data access:**
-  - **Supabase (SPA):** auth session, own `staff_profiles` read/update/insert, email change via `updateUser`
+  - **Supabase (SPA):** auth session, own `staff_profiles` read/update/insert, email change via `updateUser`, **blog posts** CRUD via `src/lib/blog.ts`
   - **Express API (`/api/admin/*`):** leads, notes, analytics, AI providers, exports — via `src/lib/admin/api.ts`
 
 ## Auth
@@ -27,6 +27,13 @@ alwaysApply: false
 On login, `signInAsAdmin` calls `ensureStaffProfile` (client insert if row missing). Backend startup backfill is the fallback.
 
 Missing profile on API routes → `401 Staff profile not found`. Fix: sign in again (client bootstrap) or restart backend.
+
+## Blog (Phase 6)
+
+- **Routes:** `/enrollify-manage/posts`, `/posts/new`, `/posts/:id`
+- **Data:** Supabase `blog_posts` + `blog-images` storage — direct client calls, not Express API
+- **RLS:** Public read published only; admin full CRUD via `is_admin()`
+- **Docs:** [Documents/phase-6-blog.md](../../Documents/phase-6-blog.md)
 
 ## Leads and notes
 
@@ -52,7 +59,7 @@ Missing profile on API routes → `401 Staff profile not found`. Fix: sign in ag
 
 ## UI patterns
 
-- Layout: `AdminShell` sidebar + `<Outlet />`
-- Errors: `ErrorBanner` with optional retry
+- Layout: `AdminShell` sidebar + `<Outlet />` (nav includes Dashboard, Blog, AI Providers, Profile)
+- Errors: `ErrorBanner` with optional retry; blog admin uses `AdminErrorBoundary`
 - Modals: lightweight fixed overlay (see `LeadNotesModal`) — no modal library unless justified
 - Hidden from public nav; `robots.txt` disallows `/enrollify-manage`

@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { navLinks } from '@/content/site'
-import { handleNavClick } from '@/lib/scroll'
+import { isNavLinkActive, navLinkClassName } from '@/lib/nav'
 import { routes } from '@/lib/routes'
 import { Button } from '@/components/ui/Button'
 import { Logo } from '@/components/ui/Logo'
@@ -10,45 +10,29 @@ export function Navbar() {
   const location = useLocation()
 
   return (
-    <header className="relative py-7">
-      <div
-        className="container mx-auto grid min-h-[72px] grid-cols-[1fr_auto] items-center gap-4 min-[900px]:grid-cols-[1fr_auto_1fr] min-[900px]:gap-5"
-      >
-        <Link to={routes.home} className="justify-self-start" aria-label="EnRollifyEdu home">
+    <header className="sticky top-0 z-40 border-b-2 border-accent-primary/15 bg-background-primary/95 backdrop-blur-sm">
+      <div className="container mx-auto grid min-h-[72px] grid-cols-[1fr_auto] items-center gap-4 py-4 min-[900px]:grid-cols-[1fr_auto_1fr] min-[900px]:gap-5 min-[900px]:py-5">
+        <Link to={routes.home} className="justify-self-start" aria-label="Enrollify home">
           <Logo />
         </Link>
 
-        <nav className="hidden items-center justify-center gap-9 min-[900px]:flex" aria-label="Main">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="font-body text-[17px] text-nav-link transition-colors hover:text-stroke-primary"
-              onClick={(e) => handleNavClick(e, link.href)}
-            >
-              {link.label}
-            </a>
-          ))}
-          <Link
-            to={routes.blog}
-            className={`font-body text-[17px] transition-colors hover:text-stroke-primary ${
-              location.pathname.startsWith('/blog') ? 'text-stroke-primary font-semibold' : 'text-nav-link'
-            }`}
-          >
-            Blog
-          </Link>
+        <nav
+          className="hidden items-center justify-center gap-5 min-[900px]:flex min-[1100px]:gap-6"
+          aria-label="Main navigation"
+        >
+          {navLinks.map((link) => {
+            const isActive = isNavLinkActive(location.pathname, link.href)
+            return (
+              <Link key={link.href} to={link.href} className={navLinkClassName(isActive)}>
+                {link.label}
+              </Link>
+            )
+          })}
         </nav>
 
         <div className="flex items-center justify-end gap-3">
-          <Link to={routes.studentInterest}>
-            <Button variant="secondary" size="sm" className="hidden min-[600px]:inline-flex">
-              Student interest
-            </Button>
-          </Link>
-          <Link to={routes.contact}>
-            <Button size="sm" className="hidden min-[480px]:inline-flex">
-              Contact us
-            </Button>
+          <Link to={routes.bookConsultation} className="hidden min-[900px]:inline-flex">
+            <Button size="sm">Book a Free Consultation</Button>
           </Link>
           <MobileNav />
         </div>

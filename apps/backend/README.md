@@ -2,6 +2,8 @@
 
 Express + TypeScript API for Facebook Messenger webhooks, AI conversation handling, and admin panel auth.
 
+**Blog:** Blog post CRUD is handled by the Vite SPA via Supabase client + RLS — no blog routes in this backend. See [Documents/phase-6-blog.md](../../Documents/phase-6-blog.md).
+
 ## Setup
 
 ```bash

@@ -8,8 +8,8 @@ export function ProviderContact() {
       <div className="mx-auto max-w-3xl">
         <SectionHeader
           eyebrow="Primary action"
-          title="Contact EnRollifyEdu"
-          intro="Tell us about your institution and recruitment goals. We'll follow up to explore whether EnRollifyEdu is a fit."
+          title="Contact Enrollify"
+          intro="Tell us about your institution and recruitment goals. We'll follow up to explore whether Enrollify is a fit."
           className="mb-8"
         />
 

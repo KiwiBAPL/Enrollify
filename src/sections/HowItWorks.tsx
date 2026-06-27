@@ -7,10 +7,10 @@ export function HowItWorks() {
     <Section id="how-it-works" variant="secondary">
       <SectionHeader
         title="How it works"
-        intro="A structured, end-to-end recruitment process — from first contact through to enrolment handoff."
+        intro="A clear path from exploring your options to applying with confidence — with free guidance from local New Zealand experts."
       />
 
-      <ol className="grid list-none gap-5 p-0 md:grid-cols-2 xl:grid-cols-5">
+      <ol className="grid list-none gap-5 p-0 md:grid-cols-2 xl:grid-cols-4">
         {processSteps.map((step, index) => (
           <li
             key={step.id}

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /enrollify-manage/
-Sitemap: https://enrollifyedu.com/sitemap.xml
+Sitemap: https://www.enrollifyedu.com/sitemap.xml

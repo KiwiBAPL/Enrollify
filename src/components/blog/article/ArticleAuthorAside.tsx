@@ -1,5 +1,5 @@
 const DEFAULT_AUTHOR_BIO =
-  'EnRollifyEdu helps education providers recruit better-qualified international students with technology-enabled workflows and lower recruitment costs.'
+  'Enrollify helps international students explore courses, career pathways, visas and costs in New Zealand — with free guidance from local experts.'
 
 interface ArticleAuthorAsideProps {
   authorName: string

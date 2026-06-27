@@ -172,16 +172,29 @@ Supabase/RLS patterns are **not applicable** (Netlify Forms MVP).
 | Regression baseline | **Pass** |
 | Phase 5 documentation | **Pass** |
 
-Phase 5 **engineering verification is complete**. Operational sign-off on Netlify dashboard items (§3.2) is the remaining gate before Phase 6 deployment smoke tests.
+Phase 5 **engineering verification is complete**. Operational sign-off on Netlify dashboard items (§3.2) is the remaining gate before Phase 7 deployment smoke tests.
 
 ---
 
-## 10. Next steps (Phase 6)
+## 10. Post-v1: Phase 6 blog testing
+
+Blog unit tests and security verification were added after Phase 5 closed the landing-page PRD cycle:
+
+```bash
+npm test                  # Includes blog-validation, feeds, sanitize, etc.
+npm run test:security     # verify-rls.ts + verify-feeds.ts
+```
+
+Full blog verification checklist: [phase-6-blog.md](./phase-6-blog.md) §9.
+
+---
+
+## 11. Next steps (Phase 7)
 
 1. Complete Netlify dashboard checklist (§3.2) and redeploy
-2. Run production smoke tests: page load, both forms, notification emails, analytics events
+2. Run production smoke tests: page load, both forms, notification emails, analytics events, blog routes and feeds
 3. Set up monitoring/alerting for availability and form failures
 4. Define rollback plan and direct traffic to the page
 5. Finalise privacy policy URL, founder copy review, and logo asset before public launch
 
-See PRD §9.6 Phase 6 — Deployment and rollout.
+See PRD §9.7 Phase 7 — Deployment and rollout.

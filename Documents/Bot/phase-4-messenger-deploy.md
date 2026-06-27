@@ -137,16 +137,23 @@ Staff admin is integrated into the marketing site at **`/enrollify-manage`** (no
 | `/enrollify-manage/login` | Supabase Auth login |
 | `/enrollify-manage` | Unified leads dashboard — welcome, notes, Hot/Warm/Cold filters |
 | `/enrollify-manage/leads/:id` | Conversation + enrolment status |
+| `/enrollify-manage/posts` | Blog post list |
+| `/enrollify-manage/posts/new` | Create blog post |
+| `/enrollify-manage/posts/:id` | Edit blog post |
 | `/enrollify-manage/settings/profile` | Staff profile (name, email) |
 | `/enrollify-manage/settings/ai-providers` | AI provider settings |
+
+Blog CRUD uses Supabase client + RLS only (no Express routes) — [phase-6-blog.md](../../Documents/phase-6-blog.md).
 
 ### Netlify configuration
 
 1. Set **`BACKEND_URL`** in Netlify site env to your Railway backend URL (no trailing slash)
    - Example: `https://enrollify-backend.up.railway.app`
-2. Set **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_PUBLISHABLE_KEY`** in Netlify env (admin auth)
-3. Build command appends `/api/*` proxy to `dist/_redirects` (see [`netlify.toml`](../../netlify.toml))
-4. Set Railway **`CORS_ORIGIN=https://enrollifyedu.com`** (and `http://localhost:5180` for local dev)
+2. Set **`VITE_SUPABASE_URL`** and **`VITE_SUPABASE_PUBLISHABLE_KEY`** in Netlify env (admin auth + blog; scope **All** for build-time feeds)
+3. Build command runs `generate:feeds` after Vite build (RSS, sitemap, OG shells) — see [phase-6-blog.md](../../Documents/phase-6-blog.md)
+4. Edge function `blog-og` deploys for `/blog/*` social crawlers — see [`netlify.toml`](../../netlify.toml)
+5. Build command appends `/api/*` proxy to `dist/_redirects` (see [`netlify.toml`](../../netlify.toml))
+6. Set Railway **`CORS_ORIGIN=https://enrollifyedu.com`** (and `http://localhost:5180` for local dev)
 
 ### Supabase Auth (password reset)
 

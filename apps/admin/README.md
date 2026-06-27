@@ -4,7 +4,7 @@
 
 **`/enrollify-manage`** on enrollifyedu.com (Vite + React Router in `src/`)
 
-Use this folder as reference only. Do not deploy to Vercel.
+Integrated admin includes leads dashboard, **blog post management** at `/enrollify-manage/posts`, staff profile, and AI providers. Blog CRUD uses Supabase directly — see [Documents/phase-6-blog.md](../../Documents/phase-6-blog.md).
 
 ## Local development (legacy)
 

@@ -6,12 +6,16 @@ type LogoProps = {
 
 export function Logo({ className = '' }: LogoProps) {
   return (
-    <img
-      src={logo}
-      alt="EnRollifyEdu"
-      width={500}
-      height={500}
-      className={`h-[140px] w-auto shrink-0 ${className}`}
-    />
+    <span className={`inline-flex items-center gap-3 ${className}`}>
+      <img
+        src={logo}
+        alt=""
+        width={500}
+        height={500}
+        aria-hidden="true"
+        className="h-[140px] w-auto shrink-0"
+      />
+      <span className="sr-only">Enrollify</span>
+    </span>
   )
 }

@@ -87,7 +87,7 @@ export function StudentInterestForm() {
       </div>
 
       <ConsentField error={fieldErrors.consent}>
-        I agree to EnRollifyEdu storing my details to connect me with relevant education providers,
+        I agree to Enrollify storing my details to connect me with relevant education providers,
         in line with the{' '}
         <a href={footerContent.privacyHref} className="text-text-secondary underline">
           privacy policy

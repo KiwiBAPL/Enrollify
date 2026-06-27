@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useId, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { navLinks } from '@/content/site'
+import { isNavLinkActive, mobileNavLinkClassName } from '@/lib/nav'
 import { routes } from '@/lib/routes'
-import { handleNavClick } from '@/lib/scroll'
-
-const mobileExtraLinks = [
-  { label: 'Blog', href: routes.blog, isRoute: true },
-  { label: 'Student interest', href: routes.studentInterest, isRoute: false },
-  { label: 'Contact', href: routes.contact, isRoute: true },
-]
+import { Button } from '@/components/ui/Button'
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
   const panelId = useId()
+  const location = useLocation()
 
   const close = useCallback(() => setOpen(false), [])
+
+  useEffect(() => {
+    close()
+  }, [close, location.pathname])
 
   useEffect(() => {
     if (!open) return
@@ -51,52 +51,43 @@ export function MobileNav() {
       </button>
 
       {open ? (
-        <nav
-          id={panelId}
-          aria-label="Mobile"
-          className="absolute left-0 right-0 top-full z-50 border-b-2 border-accent-primary bg-background-secondary px-4 py-5 shadow-hard-accent"
-        >
-          <ul className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  className="block rounded-card px-3 py-3 font-body text-base font-semibold text-nav-link hover:bg-accent-mint/30 hover:text-stroke-primary"
-                  onClick={(e) => {
-                    handleNavClick(e, link.href)
-                    close()
-                  }}
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
-            {mobileExtraLinks.map((link) => (
-              <li key={link.href}>
-                {link.isRoute ? (
-                  <Link
-                    to={link.href}
-                    className="block rounded-card px-3 py-3 font-body text-base font-semibold text-nav-link hover:bg-accent-mint/30 hover:text-stroke-primary"
-                    onClick={close}
-                  >
-                    {link.label}
-                  </Link>
-                ) : (
-                  <a
-                    href={link.href}
-                    className="block rounded-card px-3 py-3 font-body text-base font-semibold text-nav-link hover:bg-accent-mint/30 hover:text-stroke-primary"
-                    onClick={(e) => {
-                      handleNavClick(e, link.href)
-                      close()
-                    }}
-                  >
-                    {link.label}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <div className="fixed inset-0 z-50 flex flex-col">
+          <button
+            type="button"
+            className="absolute inset-0 bg-stroke-primary/40"
+            aria-label="Close menu"
+            onClick={close}
+          />
+          <nav
+            id={panelId}
+            aria-label="Main navigation"
+            className="relative ml-auto flex h-full w-full max-w-sm flex-col border-l-2 border-accent-primary bg-background-secondary shadow-hard-accent"
+          >
+            <div className="flex-1 overflow-y-auto px-4 py-5">
+              <ul className="flex flex-col gap-1 p-0">
+                {navLinks.map((link) => {
+                  const isActive = isNavLinkActive(location.pathname, link.href)
+                  return (
+                    <li key={link.href} className="list-none">
+                      <Link
+                        to={link.href}
+                        className={mobileNavLinkClassName(isActive)}
+                        onClick={close}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+            <div className="border-t-2 border-accent-primary/20 p-4">
+              <Link to={routes.bookConsultation} className="block w-full" onClick={close}>
+                <Button className="w-full">Book a Free Consultation</Button>
+              </Link>
+            </div>
+          </nav>
+        </div>
       ) : null}
     </div>
   )

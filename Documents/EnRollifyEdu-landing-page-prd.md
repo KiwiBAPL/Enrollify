@@ -4,21 +4,21 @@
 
 | Field | Details |
 |------|--------|
-| Product / feature name | EnRollifyEdu Website Landing Page |
+| Product / feature name | EnRollifyEdu Marketing Site (landing page + blog) |
 | Product type | IT / software product |
 | Document owner | TBD (founder assignment) |
-| Contributors | Engineering (Phases 1–5 implementation) |
-| Status | **PRD implementation complete** — Phases 1–5 and §10 quality check done; Phase 6 deployment and launch prep deferred |
-| Version | 1.0 |
-| Last updated | 2026-06-20 |
+| Contributors | Engineering (Phases 1–6 implementation) |
+| Status | **Landing page complete** (Phases 1–5); **blog module complete** (Phase 6); Phase 7 deployment and launch prep deferred |
+| Version | 1.1 |
+| Last updated | 2026-06-27 |
 | Target release | Pre-launch (pending Netlify E2E, copy, logo, privacy policy) |
-| Linked artefacts | [quality-check.md](./quality-check.md); [phase-1-discovery.md](./phase-1-discovery.md) through [phase-5-testing-verification.md](./phase-5-testing-verification.md); EnRollifyEdu brief; logo (pending); design.json |
+| Linked artefacts | [quality-check.md](./quality-check.md); [phase-1-discovery.md](./phase-1-discovery.md) through [phase-6-blog.md](./phase-6-blog.md); EnRollifyEdu brief; logo (pending); design.json |
 
 ## 1. Overview
 
 ### 1.1 Summary
 
-The EnRollifyEdu Website Landing Page is a new, single-page marketing site aimed primarily at education providers in New Zealand and globally who want to recruit qualified international students more efficiently.[cite:10] It communicates EnRollifyEdu’s technology-enabled, end-to-end recruitment approach and is designed to drive high-intent providers to contact EnRollifyEdu, while also giving international students a lightweight way to register interest without distracting from the provider-focused narrative.[cite:10]
+The EnRollifyEdu marketing site combines a provider-first landing page with a public blog for content and SEO. The landing page remains a single scrollable page at `/` aimed primarily at education providers in New Zealand and globally who want to recruit qualified international students more efficiently.[cite:10] It communicates EnRollifyEdu’s technology-enabled, end-to-end recruitment approach and is designed to drive high-intent providers to contact EnRollifyEdu, while also giving international students a lightweight way to register interest without distracting from the provider-focused narrative.[cite:10] Phase 6 adds `/blog` listing and article pages plus hidden admin authoring at `/enrollify-manage/posts` — see [phase-6-blog.md](./phase-6-blog.md).
 
 ### 1.2 Background
 
@@ -71,10 +71,11 @@ The primary user is a decision-maker at an education provider, such as a directo
 - Responsive layout for desktop and mobile.[cite:10]
 - Basic analytics for pageviews and form submissions, plus simple notifications on form submissions.[cite:10]
 - Use of the EnRollifyEdu logo and initial brand direction from the brief.[cite:10]
+- **Blog module (Phase 6):** public `/blog` listing and `/blog/:slug` detail; hidden admin post CRUD at `/enrollify-manage/posts`; Supabase `blog_posts` + RLS; RSS at `/blog/rss.xml`; sitemap and OG meta for social crawlers — [phase-6-blog.md](./phase-6-blog.md).[cite:10]
 
 ### 3.2 Out of scope
 
-- Multi-page marketing site, including separate About, For Students, or For Providers pages.[cite:10]
+- Additional marketing pages beyond the landing page and blog (e.g. separate About, For Students, or For Providers pages).[cite:10]
 - Provider self-serve portal, dashboards, or login flows.[cite:10]
 - Student application workflows beyond register interest, such as document uploads or full applications.[cite:10]
 - Deep CRM or SIS integrations beyond simple notifications or low-complexity integrations.[cite:10]
@@ -213,6 +214,26 @@ Must.[cite:10]
 - Given a user loads the landing page, when the page renders successfully, then a pageview event is triggered to the configured analytics tool.[cite:10]
 - Given a provider-contact or student-interest form is submitted successfully, when the submission completes, then a distinct analytics event is triggered indicating the submission type.[cite:10]
 
+#### FR-8 Blog module (Phase 6)
+
+**Requirement**  
+The system shall provide a blog with admin-only authoring, public listing and detail pages, draft/publish lifecycle, SEO metadata, RSS, and sitemap entries.[cite:10]
+
+**Rationale**  
+EnRollifyEdu needs an in-house content channel for thought leadership and organic search visibility without external platforms.[cite:10]
+
+**Priority**  
+Should (Phase 6 — complete).[cite:10]
+
+**Acceptance criteria**  
+See [phase-6-blog.md](./phase-6-blog.md) §9 for full verification. Summary:
+
+- Given an admin user, when they create and publish a post, then it appears on `/blog` and `/blog/:slug` with correct SEO meta.
+- Given a draft post, when a public visitor browses listing, detail, or RSS, then the draft is absent.
+- Given published posts exist, when `/blog/rss.xml` or `/sitemap.xml` is requested, then valid feeds return published posts only.
+- Given a non-admin user, when they access `/enrollify-manage/posts`, then access is denied and they are redirected to login.
+- Blog CRUD uses Supabase client + RLS only — no Express backend routes.
+
 ### 5.2 Non-functional requirements
 
 #### NFR-1 Performance and responsiveness
@@ -294,7 +315,9 @@ Should.[cite:10]
 |----|--------|---------|-------------|------|
 | Provider contact form fields | Provider user [cite:10] | Follow-up and qualification [cite:10] | Personal/contact [cite:10] | Organisation name, contact name, role, work email, phone (optional), country/region, needs description, consent. [cite:10] |
 | Student register-interest form fields | Student user [cite:10] | Routing to relevant providers and pipeline insight [cite:10] | Personal/contact [cite:10] | Full name, email, country of residence, study level, area of study (optional), consent. [cite:10] |
-| Analytics events | Frontend [cite:10] | Conversion tracking and optimisation [cite:10] | Pseudonymous [cite:10] | `pageview`, `provider_contact_submit`, `student_interest_submit` (+ error events). Plausible or GA4 via env vars. [cite:10] |
+| Analytics events | Frontend [cite:10] | Conversion tracking and optimisation [cite:10] | Pseudonymous [cite:10] | `pageview`, `provider_contact_submit`, `student_interest_submit` (+ error events). Plausible or GA4 via env vars. Admin routes excluded from tracking. [cite:10] |
+| Blog posts | Admin user via Supabase [cite:10] | Public articles, SEO, syndication [cite:10] | Content [cite:10] | `blog_posts` table; draft/published lifecycle; see [phase-6-blog.md](./phase-6-blog.md). [cite:10] |
+| Blog images | Admin upload via Supabase Storage [cite:10] | Featured and inline article images [cite:10] | Content [cite:10] | `blog-images` bucket; 2 MB; JPEG/PNG/WebP. [cite:10] |
 
 ### 7.2 Integrations
 
@@ -302,6 +325,8 @@ Should.[cite:10]
 |----------------|---------|-----------------|-------|--------------|
 | Analytics tool | Track pageviews and form submissions via Plausible or GA4 (`VITE_ANALYTICS_PROVIDER`, `VITE_ANALYTICS_ID`). [cite:10] | Technical [cite:10] | Engineering [cite:10] | Provider choice at Netlify deploy; see [phase-4-integrations.md](./phase-4-integrations.md). [cite:10] |
 | Email / notification channel | Receive provider and student submissions via Netlify Forms email notifications. [cite:10] | Technical / Operational [cite:10] | Engineering / Ops [cite:10] | Configure in Netlify dashboard; manual handling at launch. [cite:10] |
+| Supabase (Postgres + Auth + Storage) | Blog posts, admin auth, image storage; RLS enforces access. [cite:10] | Technical [cite:10] | Engineering [cite:10] | `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY` in browser and build scripts; see [phase-6-blog.md](./phase-6-blog.md). [cite:10] |
+| Netlify build + edge | RSS, sitemap, OG HTML shells; runtime OG for social crawlers. [cite:10] | Technical [cite:10] | Engineering [cite:10] | `generate:feeds` post-build; `blog-og` edge function. [cite:10] |
 
 ## 8. Risks, dependencies, and open questions
 
@@ -368,10 +393,19 @@ Goal: understand constraints, confirm scope, and identify security consideration
 - Perform security validation, including HTTPS enforcement, review of form-data handling, and confirmation that sensitive data is not logged insecurely.[cite:3][cite:6][cite:10]
 - Fix issues discovered during verification.[cite:10]
 
-### 9.6 Phase 6 – Deployment and rollout
+### 9.6 Phase 6 – Blog module
 
-- Deploy the landing page to the chosen hosting environment.[cite:10]
-- Run smoke tests for page load, forms, and analytics events.[cite:10]
+- Implement Supabase schema, RLS, and storage for blog posts.[cite:10]
+- Build admin post list and editor with Quill, image upload, and publish validation.[cite:10]
+- Build public `/blog` listing and `/blog/:slug` detail with SEO meta, RSS, sitemap, and OG support.[cite:10]
+- Verify with unit tests and RLS script — [phase-6-blog.md](./phase-6-blog.md).[cite:10]
+
+**Status:** Complete (2026-06-27).
+
+### 9.7 Phase 7 – Deployment and rollout
+
+- Deploy the marketing site to the chosen hosting environment.[cite:10]
+- Run smoke tests for page load, forms, analytics events, and blog routes.[cite:10]
 - Set up monitoring or alerting for availability and form failures.[cite:10]
 - Define a rollback plan for critical issues and begin directing traffic to the page.[cite:3][cite:10]
 
@@ -385,13 +419,14 @@ See [quality-check.md](./quality-check.md) for the full report. Summary:
 - Important functional and non-functional requirements include concrete acceptance criteria.[cite:3][cite:10]
 - The Implementation Roadmap starts with Phase 1 Discovery and setup and includes security review in Phase 1 and Phase 5.[cite:3][cite:6][cite:10]
 - Phases 1–5 complete: all Must FRs implemented; form fields and student placement resolved; security validated; build and local/preview verification pass.[cite:10]
+- Phase 6 blog module complete: admin CRUD, public pages, feeds, RLS verified — [phase-6-blog.md](./phase-6-blog.md).[cite:10]
 
 ### 10.2 Issues
 
 - Document owner, contributors, and target release remain TBD (founder assignment).[cite:3][cite:10]
 - Success measure baselines/targets to be set post-launch.[cite:10]
 - Draft copy, logo asset, and privacy policy URL pending founder/legal review before public launch.[cite:10]
-- Netlify live E2E (forms, notifications, production analytics) pending Phase 6 dashboard confirmation.[cite:10]
+- Netlify live E2E (forms, notifications, production analytics, blog feeds) pending Phase 7 dashboard confirmation.[cite:10]
 
 ### 10.3 Actions
 
@@ -401,7 +436,8 @@ See [quality-check.md](./quality-check.md) for the full report. Summary:
 | Confirm student form placement → UX/requirements | Done |
 | Decide analytics tool → update §7.2 | Partial — dual-provider; choice at Netlify deploy |
 | Assign document owner and contributors | Open |
-| Phase 6 deployment and smoke tests | Next — §9.6 |
+| Phase 6 blog module | Done — §9.6 |
+| Phase 7 deployment and smoke tests | Next — §9.7 |
 
 ## 11. Approvals
 

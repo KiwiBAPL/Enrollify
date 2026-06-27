@@ -1,7 +1,7 @@
 import type { Context } from '@netlify/edge-functions'
 
-const SITE_URL = 'https://enrollifyedu.com'
-const SITE_NAME = 'EnRollifyEdu'
+const SITE_URL = 'https://www.enrollifyedu.com'
+const SITE_NAME = 'Enrollify'
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`
 
 interface SupabasePostRow {

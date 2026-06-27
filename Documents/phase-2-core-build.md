@@ -51,7 +51,7 @@ Inline errors appear under each field; submission is blocked until valid (FR-4, 
 
 | Event name | Trigger |
 |------------|---------|
-| `pageview` | Page load ([`src/App.tsx`](../src/App.tsx)) |
+| `pageview` | Page load ([`src/main.tsx`](../src/main.tsx) via `initAnalytics`) |
 | `provider_contact_submit` | Successful provider form POST |
 | `student_interest_submit` | Successful student form POST |
 
@@ -66,7 +66,7 @@ VITE_ANALYTICS_ID=your-domain-or-measurement-id
 - **GA4:** loads gtag with `send_page_view: false` (manual pageview event)
 - **Dev / unset env:** console info only — no script injection, no PII logged
 
-Phase 4 will finalise production verification and monitoring.
+Phase 4 will finalise production verification and monitoring. Additional routes added in Phase 6 (blog) — see [phase-6-blog.md](./phase-6-blog.md).
 
 ---
 

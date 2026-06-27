@@ -1,13 +1,13 @@
 function resolveSiteUrl(): string {
   if (typeof window === 'undefined') {
-    return 'https://enrollifyedu.com'
+    return 'https://www.enrollifyedu.com'
   }
-  return import.meta.env.PROD ? 'https://enrollifyedu.com' : 'http://localhost:5180'
+  return import.meta.env.PROD ? 'https://www.enrollifyedu.com' : 'http://localhost:5180'
 }
 
 export const SITE_URL = resolveSiteUrl()
 
-export const SITE_NAME = 'EnRollifyEdu'
+export const SITE_NAME = 'Enrollify'
 export const DEFAULT_AUTHOR_NAME = 'EnRollify'
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`
 

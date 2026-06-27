@@ -2,10 +2,18 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { SiteLayout } from '@/components/layout/SiteLayout'
 import { AdminRoute } from '@/components/admin/AdminRoute'
 import { AdminShell } from '@/components/admin/AdminShell'
+import { CityGuidesPage } from '@/pages/CityGuidesPage'
+import { BookConsultationPage } from '@/pages/BookConsultationPage'
+import { CareerGuidesPage } from '@/pages/CareerGuidesPage'
 import { ContactPage } from '@/pages/ContactPage'
+import { FindCoursePage } from '@/pages/FindCoursePage'
+import { FindCourseCategoryPage } from '@/pages/FindCourseCategoryPage'
 import { LandingPage } from '@/pages/LandingPage'
 import { BlogListingPage } from '@/pages/BlogListingPage'
 import { BlogPostDetailPage } from '@/pages/BlogPostDetailPage'
+import { StudentResourcesPage } from '@/pages/StudentResourcesPage'
+import { StudentResourceTopicPage } from '@/pages/StudentResourceTopicPage'
+import { StudyInNewZealandPage } from '@/pages/StudyInNewZealandPage'
 import { AdminAIProvidersPage } from '@/pages/admin/AdminAIProvidersPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { AdminLeadDetailPage } from '@/pages/admin/AdminLeadDetailPage'
@@ -21,6 +29,14 @@ export default function App() {
       <Routes>
         <Route element={<SiteLayout />}>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/study-in-new-zealand" element={<StudyInNewZealandPage />} />
+          <Route path="/find-a-course" element={<FindCoursePage />} />
+          <Route path="/find-a-course/:categorySlug" element={<FindCourseCategoryPage />} />
+          <Route path="/career-guides" element={<CareerGuidesPage />} />
+          <Route path="/student-resources" element={<StudentResourcesPage />} />
+          <Route path="/student-resources/:topic" element={<StudentResourceTopicPage />} />
+          <Route path="/city-guides" element={<CityGuidesPage />} />
+          <Route path="/book-consultation" element={<BookConsultationPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/blog" element={<BlogListingPage />} />
           <Route path="/blog/:slug" element={<BlogPostDetailPage />} />

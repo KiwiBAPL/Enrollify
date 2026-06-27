@@ -1,16 +1,16 @@
-import { benefitItems } from '@/content/benefits'
+import { benefitItems, whyEnrollifyContent } from '@/content/benefits'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export function Benefits() {
   return (
-    <Section id="benefits">
+    <Section id="why-enrollify">
       <SectionHeader
-        title="Outcomes for colleges in New Zealand"
-        intro="Measure EnRollifyEdu by the operational and enrolment outcomes it creates — not enquiry volume alone."
+        title={whyEnrollifyContent.heading}
+        intro={whyEnrollifyContent.intro}
       />
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {benefitItems.map((benefit) => (
           <article
             key={benefit.id}

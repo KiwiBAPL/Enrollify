@@ -1,7 +1,7 @@
 import { DEFAULT_AUTHOR_NAME, SITE_NAME } from './site'
 
 /** Production URL for RSS/sitemap (build scripts always emit production URLs). */
-export const FEED_SITE_URL = 'https://enrollifyedu.com'
+export const FEED_SITE_URL = 'https://www.enrollifyedu.com'
 
 export interface FeedPost {
   title: string

@@ -9,9 +9,29 @@ export type SiteMeta = {
 }
 
 export type FooterContent = {
+  tagline: string
   contactEmail: string
   privacyHref: string
+  termsHref: string
   copyright: string
+}
+
+export type FooterSocialLink = {
+  platform: 'facebook' | 'linkedin' | 'instagram'
+  href: string
+  label: string
+}
+
+export type JourneyStep = {
+  id: string
+  title: string
+  description: string
+  icon: 'compass' | 'search' | 'path' | 'calendar' | 'document'
+}
+
+export type CourseCategory = {
+  label: string
+  slug: string
 }
 
 export type ProcessStep = {
@@ -26,11 +46,15 @@ export type BenefitItem = {
   description: string
 }
 
-export type AudienceCard = {
+export type ExploreCard = {
   id: string
   title: string
-  description: string
-  emphasis: 'primary' | 'secondary'
+  subtitle: string
+  href: string
+  ariaLabel: string
+  imageAlt: string
+  imageSrc?: string
+  accent: 'mint' | 'lavender' | 'purple'
 }
 
 export type HeroContent = {
@@ -38,6 +62,17 @@ export type HeroContent = {
   body: string
   primaryCta: { label: string; href: string }
   secondaryCta?: { label: string; href: string }
+}
+
+export type TrustSignal = {
+  id: string
+  label: string
+  icon: 'globe' | 'users' | 'shield' | 'spark'
+}
+
+export type WhyEnrollifyContent = {
+  heading: string
+  intro: string
 }
 
 export type SupportingContent = {
