@@ -2,6 +2,17 @@
   command = "npm run build && if [ -n \"$BACKEND_URL\" ]; then printf '/api/*  %s/api/:splat  200!\\n' \"$BACKEND_URL\" >> dist/_redirects; fi"
   publish = "dist"
 
+# Blog OG injection for social crawlers (GET/HEAD /blog/:slug only)
+[[edge_functions]]
+  function = "blog-og"
+  path = "/blog/*"
+
+# Serve build-time OG shells before SPA catch-all
+[[redirects]]
+  from = "/blog/:slug"
+  to = "/blog/:slug/index.html"
+  status = 200
+
 # Form submissions use Netlify Forms (detected from hidden forms in index.html).
 # Email notifications are configured in the Netlify dashboard:
 #   Site configuration → Forms → Form notifications

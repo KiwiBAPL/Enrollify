@@ -8,6 +8,7 @@ import { scrollToSection } from '@/lib/scroll'
 
 const pageTitles: Record<string, string> = {
   '/contact': `Contact EnRollifyEdu — ${siteMeta.title.split(' — ')[1] ?? 'EnRollifyEdu'}`,
+  '/blog': `Blog — EnRollifyEdu`,
 }
 
 export function SiteLayout() {

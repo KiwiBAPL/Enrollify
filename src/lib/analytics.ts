@@ -8,6 +8,9 @@ import { dispatchAnalyticsEvent } from '@/lib/analytics/loadScript'
 export { initAnalytics, isAnalyticsReady } from '@/lib/analytics/loadScript'
 
 export function trackPageview(): void {
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/enrollify-manage')) {
+    return
+  }
   dispatchAnalyticsEvent(ANALYTICS_EVENTS.pageview)
 }
 

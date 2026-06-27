@@ -142,3 +142,263 @@
     }
   }
 }
+
+/* Blog — published body, editor, inline images, embeds */
+.blog-embed {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  margin: 1.5rem 0;
+  border-radius: var(--radius-card);
+}
+
+.blog-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.blog-body {
+  max-width: none;
+  line-height: 1.75;
+  color: var(--text-primary);
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.blog-body a {
+  overflow-wrap: anywhere;
+}
+
+.blog-body::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+.blog-body h2,
+.blog-body h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.blog-body h2 {
+  font-size: 1.75rem;
+}
+
+.blog-body h3 {
+  font-size: 1.375rem;
+}
+
+.blog-body p {
+  margin-bottom: 1.25rem;
+}
+
+.blog-body a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-body ul,
+.blog-body ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.blog-body blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  border-left: 4px solid var(--accent-mint);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.blog-body img {
+  border-radius: 0.5rem;
+}
+
+.blog-body .ql-align-right {
+  text-align: right;
+}
+
+.blog-body .ql-align-justify {
+  text-align: justify;
+}
+
+.blog-quill-editor {
+  position: relative;
+}
+
+.blog-quill-editor .ql-toolbar.ql-snow {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #fff;
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+  box-shadow: 0 1px 0 #e5e7eb;
+}
+
+.blog-quill-editor .ql-container {
+  min-height: 280px;
+  font-family: var(--font-body);
+}
+
+.blog-quill-editor .ql-editor {
+  min-height: 280px;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.blog-quill-editor .ql-editor::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+figure.blog-inline-image {
+  margin: 0;
+  padding: var(--blog-img-padding, 0);
+  box-sizing: border-box;
+}
+
+figure.blog-inline-image img {
+  display: block;
+  width: var(--blog-img-width, 100%);
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+figure.blog-inline-image a {
+  display: block;
+  width: 100%;
+}
+
+figure.blog-inline-image--below {
+  display: block;
+  clear: both;
+  width: 100%;
+  margin: 1.5rem auto;
+}
+
+figure.blog-inline-image--left {
+  float: left;
+  clear: left;
+  width: var(--blog-img-width, 50%);
+  max-width: 100%;
+  margin: 0 1.5rem 1rem 0;
+}
+
+figure.blog-inline-image--right {
+  float: right;
+  clear: right;
+  width: var(--blog-img-width, 50%);
+  max-width: 100%;
+  margin: 0 0 1rem 1.5rem;
+}
+
+.blog-body figure.blog-inline-image--left,
+.blog-body figure.blog-inline-image--right,
+.blog-quill-editor .ql-editor figure.blog-inline-image--left,
+.blog-quill-editor .ql-editor figure.blog-inline-image--right {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.blog-body figure.blog-inline-image--left img,
+.blog-body figure.blog-inline-image--right img,
+.blog-quill-editor .ql-editor figure.blog-inline-image--left img,
+.blog-quill-editor .ql-editor figure.blog-inline-image--right img {
+  width: 100%;
+  margin: 0;
+  max-width: 100%;
+}
+
+.blog-body figure.blog-inline-image--below img,
+.blog-quill-editor .ql-editor figure.blog-inline-image--below img,
+.blog-body figure.blog-inline-image:not(.blog-inline-image--left):not(.blog-inline-image--right) img,
+.blog-quill-editor
+  .ql-editor
+  figure.blog-inline-image:not(.blog-inline-image--left):not(.blog-inline-image--right)
+  img {
+  margin: 0;
+  max-width: 100%;
+}
+
+.blog-quill-editor .ql-editor figure.blog-inline-image {
+  cursor: default;
+  position: relative;
+}
+
+.blog-quill-editor .ql-editor img {
+  cursor: pointer;
+}
+
+.blog-quill-editor .ql-editor figure.blog-inline-image img {
+  cursor: default;
+}
+
+.blog-quill-editor .ql-editor figure.blog-inline-image:hover {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.blog-quill-editor .ql-editor img:hover {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+.blog-quill-editor .ql-editor figure.blog-inline-image:hover img {
+  outline: none;
+  border-radius: 0.5rem;
+}
+
+.blog-inline-image-drag-handle {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #d1d5db;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: -0.15em;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+}
+
+.blog-inline-image-drag-handle:active {
+  cursor: grabbing;
+}
+
+.blog-quill-editor .ql-toolbar button.ql-image {
+  width: 28px;
+}
+
+.blog-quill-editor .ql-editor .ql-align-right {
+  text-align: right;
+}
+
+.blog-quill-editor .ql-editor .ql-align-justify {
+  text-align: justify;
+}

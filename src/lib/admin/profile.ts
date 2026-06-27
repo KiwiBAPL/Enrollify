@@ -1,3 +1,4 @@
+import { DEFAULT_AUTHOR_NAME } from '@/lib/site'
 import { getSupabase } from '@/lib/supabase'
 
 export type StaffRole = 'admin' | 'consultant'
@@ -148,4 +149,23 @@ export async function updateStaffProfile(fields: {
   }
 
   return data as StaffProfile
+}
+
+export function formatStaffAuthorName(
+  profile: Pick<StaffProfile, 'first_name' | 'last_name'>,
+): string {
+  return `${profile.first_name.trim()} ${profile.last_name.trim()}`.trim()
+}
+
+const PLACEHOLDER_AUTHOR_NAMES = new Set([DEFAULT_AUTHOR_NAME, 'Admin User'])
+
+export function isPlaceholderAuthorName(name: string): boolean {
+  return PLACEHOLDER_AUTHOR_NAMES.has(name.trim())
+}
+
+export async function resolveAuthorNameForCreate(
+  profile?: StaffProfile | null,
+): Promise<string> {
+  const resolved = profile ?? (await getStaffProfile())
+  return formatStaffAuthorName(resolved) || DEFAULT_AUTHOR_NAME
 }

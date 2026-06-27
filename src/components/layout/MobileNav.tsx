@@ -5,8 +5,9 @@ import { routes } from '@/lib/routes'
 import { handleNavClick } from '@/lib/scroll'
 
 const mobileExtraLinks = [
-  { label: 'Student interest', href: routes.studentInterest },
-  { label: 'Contact', href: routes.contact },
+  { label: 'Blog', href: routes.blog, isRoute: true },
+  { label: 'Student interest', href: routes.studentInterest, isRoute: false },
+  { label: 'Contact', href: routes.contact, isRoute: true },
 ]
 
 export function MobileNav() {
@@ -72,13 +73,26 @@ export function MobileNav() {
             ))}
             {mobileExtraLinks.map((link) => (
               <li key={link.href}>
-                <Link
-                  to={link.href}
-                  className="block rounded-card px-3 py-3 font-body text-base font-semibold text-nav-link hover:bg-accent-mint/30 hover:text-stroke-primary"
-                  onClick={close}
-                >
-                  {link.label}
-                </Link>
+                {link.isRoute ? (
+                  <Link
+                    to={link.href}
+                    className="block rounded-card px-3 py-3 font-body text-base font-semibold text-nav-link hover:bg-accent-mint/30 hover:text-stroke-primary"
+                    onClick={close}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    href={link.href}
+                    className="block rounded-card px-3 py-3 font-body text-base font-semibold text-nav-link hover:bg-accent-mint/30 hover:text-stroke-primary"
+                    onClick={(e) => {
+                      handleNavClick(e, link.href)
+                      close()
+                    }}
+                  >
+                    {link.label}
+                  </a>
+                )}
               </li>
             ))}
           </ul>

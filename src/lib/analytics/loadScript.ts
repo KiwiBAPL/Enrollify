@@ -77,6 +77,10 @@ function loadGa4(measurementId: string): Promise<void> {
 }
 
 export async function initAnalytics(): Promise<void> {
+  if (typeof window !== 'undefined' && window.location.pathname.startsWith('/enrollify-manage')) {
+    return
+  }
+
   if (initialized) {
     flushPendingEvents()
     return
