@@ -1,0 +1,52 @@
+---
+description: Enrollify responsive layout — Tailwind v4 container gutters, mobile nav portal, sticky header traps
+globs: src/**/*.tsx,src/index.css
+alwaysApply: false
+---
+
+# Enrollify UI layout
+
+## Site container (Tailwind v4)
+
+Do **not** define `.container` in `@layer components`. Tailwind v4 emits `@utility container { width: 100% }` in the utilities layer, which overrides component-layer width calc and removes mobile gutters.
+
+**Canonical definition:** [`src/index.css`](../src/index.css) — single `@utility container` with `padding-inline` gutters:
+
+```css
+@utility container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+
+  @variant md { padding-inline: 3rem; }
+  @variant lg { padding-inline: 3.75rem; }
+}
+```
+
+- Do not nest `@utility` inside `@media` — use `@variant` instead (build fails otherwise).
+- Page sections use `className="container mx-auto"` via [`Section.tsx`](../src/components/ui/Section.tsx) or directly in layout/hero.
+- `<main>` has no horizontal padding — children must use `.container`.
+
+## Mobile navigation overlay
+
+[`MobileNav.tsx`](../src/components/layout/MobileNav.tsx) must portal the open overlay to `document.body`:
+
+```tsx
+{overlay ? createPortal(overlay, document.body) : null}
+```
+
+**Why:** [`Navbar.tsx`](../src/components/layout/Navbar.tsx) uses `backdrop-blur-sm` on `<header>`. `backdrop-filter` creates a containing block — inline `position: fixed` overlays are trapped to header height (~180px) instead of the viewport.
+
+Drawer panel: `h-dvh`, safe-area padding (`env(safe-area-inset-top/bottom)`), `z-50` overlay.
+
+## Logo sizing
+
+[`Logo.tsx`](../src/components/ui/Logo.tsx) — use `variant="nav"` in navbar (`h-10 sm:h-12`), `variant="footer"` in footer. Never use full `h-[140px]` in the sticky header.
+
+## Pre-merge checks (390px viewport)
+
+```js
+document.querySelector('#hero h1')?.getBoundingClientRect().left  // expect ~20
+// Open menu — overlay parent height should match innerHeight, not header height
+```

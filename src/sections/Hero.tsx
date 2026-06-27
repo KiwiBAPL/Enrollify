@@ -5,17 +5,22 @@ import { Button } from '@/components/ui/Button'
 import { handleNavClick } from '@/lib/scroll'
 
 function HeroCta({ href, label, variant = 'primary' }: { href: string; label: string; variant?: 'primary' | 'secondary' }) {
-  const button = <Button variant={variant}>{label}</Button>
+  const button = <Button variant={variant} className="w-full sm:w-auto">{label}</Button>
+  const linkClassName = 'block w-full sm:w-auto'
 
   if (href.startsWith('#')) {
     return (
-      <a href={href} onClick={(e) => handleNavClick(e, href)}>
+      <a href={href} className={linkClassName} onClick={(e) => handleNavClick(e, href)}>
         {button}
       </a>
     )
   }
 
-  return <Link to={href}>{button}</Link>
+  return (
+    <Link to={href} className={linkClassName}>
+      {button}
+    </Link>
+  )
 }
 
 export function Hero() {
@@ -38,7 +43,7 @@ export function Hero() {
               ))}
             </h1>
             <p className="m-0 max-w-[42ch] text-text-primary">{heroContent.body}</p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <HeroCta href={heroContent.primaryCta.href} label={heroContent.primaryCta.label} />
               {heroContent.secondaryCta ? (
                 <HeroCta

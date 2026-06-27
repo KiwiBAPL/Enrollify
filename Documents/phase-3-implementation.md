@@ -24,11 +24,23 @@ Phase 3 completes the landing page implementation: section polish aligned to [`d
 | Navbar integration | [`src/components/layout/Navbar.tsx`](../src/components/layout/Navbar.tsx) |
 
 - Visible below `900px` with `aria-expanded`, `aria-controls`, and labelled toggle
-- Panel lists all section links plus student interest and contact
-- Closes on link click and `Escape`
+- Panel lists all nav links plus Book a Free Consultation CTA
+- Closes on link click, backdrop tap, route change, and `Escape`
 - Body scroll locked while open
+- **2026-06-27 fix:** Overlay portaled to `document.body` (escapes `backdrop-blur-sm` containing block on sticky header); drawer uses `h-dvh` and iOS safe-area insets
 
-### 2.2 Accessibility (NFR-2, PRD §6)
+### 2.2 Site container and mobile gutters
+
+| Item | Location |
+|------|----------|
+| Container utility | [`src/index.css`](../src/index.css) — `@utility container` |
+| Section wrapper | [`src/components/ui/Section.tsx`](../src/components/ui/Section.tsx) |
+
+- Tailwind v4's built-in `.container { width: 100% }` overrides `@layer components` gutter rules — use `@utility container` with `padding-inline` instead
+- Mobile gutter: 20px (`1.25rem`); md: 48px; lg: 60px
+- Responsive logo: [`Logo.tsx`](../src/components/ui/Logo.tsx) `variant="nav"` in header, `variant="footer"` in footer
+
+### 2.3 Accessibility (NFR-2, PRD §6)
 
 | Item | Location |
 |------|----------|
@@ -40,7 +52,7 @@ Phase 3 completes the landing page implementation: section polish aligned to [`d
 | First invalid field focus | [`useFormSubmit.ts`](../src/lib/forms/useFormSubmit.ts) |
 | Footer section links | [`Footer.tsx`](../src/components/layout/Footer.tsx) |
 
-### 2.3 Section polish
+### 2.4 Section polish
 
 | Component | Purpose |
 |-----------|---------|
@@ -50,15 +62,16 @@ Phase 3 completes the landing page implementation: section polish aligned to [`d
 
 All sections refactored to use shared primitives. Supporting section adds trust stats row from design.json visual flow pattern.
 
-### 2.4 Responsive pass (NFR-1)
+### 2.5 Responsive pass (NFR-1)
 
+- Hero CTAs stack full-width on mobile (`flex-col sm:flex-row`)
 - Hero heading `max-w` tightened on small screens; grid stacks below `lg`
 - Process steps: 1 col mobile, 2 col tablet, 5 col desktop; left accent border on mobile
 - Benefits: equal-height cards on `md+`
 - Page root uses `overflow-x-clip` instead of `hidden` to avoid clipping focus rings
 - Form panels use consistent `p-6 sm:p-8` padding
 
-### 2.5 Forms (Phase 2 verified)
+### 2.6 Forms (Phase 2 verified)
 
 - Provider and student forms unchanged in wiring: `useFormSubmit` → `submitNetlifyForm` → Netlify Forms
 - Phase 3 added focus-first-invalid-field on validation failure
@@ -94,8 +107,10 @@ All copy remains **draft — pending founder review** (EnRollifyEdu brief not in
 | Skip link | Visible on keyboard focus |
 | Focus rings | Global `:focus-visible` on interactive elements |
 | Horizontal overflow | Mitigated via responsive grids and `overflow-x-clip` |
+| Mobile gutters (390px) | Hero h1 inset ~20px via `@utility container` padding |
+| Mobile nav drawer | Full viewport height when portaled to `document.body` |
 
-**Deployed testing:** Submit forms and exercise mobile nav on Netlify URL or `npm run netlify:dev`.
+**Deployed testing:** Submit forms and exercise mobile nav on https://www.enrollifyedu.com or `npm run netlify:dev`. At 390px width, confirm hero text is inset and hamburger opens a full-height drawer.
 
 ---
 

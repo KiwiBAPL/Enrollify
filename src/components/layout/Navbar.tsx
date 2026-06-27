@@ -13,7 +13,7 @@ export function Navbar() {
     <header className="sticky top-0 z-40 border-b-2 border-accent-primary/15 bg-background-primary/95 backdrop-blur-sm">
       <div className="container mx-auto grid min-h-[72px] grid-cols-[1fr_auto] items-center gap-4 py-4 min-[900px]:grid-cols-[1fr_auto_1fr] min-[900px]:gap-5 min-[900px]:py-5">
         <Link to={routes.home} className="justify-self-start" aria-label="Enrollify home">
-          <Logo />
+          <Logo variant="nav" />
         </Link>
 
         <nav

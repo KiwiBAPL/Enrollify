@@ -70,7 +70,7 @@ export function Footer() {
       <div className="container mx-auto flex flex-col gap-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div>
-            <Logo />
+            <Logo variant="footer" />
             <p className="mt-2 max-w-xs text-sm text-text-muted">{footerContent.tagline}</p>
             <a
               href={`mailto:${footerContent.contactEmail}`}

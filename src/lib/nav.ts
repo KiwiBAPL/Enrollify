@@ -15,7 +15,7 @@ export function navLinkClassName(isActive: boolean): string {
 }
 
 export function mobileNavLinkClassName(isActive: boolean): string {
-  return `block rounded-card px-3 py-3 font-body text-base font-semibold transition-colors hover:bg-accent-mint/30 hover:text-stroke-primary ${
+  return `block rounded-card px-4 py-3.5 font-body text-base font-semibold transition-colors hover:bg-accent-mint/30 hover:text-stroke-primary ${
     isActive ? 'bg-accent-mint/20 text-stroke-primary' : 'text-nav-link'
   }`
 }

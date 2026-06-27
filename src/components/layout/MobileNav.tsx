@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useLocation } from 'react-router-dom'
 import { navLinks } from '@/content/site'
 import { isNavLinkActive, mobileNavLinkClassName } from '@/lib/nav'
@@ -32,6 +33,46 @@ export function MobileNav() {
     }
   }, [close, open])
 
+  const overlay = open ? (
+    <div className="fixed inset-0 z-50 flex flex-col min-[900px]:hidden">
+      <button
+        type="button"
+        className="absolute inset-0 bg-stroke-primary/40"
+        aria-label="Close menu"
+        onClick={close}
+      />
+      <nav
+        id={panelId}
+        aria-label="Main navigation"
+        className="relative ml-auto flex h-dvh w-full max-w-sm flex-col border-l-2 border-accent-primary bg-background-secondary shadow-hard-accent"
+      >
+        <div className="flex-1 overflow-y-auto px-4 pb-5 pt-[max(1.25rem,env(safe-area-inset-top))]">
+          <ul className="flex flex-col gap-1 p-0">
+            {navLinks.map((link) => {
+              const isActive = isNavLinkActive(location.pathname, link.href)
+              return (
+                <li key={link.href} className="list-none">
+                  <Link
+                    to={link.href}
+                    className={mobileNavLinkClassName(isActive)}
+                    onClick={close}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+        <div className="border-t-2 border-accent-primary/20 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <Link to={routes.bookConsultation} className="block w-full" onClick={close}>
+            <Button className="w-full">Book a Free Consultation</Button>
+          </Link>
+        </div>
+      </nav>
+    </div>
+  ) : null
+
   return (
     <div className="min-[900px]:hidden">
       <button
@@ -50,45 +91,7 @@ export function MobileNav() {
         </span>
       </button>
 
-      {open ? (
-        <div className="fixed inset-0 z-50 flex flex-col">
-          <button
-            type="button"
-            className="absolute inset-0 bg-stroke-primary/40"
-            aria-label="Close menu"
-            onClick={close}
-          />
-          <nav
-            id={panelId}
-            aria-label="Main navigation"
-            className="relative ml-auto flex h-full w-full max-w-sm flex-col border-l-2 border-accent-primary bg-background-secondary shadow-hard-accent"
-          >
-            <div className="flex-1 overflow-y-auto px-4 py-5">
-              <ul className="flex flex-col gap-1 p-0">
-                {navLinks.map((link) => {
-                  const isActive = isNavLinkActive(location.pathname, link.href)
-                  return (
-                    <li key={link.href} className="list-none">
-                      <Link
-                        to={link.href}
-                        className={mobileNavLinkClassName(isActive)}
-                        onClick={close}
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-            <div className="border-t-2 border-accent-primary/20 p-4">
-              <Link to={routes.bookConsultation} className="block w-full" onClick={close}>
-                <Button className="w-full">Book a Free Consultation</Button>
-              </Link>
-            </div>
-          </nav>
-        </div>
-      ) : null}
+      {overlay ? createPortal(overlay, document.body) : null}
     </div>
   )
 }

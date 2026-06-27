@@ -65,7 +65,9 @@ npm run preview
 
 ## Deploy
 
-Configured for **Netlify** via [`netlify.toml`](netlify.toml). Connect the repo and set environment variables from [`.env.example`](.env.example):
+Configured for **Netlify** via [`netlify.toml`](netlify.toml). Pushes to `main` trigger production deploys when the repo is connected.
+
+Set environment variables from [`.env.example`](.env.example):
 
 - `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` — required for blog, admin auth, and build-time feeds
 - `VITE_ANALYTICS_PROVIDER` and `VITE_ANALYTICS_ID` — optional analytics
