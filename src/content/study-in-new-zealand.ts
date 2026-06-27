@@ -1,4 +1,5 @@
 import type { GuidePageContent } from '@/types/content'
+import nzUniMap from '@/assets/NZ Uni map.png'
 import { routes, studentResourceTopics } from '@/lib/routes'
 
 export const studyInNewZealandContent: GuidePageContent = {
@@ -113,6 +114,11 @@ export const studyInNewZealandContent: GuidePageContent = {
             { type: 'link', label: 'courses and programmes', href: routes.findCourse },
             ' to find the right fit for your goals.',
           ],
+        },
+        {
+          type: 'image',
+          src: nzUniMap,
+          alt: 'NZ Map showing all the universities across the country.',
         },
         {
           type: 'list',

@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
 import { Link } from 'react-router-dom'
+import { ImageLightbox } from '@/components/ui/ImageLightbox'
 import type { GuideBlock, GuideSection, GuideTextSegment } from '@/types/content'
 
 const linkClassName =
@@ -45,6 +46,10 @@ export function GuideParagraph({ segments }: { segments: GuideTextSegment[] }) {
   return <p className="m-0">{renderSegments(segments)}</p>
 }
 
+function isImageBlock(block: GuideBlock): block is Extract<GuideBlock, { type: 'image' }> {
+  return block.type === 'image'
+}
+
 function renderBlock(block: GuideBlock, index: number) {
   switch (block.type) {
     case 'paragraph':
@@ -64,14 +69,52 @@ function renderBlock(block: GuideBlock, index: number) {
           {block.blocks.map((childBlock, childIndex) => renderBlock(childBlock, childIndex))}
         </div>
       )
+    case 'image':
+      return null
+  }
+}
+
+function splitBlocksAtImage(blocks: GuideBlock[]) {
+  const imageIndex = blocks.findIndex(isImageBlock)
+  if (imageIndex === -1) {
+    return { beforeImage: blocks, imageBlock: null, afterImage: [] as GuideBlock[] }
+  }
+
+  const imageBlock = blocks[imageIndex]
+  if (!isImageBlock(imageBlock)) {
+    return { beforeImage: blocks, imageBlock: null, afterImage: [] as GuideBlock[] }
+  }
+
+  return {
+    beforeImage: blocks.slice(0, imageIndex),
+    imageBlock,
+    afterImage: blocks.slice(imageIndex + 1),
   }
 }
 
 function GuideSectionBlock({ section }: { section: GuideSection }) {
+  const { beforeImage, imageBlock, afterImage } = splitBlocksAtImage(section.blocks)
+
   return (
     <section id={section.id} className="scroll-mt-24">
       <h2>{section.title}</h2>
-      {section.blocks.map((block, index) => renderBlock(block, index))}
+      {beforeImage.map((block, index) => renderBlock(block, index))}
+      {imageBlock ? (
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(220px,340px)] lg:items-start">
+          <div className="order-2 min-w-0 space-y-4 lg:order-1">
+            {afterImage.map((block, index) => renderBlock(block, index))}
+          </div>
+          <aside className="order-1 lg:sticky lg:top-28 lg:order-2">
+            <ImageLightbox
+              src={imageBlock.src}
+              alt={imageBlock.alt}
+              hint="Tap to view larger map"
+            />
+          </aside>
+        </div>
+      ) : (
+        beforeImage.map((block, index) => renderBlock(block, index))
+      )}
     </section>
   )
 }

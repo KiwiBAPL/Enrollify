@@ -40,7 +40,7 @@ export function StudyInNewZealandPage() {
       </Section>
 
       <Section id="study-in-nz-guide" variant="primary" className="py-12">
-        <div className="mx-auto max-w-3xl space-y-10">
+        <div className="mx-auto max-w-5xl space-y-10">
           <GuideTableOfContents items={tableOfContents} />
           <GuideContent sections={sections} />
 

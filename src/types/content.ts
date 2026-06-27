@@ -98,6 +98,7 @@ export type GuideBlock =
   | { type: 'paragraph'; content: GuideTextSegment[] }
   | { type: 'list'; items: GuideTextSegment[][] }
   | { type: 'subsection'; id: string; title: string; blocks: GuideBlock[] }
+  | { type: 'image'; src: string; alt: string }
 
 export type GuideSection = {
   id: string

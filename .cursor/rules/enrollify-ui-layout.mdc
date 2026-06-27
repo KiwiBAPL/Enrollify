@@ -44,6 +44,14 @@ Drawer panel: `h-dvh`, safe-area padding (`env(safe-area-inset-top/bottom)`), `z
 
 [`Logo.tsx`](../src/components/ui/Logo.tsx) — use `variant="nav"` in navbar (`h-10 sm:h-12`), `variant="footer"` in footer. Never use full `h-[140px]` in the sticky header.
 
+## Image lightbox (guide pages)
+
+[`ImageLightbox.tsx`](../src/components/ui/ImageLightbox.tsx) — portaled enlarge-on-click for guide images. Use via `image` blocks in [`GuideContent.tsx`](../src/components/pages/GuideContent.tsx) (see [`study-in-new-zealand.ts`](../src/content/study-in-new-zealand.ts)).
+
+- Portal overlay to `document.body` (same rule as mobile nav)
+- Close button: `fixed` top-right — **not** in document flow above the image (tall portrait images get cut off otherwise)
+- Image: top-aligned with `max-h-[calc(100dvh-4.5rem)]`, overlay `overflow-y-auto` for short viewports
+
 ## Pre-merge checks (390px viewport)
 
 ```js

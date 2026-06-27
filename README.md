@@ -27,7 +27,7 @@ npm run netlify:dev
 | Route | Purpose |
 |-------|---------|
 | `/` | Landing page (anchor navigation) |
-| `/study-in-new-zealand` | Study in New Zealand guide (full content) |
+| `/study-in-new-zealand` | Study in New Zealand guide — structured content, universities map with click-to-enlarge lightbox |
 | `/find-a-course` | Course finder hub |
 | `/find-a-course/:categorySlug` | Course category pages |
 | `/career-guides` | Career guides hub (placeholder) |

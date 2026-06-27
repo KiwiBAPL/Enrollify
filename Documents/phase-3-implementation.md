@@ -112,6 +112,19 @@ All copy remains **draft — pending founder review** (EnRollifyEdu brief not in
 
 **Deployed testing:** Submit forms and exercise mobile nav on https://www.enrollifyedu.com or `npm run netlify:dev`. At 390px width, confirm hero text is inset and hamburger opens a full-height drawer.
 
+### 2.7 Study in New Zealand guide (2026-06-27)
+
+| Item | Location |
+|------|----------|
+| Page | [`StudyInNewZealandPage.tsx`](../src/pages/StudyInNewZealandPage.tsx) |
+| Content | [`study-in-new-zealand.ts`](../src/content/study-in-new-zealand.ts) |
+| Renderer | [`GuideContent.tsx`](../src/components/pages/GuideContent.tsx) |
+| Universities map | [`NZ Uni map.png`](../src/assets/NZ%20Uni%20map.png) via `image` block + [`ImageLightbox.tsx`](../src/components/ui/ImageLightbox.tsx) |
+
+- Guide sections support `image` blocks in `GuideBlock` — side-by-side with following content on `lg`, intro → image → list on mobile
+- Guide content wrapper uses `max-w-5xl` for map + list layout
+- Map lightbox: click thumbnail to enlarge; close via backdrop, Escape, or fixed top-right button
+
 ---
 
 ## 6. Phase 3 deliverables checklist
