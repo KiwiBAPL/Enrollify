@@ -8,6 +8,7 @@ function resolveSiteUrl(): string {
 export const SITE_URL = resolveSiteUrl()
 
 export const SITE_NAME = 'Enrollify'
+export const SITE_OWNERSHIP_META = 'Site owned by Paul Benn'
 export const DEFAULT_AUTHOR_NAME = 'EnRollify'
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.png`
 

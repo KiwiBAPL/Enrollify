@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { SiteLayout } from '@/components/layout/SiteLayout'
+import { SiteOwnershipMetaTags } from '@/components/seo/SiteOwnershipMetaTags'
 import { AdminRoute } from '@/components/admin/AdminRoute'
 import { AdminShell } from '@/components/admin/AdminShell'
 import { CityGuidesPage } from '@/pages/CityGuidesPage'
@@ -21,6 +22,7 @@ import { CostPlannerViewPage } from '@/pages/CostPlannerViewPage'
 import { AccommodationTipsPage } from '@/pages/AccommodationTipsPage'
 import { AccommodationTipsViewPage } from '@/pages/AccommodationTipsViewPage'
 import { StudyInNewZealandPage } from '@/pages/StudyInNewZealandPage'
+import { FounderBioPage } from '@/pages/FounderBioPage'
 import { AdminAIProvidersPage } from '@/pages/admin/AdminAIProvidersPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { AdminLeadDetailPage } from '@/pages/admin/AdminLeadDetailPage'
@@ -33,6 +35,7 @@ import { ADMIN_BASE } from '@/lib/admin/constants'
 export default function App() {
   return (
     <BrowserRouter>
+      <SiteOwnershipMetaTags />
       <Routes>
         <Route element={<SiteLayout />}>
           <Route path="/" element={<LandingPage />} />
@@ -55,6 +58,7 @@ export default function App() {
           <Route path="/city-guides" element={<CityGuidesPage />} />
           <Route path="/book-consultation" element={<BookConsultationPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/about/paul-benn" element={<FounderBioPage />} />
           <Route path="/blog" element={<BlogListingPage />} />
           <Route path="/blog/:slug" element={<BlogPostDetailPage />} />
         </Route>

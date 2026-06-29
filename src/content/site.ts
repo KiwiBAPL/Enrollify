@@ -38,6 +38,8 @@ export const footerContent: FooterContent = {
   privacyHref: '#privacy',
   termsHref: '#terms',
   copyright: `© ${new Date().getFullYear()} Enrollify. All rights reserved.`,
+  siteOwnershipPrefix: 'site owned and managed by',
+  siteOwnerName: 'Paul Benn',
 }
 
 export const heroContent: HeroContent = {

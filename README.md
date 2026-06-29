@@ -39,6 +39,7 @@ npm run netlify:dev
 | `/city-guides` | City guides hub (placeholder) |
 | `/book-consultation` | Free consultation booking |
 | `/contact` | Contact page |
+| `/about/paul-benn` | Founder bio — Paul Benn on Enrollify and Enrollify AI |
 | `/blog` | Blog listing (filters, search, sort) |
 | `/blog/:slug` | Blog post detail |
 | `/blog/rss.xml` | RSS feed (build-time static) |

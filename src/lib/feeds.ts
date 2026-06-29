@@ -24,6 +24,7 @@ const CAREER_GUIDE_ROUTES = CAREER_GUIDE_SLUGS.map((slug) => `/career-guides/${s
 export const SITEMAP_STATIC_ROUTES: readonly string[] = [
   '/',
   '/contact',
+  '/about/paul-benn',
   '/blog',
   '/study-in-new-zealand',
   '/career-guides',

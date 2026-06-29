@@ -109,9 +109,18 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 border-t border-accent-primary/10 pt-6 text-sm text-text-muted sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex flex-col gap-2 border-t border-accent-primary/10 pt-6 text-sm text-text-muted sm:flex-row sm:items-center sm:justify-between">
           <p className="m-0">{footerContent.copyright}</p>
-          <p className="m-0">
+          <p className="m-0 text-center sm:absolute sm:left-1/2 sm:-translate-x-1/2">
+            {footerContent.siteOwnershipPrefix}{' '}
+            <Link
+              to={routes.aboutPaulBenn}
+              className="hover:text-text-secondary hover:underline"
+            >
+              {footerContent.siteOwnerName}
+            </Link>
+          </p>
+          <p className="m-0 text-center sm:text-right">
             <a href={footerContent.privacyHref} className="hover:text-text-secondary hover:underline">
               Privacy Policy
             </a>

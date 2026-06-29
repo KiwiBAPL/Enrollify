@@ -14,6 +14,8 @@ export type FooterContent = {
   privacyHref: string
   termsHref: string
   copyright: string
+  siteOwnershipPrefix: string
+  siteOwnerName: string
 }
 
 export type FooterSocialLink = {

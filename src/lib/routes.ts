@@ -17,7 +17,8 @@ export const routes = {
   blog: '/blog',
   bookConsultation: '/book-consultation',
   contact: '/contact',
-  aboutEnrollify: '/#about-enrollify-nz',
+  aboutPaulBenn: '/about/paul-benn',
+  aboutEnrollify: '/about/paul-benn',
 } as const
 
 export const studentResourceTopics = {
