@@ -60,6 +60,243 @@ const anonClient = createNodeSupabaseClient(url, publishableKey)
 
 const TEST_SLUG = `rls-verify-${Date.now()}`
 
+async function verifyResourceLeads(
+  ok: (msg: string) => void,
+  fail: (msg: string, detail?: unknown) => void,
+) {
+  console.log('\n=== resource_leads RLS verification ===\n')
+
+  console.log('1. Anonymous SELECT blocked')
+  const { data: anonLeads, error: anonSelectErr } = await anonClient
+    .from('resource_leads')
+    .select('id')
+
+  if (anonSelectErr) {
+    if (anonSelectErr.message.includes('does not exist')) {
+      fail('resource_leads table not found — apply resource_leads migration first', anonSelectErr.message)
+      return
+    }
+    ok(`Anonymous SELECT rejected (${anonSelectErr.code ?? 'error'})`)
+  } else if ((anonLeads ?? []).length > 0) {
+    fail('Anonymous SELECT returned resource_leads rows')
+  } else {
+    ok('Anonymous SELECT returned 0 rows')
+  }
+
+  console.log('\n2. Anonymous direct INSERT blocked')
+  const { error: anonInsertErr } = await anonClient.from('resource_leads').insert({
+    resource_type: 'visa_checklist',
+    first_name: 'Test',
+    last_name: 'User',
+    email: 'test@example.com',
+    token_expires_at: new Date().toISOString(),
+  })
+
+  if (anonInsertErr) {
+    ok(`Anonymous INSERT rejected (${anonInsertErr.code ?? 'error'})`)
+  } else {
+    fail('Anonymous INSERT should have been rejected by RLS')
+  }
+
+  console.log('\n3. submit_visa_checklist_lead RPC')
+  const testEmail = `rls-verify-${Date.now()}@example.com`
+  const { data: accessToken, error: submitErr } = await anonClient.rpc(
+    'submit_visa_checklist_lead',
+    {
+      p_first_name: 'RLS',
+      p_last_name: 'Verify',
+      p_email: testEmail,
+      p_linkedin_url: null,
+    },
+  )
+
+  if (submitErr || !accessToken) {
+    if (submitErr?.message.includes('does not exist')) {
+      fail('submit_visa_checklist_lead RPC not found — apply resource_leads migration first', submitErr.message)
+    } else {
+      fail('submit_visa_checklist_lead failed', submitErr?.message)
+    }
+    return
+  }
+
+  ok(`submit_visa_checklist_lead returned token ${String(accessToken).slice(0, 8)}…`)
+
+  console.log('\n4. validate_visa_checklist_access with valid token')
+  const { data: validResult, error: validErr } = await anonClient.rpc(
+    'validate_visa_checklist_access',
+    { p_token: accessToken },
+  )
+
+  if (validErr) {
+    fail('validate_visa_checklist_access failed for valid token', validErr.message)
+  } else if (validResult !== true) {
+    fail('validate_visa_checklist_access should return true for valid token')
+  } else {
+    ok('validate_visa_checklist_access returned true')
+  }
+
+  console.log('\n5. validate_visa_checklist_access with random token')
+  const { data: invalidResult, error: invalidErr } = await anonClient.rpc(
+    'validate_visa_checklist_access',
+    { p_token: '00000000-0000-4000-8000-000000000000' },
+  )
+
+  if (invalidErr) {
+    fail('validate_visa_checklist_access failed for random token', invalidErr.message)
+  } else if (invalidResult !== false) {
+    fail('validate_visa_checklist_access should return false for unknown token')
+  } else {
+    ok('validate_visa_checklist_access returned false for unknown token')
+  }
+
+  console.log('\n6. Anonymous cannot SELECT lead by access token')
+  const { data: leakedRows, error: leakErr } = await anonClient
+    .from('resource_leads')
+    .select('email')
+    .eq('access_token', accessToken)
+
+  if (leakErr) {
+    ok(`Anonymous SELECT by token rejected (${leakErr.code ?? 'error'})`)
+  } else if ((leakedRows ?? []).length > 0) {
+    fail('Anonymous client could read lead email by access token')
+  } else {
+    ok('Anonymous SELECT by token returned 0 rows')
+  }
+
+  console.log('\n7. submit_cost_planner_lead RPC')
+  const costEmail = `rls-cost-${Date.now()}@example.com`
+  const { data: costToken, error: costSubmitErr } = await anonClient.rpc(
+    'submit_cost_planner_lead',
+    {
+      p_first_name: 'RLS',
+      p_last_name: 'Cost',
+      p_email: costEmail,
+      p_linkedin_url: null,
+    },
+  )
+
+  if (costSubmitErr || !costToken) {
+    if (costSubmitErr?.message.includes('does not exist')) {
+      fail('submit_cost_planner_lead RPC not found — apply cost_planner migration first', costSubmitErr.message)
+    } else {
+      fail('submit_cost_planner_lead failed', costSubmitErr?.message)
+    }
+    return
+  }
+
+  ok(`submit_cost_planner_lead returned token ${String(costToken).slice(0, 8)}…`)
+
+  console.log('\n8. validate_cost_planner_access with valid token')
+  const { data: costValid, error: costValidErr } = await anonClient.rpc(
+    'validate_cost_planner_access',
+    { p_token: costToken },
+  )
+
+  if (costValidErr) {
+    fail('validate_cost_planner_access failed for valid token', costValidErr.message)
+  } else if (costValid !== true) {
+    fail('validate_cost_planner_access should return true for valid token')
+  } else {
+    ok('validate_cost_planner_access returned true')
+  }
+
+  console.log('\n9. visa token does not validate cost planner access')
+  const { data: crossValid, error: crossErr } = await anonClient.rpc(
+    'validate_cost_planner_access',
+    { p_token: accessToken },
+  )
+
+  if (crossErr) {
+    fail('validate_cost_planner_access failed for visa token', crossErr.message)
+  } else if (crossValid !== false) {
+    fail('visa checklist token should not grant cost planner access')
+  } else {
+    ok('visa token rejected for cost planner validation')
+  }
+
+  console.log('\n10. Anonymous cannot SELECT cost planner lead by token')
+  const { data: costLeaked, error: costLeakErr } = await anonClient
+    .from('resource_leads')
+    .select('email')
+    .eq('access_token', costToken)
+
+  if (costLeakErr) {
+    ok(`Anonymous SELECT by cost token rejected (${costLeakErr.code ?? 'error'})`)
+  } else if ((costLeaked ?? []).length > 0) {
+    fail('Anonymous client could read cost planner lead email by access token')
+  } else {
+    ok('Anonymous SELECT by cost token returned 0 rows')
+  }
+
+  console.log('\n11. submit_accommodation_tips_lead RPC')
+  const accommodationEmail = `rls-accommodation-${Date.now()}@example.com`
+  const { data: accommodationToken, error: accommodationSubmitErr } = await anonClient.rpc(
+    'submit_accommodation_tips_lead',
+    {
+      p_first_name: 'RLS',
+      p_last_name: 'Stay',
+      p_email: accommodationEmail,
+      p_linkedin_url: null,
+    },
+  )
+
+  if (accommodationSubmitErr || !accommodationToken) {
+    if (accommodationSubmitErr?.message.includes('does not exist')) {
+      fail(
+        'submit_accommodation_tips_lead RPC not found — apply accommodation_tips migration first',
+        accommodationSubmitErr.message,
+      )
+    } else {
+      fail('submit_accommodation_tips_lead failed', accommodationSubmitErr?.message)
+    }
+    return
+  }
+
+  ok(`submit_accommodation_tips_lead returned token ${String(accommodationToken).slice(0, 8)}…`)
+
+  console.log('\n12. validate_accommodation_tips_access with valid token')
+  const { data: accommodationValid, error: accommodationValidErr } = await anonClient.rpc(
+    'validate_accommodation_tips_access',
+    { p_token: accommodationToken },
+  )
+
+  if (accommodationValidErr) {
+    fail('validate_accommodation_tips_access failed for valid token', accommodationValidErr.message)
+  } else if (accommodationValid !== true) {
+    fail('validate_accommodation_tips_access should return true for valid token')
+  } else {
+    ok('validate_accommodation_tips_access returned true')
+  }
+
+  console.log('\n13. cost planner token does not validate accommodation access')
+  const { data: crossAccommodation, error: crossAccommodationErr } = await anonClient.rpc(
+    'validate_accommodation_tips_access',
+    { p_token: costToken },
+  )
+
+  if (crossAccommodationErr) {
+    fail('validate_accommodation_tips_access failed for cost token', crossAccommodationErr.message)
+  } else if (crossAccommodation !== false) {
+    fail('cost planner token should not grant accommodation tips access')
+  } else {
+    ok('cost planner token rejected for accommodation validation')
+  }
+
+  console.log('\n14. Anonymous cannot SELECT accommodation lead by token')
+  const { data: accommodationLeaked, error: accommodationLeakErr } = await anonClient
+    .from('resource_leads')
+    .select('email')
+    .eq('access_token', accommodationToken)
+
+  if (accommodationLeakErr) {
+    ok(`Anonymous SELECT by accommodation token rejected (${accommodationLeakErr.code ?? 'error'})`)
+  } else if ((accommodationLeaked ?? []).length > 0) {
+    fail('Anonymous client could read accommodation lead email by access token')
+  } else {
+    ok('Anonymous SELECT by accommodation token returned 0 rows')
+  }
+}
+
 async function run() {
   let passed = 0
   let failed = 0
@@ -193,37 +430,60 @@ async function run() {
   }
 
   console.log('\n7–8. Anonymous UPDATE/DELETE blocked')
-  const { data: publishedRows } = await anonClient.from('blog_posts').select('id').limit(1)
+  const { data: publishedRows } = await anonClient
+    .from('blog_posts')
+    .select('id, title')
+    .limit(1)
 
   if ((publishedRows ?? []).length === 0) {
     console.log(
       '  SKIP: No published posts to test UPDATE/DELETE — create one or run with admin credentials',
     )
   } else {
-    const targetId = publishedRows![0].id
+    const target = publishedRows![0]
+    const originalTitle = target.title
 
-    const { error: anonUpdateErr } = await anonClient
+    const { error: anonUpdateErr, count: anonUpdateCount } = await anonClient
       .from('blog_posts')
       .update({ title: 'Hacked' })
-      .eq('id', targetId)
+      .eq('id', target.id)
+      .select('id', { count: 'exact', head: true })
+
+    const { data: afterUpdate } = await anonClient
+      .from('blog_posts')
+      .select('title')
+      .eq('id', target.id)
+      .single()
 
     if (anonUpdateErr) {
       ok(`Anonymous UPDATE rejected (${anonUpdateErr.code ?? 'error'})`)
+    } else if ((anonUpdateCount ?? 0) > 0 || afterUpdate?.title !== originalTitle) {
+      fail('Anonymous UPDATE modified a published post')
     } else {
-      fail('Anonymous UPDATE should have been rejected by RLS')
+      ok('Anonymous UPDATE blocked (0 rows affected, title unchanged)')
     }
 
-    const { error: anonDeleteErr } = await anonClient
+    const { error: anonDeleteErr, count: anonDeleteCount } = await anonClient
       .from('blog_posts')
-      .delete()
-      .eq('id', targetId)
+      .delete({ count: 'exact' })
+      .eq('id', target.id)
+
+    const { data: afterDelete } = await anonClient
+      .from('blog_posts')
+      .select('id')
+      .eq('id', target.id)
+      .maybeSingle()
 
     if (anonDeleteErr) {
       ok(`Anonymous DELETE rejected (${anonDeleteErr.code ?? 'error'})`)
+    } else if ((anonDeleteCount ?? 0) > 0 || !afterDelete) {
+      fail('Anonymous DELETE removed a published post')
     } else {
-      fail('Anonymous DELETE should have been rejected by RLS')
+      ok('Anonymous DELETE blocked (0 rows affected, post still visible)')
     }
   }
+
+  await verifyResourceLeads(ok, fail)
 
   console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`)
   process.exit(failed > 0 ? 1 : 0)

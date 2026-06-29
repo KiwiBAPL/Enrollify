@@ -1,4 +1,5 @@
 import { DEFAULT_AUTHOR_NAME, SITE_NAME } from './site'
+import { CAREER_GUIDE_SLUGS } from '../content/career-guides'
 
 /** Production URL for RSS/sitemap (build scripts always emit production URLs). */
 export const FEED_SITE_URL = 'https://www.enrollifyedu.com'
@@ -18,7 +19,19 @@ export interface FeedPost {
 export const BLOG_DESCRIPTION =
   'Insights on international student recruitment, admissions workflows, and technology-enabled enrolment for education providers.'
 
-export const SITEMAP_STATIC_ROUTES = ['/', '/contact', '/blog', '/study-in-new-zealand'] as const
+const CAREER_GUIDE_ROUTES = CAREER_GUIDE_SLUGS.map((slug) => `/career-guides/${slug}`)
+
+export const SITEMAP_STATIC_ROUTES: readonly string[] = [
+  '/',
+  '/contact',
+  '/blog',
+  '/study-in-new-zealand',
+  '/career-guides',
+  ...CAREER_GUIDE_ROUTES,
+  '/student-resources/visas/checklist',
+  '/student-resources/costs/planner',
+  '/student-resources/accommodation/tips',
+]
 
 function feedAbsoluteUrl(pathOrUrl: string): string {
   return pathOrUrl.startsWith('http') ? pathOrUrl : `${FEED_SITE_URL}${pathOrUrl}`

@@ -126,3 +126,61 @@ export type GuidePageContent = {
     secondaryLabel: string
   }
 }
+
+export type CareerGuideItem = {
+  slug: string
+  number: number
+  title: string
+  summary: string
+  bestFor: string
+  youWillLearn: string
+}
+
+export type FaqItem = {
+  question: string
+  answer: string
+}
+
+export type CareerGuidesPageContent = {
+  meta: {
+    title: string
+    description: string
+  }
+  hero: {
+    title: string
+    subtitle: string
+    intro: GuideTextSegment[][]
+    imageAlt: string
+  }
+  whyPlanning: {
+    title: string
+    question: string
+    intro: string
+    considerations: string[]
+    closing: string
+  }
+  guidesSectionTitle: string
+  guides: CareerGuideItem[]
+  advisoryCta: {
+    title: string
+    body: string[]
+    helpItems: string[]
+    closing: string
+    buttonLabel: string
+  }
+  howToUse: {
+    title: string
+    steps: { title: string; body: string }[]
+  }
+  faq: {
+    title: string
+    items: FaqItem[]
+  }
+  closingCta: {
+    title: string
+    body: string
+    primaryLabel: string
+    secondaryLabel: string
+    tertiaryLabel: string
+  }
+}

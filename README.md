@@ -30,9 +30,12 @@ npm run netlify:dev
 | `/study-in-new-zealand` | Study in New Zealand guide — structured content, universities map with click-to-enlarge lightbox |
 | `/find-a-course` | Course finder hub |
 | `/find-a-course/:categorySlug` | Course category pages |
-| `/career-guides` | Career guides hub (placeholder) |
-| `/student-resources` | Student resources hub (placeholder) |
-| `/student-resources/:topic` | Student resource topic pages (placeholder) |
+| `/career-guides` | Career guides hub — 10 pathway guides with placeholder detail pages at `/career-guides/:slug` |
+| `/student-resources` | Student resources hub — gated PDF downloads (visa checklist, cost planner, accommodation tips) |
+| `/student-resources/visas/checklist` | Student visa checklist — lead form + PDF viewer |
+| `/student-resources/costs/planner` | Student cost planner — lead form + PDF viewer |
+| `/student-resources/accommodation/tips` | Accommodation tips guide — lead form + PDF viewer |
+| `/student-resources/:topic` | Student resource topic pages with CTAs to downloads |
 | `/city-guides` | City guides hub (placeholder) |
 | `/book-consultation` | Free consultation booking |
 | `/contact` | Contact page |
