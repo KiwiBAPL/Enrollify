@@ -6,32 +6,25 @@ import { founderBioContent } from '@/content/founder-bio'
 import { routes } from '@/lib/routes'
 
 export function FounderBioPage() {
-  const { hero, sections, closingCta } = founderBioContent
+  const { sections, closingCta } = founderBioContent
 
   return (
     <>
       <FounderBioMetaTags />
 
-      <Section id="founder-bio-hero" variant="secondary" className="py-12">
-        <header className="mx-auto max-w-3xl space-y-4">
-          <p className="m-0 text-sm font-semibold uppercase tracking-wider text-text-muted">
-            {hero.eyebrow}
-          </p>
-          <h1 className="m-0 font-display text-[clamp(2rem,4vw,3rem)] font-bold leading-tight text-text-secondary">
-            {hero.title}
-          </h1>
-          <p className="m-0 font-display text-lg italic text-text-muted">{hero.location}</p>
-          <p className="m-0 font-body text-lg leading-relaxed text-text-primary">{hero.lead}</p>
-        </header>
-      </Section>
-
       <Section id="founder-bio-body" variant="primary" className="py-12">
         <div className="mx-auto max-w-3xl space-y-12 blog-body">
-          {sections.map((section) => (
+          {sections.map((section, index) => (
             <section key={section.id} id={section.id} className="scroll-mt-24 space-y-4">
-              <h2 className="font-display text-2xl font-semibold text-text-secondary">
-                {section.title}
-              </h2>
+              {index === 0 ? (
+                <h1 className="m-0 font-display text-[clamp(2rem,4vw,3rem)] font-bold leading-tight text-text-secondary">
+                  {section.title}
+                </h1>
+              ) : (
+                <h2 className="font-display text-2xl font-semibold text-text-secondary">
+                  {section.title}
+                </h2>
+              )}
               {section.paragraphs.map((paragraph) => (
                 <p key={paragraph.slice(0, 48)} className="m-0">
                   {paragraph}
