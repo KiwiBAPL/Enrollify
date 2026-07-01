@@ -21,7 +21,7 @@ Browser → POST /api/chat/messages (Netlify proxy)
        → JSON { reply, consultationInvite, studentId, conversationId }
 ```
 
-After each AI reply, the widget may show a contextual **consultation invite** plus a **Book a free consultation** button that opens the scripted Lead Bot modal (`LeadBotProvider.openLeadBot()`). Structured lead capture stays in the lead bot; chat focuses on Q&A. See [Chat-to-lead-bot CTA](#chat-to-lead-bot-cta) below.
+After the student's first message, each AI reply may show a contextual **consultation invite** plus a **Book a free consultation** button that opens the scripted Lead Bot modal (`LeadBotProvider.openLeadBot()`). The static welcome invites a question only — no CTA until the first reply. Structured lead capture stays in the lead bot; chat focuses on Q&A. See [Chat-to-lead-bot CTA](#chat-to-lead-bot-cta) below.
 
 ## Reply formatting
 
@@ -314,12 +314,14 @@ Separate from website chat — a **scripted consultation modal** (not AI) opened
 
 **Status:** Complete (2026-07-01)
 
-The floating AI chat answers general questions; **structured qualification** is delegated to the consultation Lead Bot. Every assistant reply (and the welcome message) can show a consultation CTA unless the student has already completed the lead bot form.
+The floating AI chat answers general questions; **structured qualification** is delegated to the consultation Lead Bot. The consultation CTA appears **after the student's first message** (on the first AI reply and every subsequent reply), not on the static welcome screen. Hidden once the lead bot form is completed.
 
 ### Flow
 
 ```text
-Student asks in ChatWidget
+Student opens ChatWidget
+  → Static welcome only (friendly invite to ask a question — no CTA)
+Student sends first message
   → POST /api/chat/messages { sessionId, text, leadBotCompleted? }
   → AIService returns reply + consultationInvite (AI-generated or topic fallback)
   → Widget renders reply + invite + "Book a free consultation" button
@@ -341,7 +343,8 @@ Student asks in ChatWidget
 
 ### Self-test
 
-- [ ] Ask about visas in chat → contextual invite + button appear
+- [ ] Open chat → welcome only, no consultation CTA
+- [ ] Ask about visas in chat → contextual invite + button appear on first reply
 - [ ] Click button → chat closes, consultation modal opens
 - [ ] Complete lead bot → reopen chat → no CTA on new replies
 - [ ] Refresh page after completion → CTA still hidden

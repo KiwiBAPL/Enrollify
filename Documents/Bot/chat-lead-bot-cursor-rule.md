@@ -23,11 +23,12 @@ alwaysApply: false
 
 ## Chat-to-lead-bot CTA
 
-Every AI chat reply returns `{ reply, consultationInvite }` from `POST /api/chat/messages`.
+Every AI chat reply **after the student's first message** returns `{ reply, consultationInvite }` from `POST /api/chat/messages`. The static welcome screen does **not** show a CTA — only a friendly invite to ask a question.
 
 - `reply` — answer only (plain text, no URLs/markdown).
 - `consultationInvite` — one contextual sentence; rendered by `ChatConsultationCta` with fixed button label **Book a free consultation**.
 - Button calls `openLeadBot()` from `LeadBotProvider` and closes the chat panel.
+- **Welcome screen:** friendly invite to ask a question only — no CTA until the first AI reply.
 - Hide CTA when `isLeadBotCompleted()` — set via `markLeadBotCompleted()` in `LeadBotModal` on form completion.
 - Pass `leadBotCompleted: true` in chat API body so backend returns `consultationInvite: null`.
 - Fallback invites: `apps/backend/src/services/ai/consultationInvite.ts`.

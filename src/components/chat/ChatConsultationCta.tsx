@@ -26,6 +26,3 @@ export function ChatConsultationCta({ invite, onBookConsultation }: ChatConsulta
     </div>
   )
 }
-
-export const WELCOME_CONSULTATION_INVITE =
-  "Want tailored advice on your study plans? Book a free consultation and we'll help you take the next step."

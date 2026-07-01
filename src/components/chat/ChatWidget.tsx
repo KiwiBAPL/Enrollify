@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLeadBot } from '@/components/lead-bot/LeadBotProvider'
-import {
-  ChatConsultationCta,
-  WELCOME_CONSULTATION_INVITE,
-} from '@/components/chat/ChatConsultationCta'
+import { ChatConsultationCta } from '@/components/chat/ChatConsultationCta'
 import { ChatApiError, sendChatMessage } from '@/lib/chat/api'
 import { getOrCreateSessionId } from '@/lib/chat/session'
 import { isLeadBotCompleted } from '@/lib/lead-bot/session'
@@ -16,7 +13,7 @@ interface ChatMessage {
 }
 
 const WELCOME =
-  "Hi! I'm Enrollify AI. Ask me about studying in New Zealand — courses, visas, costs, and next steps."
+  "Hi! I'm Enrollify AI. What would you like to know about studying in New Zealand?"
 
 function isChatEnabled(): boolean {
   const flag = import.meta.env.VITE_CHAT_ENABLED
@@ -61,12 +58,11 @@ export function ChatWidget() {
           id: 'welcome',
           role: 'assistant',
           text: WELCOME,
-          consultationInvite: leadBotCompleted ? null : WELCOME_CONSULTATION_INVITE,
         },
       ])
       setWelcomed(true)
     }
-  }, [open, welcomed, leadBotCompleted])
+  }, [open, welcomed])
 
   useEffect(() => {
     if (!open) return
