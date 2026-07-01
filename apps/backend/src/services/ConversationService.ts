@@ -16,6 +16,12 @@ export interface IncomingMessageParams {
   adapter: ChannelAdapter
 }
 
+export interface WebChatResult {
+  reply: string
+  studentId: string
+  conversationId: string
+}
+
 export class ConversationService {
   constructor(
     private readonly studentRepository: StudentRepository,
@@ -28,7 +34,29 @@ export class ConversationService {
   ) {}
 
   async handleIncomingMessage(params: IncomingMessageParams): Promise<void> {
-    const { channelUserId, text, timestamp, channel, adapter } = params
+    const { channelUserId, adapter } = params
+
+    await adapter.markSeen(channelUserId)
+    await adapter.sendTypingOn(channelUserId)
+
+    try {
+      const { reply } = await this.processIncomingMessage(params)
+      await adapter.sendMessage(channelUserId, reply)
+    } finally {
+      await adapter.sendTypingOff(channelUserId)
+    }
+  }
+
+  async handleIncomingMessageForWeb(
+    params: Omit<IncomingMessageParams, 'adapter'>,
+  ): Promise<WebChatResult> {
+    return this.processIncomingMessage(params)
+  }
+
+  private async processIncomingMessage(
+    params: Omit<IncomingMessageParams, 'adapter'>,
+  ): Promise<WebChatResult> {
+    const { channelUserId, text, timestamp, channel } = params
 
     let student = await this.studentRepository.findByChannelUserId(channel, channelUserId)
     if (!student) {
@@ -44,50 +72,48 @@ export class ConversationService {
 
     await this.messageRepository.createUserMessage(conversation.id, text, timestamp)
 
-    await adapter.markSeen(channelUserId)
-    await adapter.sendTypingOn(channelUserId)
+    const knowledgeArticles = await this.knowledgeService.searchForMessage(text)
+    const history = await this.messageRepository.listByConversationId(conversation.id, {
+      limit: 100,
+    })
 
-    try {
-      const knowledgeArticles = await this.knowledgeService.searchForMessage(text)
-      const history = await this.messageRepository.listByConversationId(conversation.id, {
-        limit: 100,
+    const { reply, fieldUpdates, scoreFactors } = await this.aiService.generate(
+      student,
+      history,
+      text,
+      knowledgeArticles,
+    )
+
+    if (Object.keys(fieldUpdates).length > 0) {
+      student = await this.studentRepository.update(student.id, fieldUpdates)
+      this.logger.info({ studentId: student.id }, 'Updated student qualification fields')
+    }
+
+    if (scoreFactors) {
+      await this.leadScoringService.scoreStudent(student.id, scoreFactors)
+      this.logger.info({ studentId: student.id }, 'Updated lead score')
+    } else if (Object.keys(fieldUpdates).length > 0) {
+      await this.leadScoringService.scoreStudent(student.id, {
+        ready_to_apply: 2,
+        english_ability: 2,
+        budget_fit: 2,
+        intake_timeframe: 2,
+        visa_readiness: 2,
+        education_match: 2,
+        interest_level: 4,
       })
+    }
 
-      const { reply, fieldUpdates, scoreFactors } = await this.aiService.generate(
-        student,
-        history,
-        text,
-        knowledgeArticles,
-      )
+    await this.messageRepository.createAssistantMessage(conversation.id, reply)
 
-      if (Object.keys(fieldUpdates).length > 0) {
-        student = await this.studentRepository.update(student.id, fieldUpdates)
-        this.logger.info({ studentId: student.id }, 'Updated student qualification fields')
-      }
+    const activityAt = new Date()
+    await this.studentRepository.touchLastActivity(student.id, activityAt)
+    await this.conversationRepository.updateLastMessageAt(conversation.id, activityAt)
 
-      if (scoreFactors) {
-        await this.leadScoringService.scoreStudent(student.id, scoreFactors)
-        this.logger.info({ studentId: student.id }, 'Updated lead score')
-      } else if (Object.keys(fieldUpdates).length > 0) {
-        await this.leadScoringService.scoreStudent(student.id, {
-          ready_to_apply: 2,
-          english_ability: 2,
-          budget_fit: 2,
-          intake_timeframe: 2,
-          visa_readiness: 2,
-          education_match: 2,
-          interest_level: 4,
-        })
-      }
-
-      await this.messageRepository.createAssistantMessage(conversation.id, reply)
-      await adapter.sendMessage(channelUserId, reply)
-
-      const activityAt = new Date()
-      await this.studentRepository.touchLastActivity(student.id, activityAt)
-      await this.conversationRepository.updateLastMessageAt(conversation.id, activityAt)
-    } finally {
-      await adapter.sendTypingOff(channelUserId)
+    return {
+      reply,
+      studentId: student.id,
+      conversationId: conversation.id,
     }
   }
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ErrorBanner } from '@/components/admin/ErrorBanner'
-import { ADMIN_BASE } from '@/lib/admin/constants'
+import { ADMIN_BASE, channelLabel } from '@/lib/admin/constants'
 import { apiFetch } from '@/lib/admin/api'
 
 const STATUSES = [
@@ -25,6 +25,7 @@ interface StudentDetail {
     id: string
     name: string | null
     email: string | null
+    channel: string
     enrolment_status: string
   }
   leadScore: { overall_score: number } | null
@@ -88,6 +89,9 @@ export function AdminLeadDetailPage() {
 
       <h2 className="mb-2 text-2xl font-bold">{detail?.student.name ?? 'Student'}</h2>
       <p className="mb-4 text-sm text-gray-600">
+        <span className="mr-2 inline-block rounded-full bg-[var(--accent-mint)] px-2 py-0.5 text-xs font-medium text-gray-900">
+          {channelLabel(detail?.student.channel ?? 'webchat')}
+        </span>
         Score: {detail?.leadScore?.overall_score ?? 0} · {detail?.student.email ?? 'No email'}
       </p>
 

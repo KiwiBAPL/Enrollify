@@ -3,9 +3,13 @@ import { z } from 'zod'
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.coerce.number().int().positive().default(3001),
-  FB_PAGE_ACCESS_TOKEN: z.string().min(1),
-  FB_VERIFY_TOKEN: z.string().min(1),
-  FB_APP_SECRET: z.string().min(1),
+  FB_PAGE_ACCESS_TOKEN: z.string().optional().default(''),
+  FB_VERIFY_TOKEN: z.string().optional().default(''),
+  FB_APP_SECRET: z.string().optional().default(''),
+  CHAT_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((v) => v === 'true'),
   PERPLEXITY_API_KEY: z.string().optional(),
   PERPLEXITY_MODEL: z.string().default('sonar-pro'),
   AI_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
@@ -16,7 +20,7 @@ const envSchema = z.object({
   ADMIN_PASSWORD: z.string().min(8).optional(),
   ADMIN_FIRST_NAME: z.string().min(1).default('Paul'),
   ADMIN_LAST_NAME: z.string().min(1).default('Benn'),
-  CORS_ORIGIN: z.string().url().default('http://localhost:5173'),
+  CORS_ORIGIN: z.string().default('http://localhost:5180'),
 })
 
 export type Env = z.infer<typeof envSchema>
@@ -33,6 +37,13 @@ export function loadEnv(): Env {
   }
 
   return result.data
+}
+
+export function parseCorsOrigins(corsOrigin: string): string[] {
+  return corsOrigin
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
 }
 
 const PLACEHOLDER_KEYS = new Set(['dev-placeholder', 'placeholder', ''])

@@ -1,6 +1,8 @@
 # Enrollify AI — Backend
 
-Express + TypeScript API for Facebook Messenger webhooks, AI conversation handling, and admin panel auth.
+Express + TypeScript API for website chat, Facebook Messenger webhooks (on hold), AI conversation handling, and admin panel auth.
+
+**Website chat:** See [website-chat-implementation-plan.md](../../Documents/Bot/website-chat-implementation-plan.md).
 
 **Blog:** Blog post CRUD is handled by the Vite SPA via Supabase client + RLS — no blog routes in this backend. See [Documents/phase-6-blog.md](../../Documents/phase-6-blog.md).
 
@@ -34,13 +36,14 @@ The server refuses to start if any required environment variable is missing or i
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/health` | Public | `{ status, database }` probe |
+| `POST` | `/api/chat/messages` | Public (rate limited) | Website chat — `{ sessionId, text }` → `{ reply, studentId, conversationId }` |
 | `GET/PATCH/…` | `/api/admin/*` | Supabase JWT | Students, notes, profile, pipeline, analytics, AI providers |
-| `GET` | `/webhook` | Public | Meta webhook verification (FR-1) |
-| `POST` | `/webhook` | Signed | Inbound Messenger messages (FR-2, FR-3) |
+| `GET` | `/webhook` | Public | Meta webhook verification (Facebook on hold) |
+| `POST` | `/webhook` | Signed | Inbound Messenger messages (Facebook on hold) |
 | `POST` | `/dev/simulate-message` | Dev only | Test conversation pipeline locally |
 | `POST` | `/dev/simulate-webhook` | Dev only | Test signed webhook locally |
 
-Full route list: [Phase 3 doc](../../Documents/Bot/phase-3-core-services.md) · [Phase 5 admin features](../../Documents/Bot/phase-5-admin-features.md) · Webhook/deploy: [Phase 4 doc](../../Documents/Bot/phase-4-messenger-deploy.md).
+Full route list: [website chat plan](../../Documents/Bot/website-chat-implementation-plan.md) · [Phase 3 doc](../../Documents/Bot/phase-3-core-services.md) · [Phase 5 admin features](../../Documents/Bot/phase-5-admin-features.md).
 
 ## Environment variables
 
@@ -50,13 +53,27 @@ Key vars for Phase 3:
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
+| `CHAT_ENABLED` | Default `true` | Set `false` to disable website chat API |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server DB access + admin bootstrap |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | One-time | Bootstrap admin user in Supabase Auth; remove after first startup |
 | `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` | `Paul` / `Benn` | Staff profile name on bootstrap and backfill |
 | `AI_PROVIDER_ENCRYPTION_KEY` | Yes | Encrypts AI API keys in Supabase (min 32 chars) |
+| `CORS_ORIGIN` | Yes | Comma-separated allowed origins (e.g. `http://localhost:5180` or production URL) |
 | `PERPLEXITY_API_KEY` | No | Bootstrap first provider if DB empty |
+| `FB_*` | No | Optional — Facebook Messenger on hold |
 
 ## Local dev test
+
+### Website chat API
+
+```bash
+SESSION=$(uuidgen | tr '[:upper:]' '[:lower:]')
+curl -X POST http://localhost:3001/api/chat/messages \
+  -H "Content-Type: application/json" \
+  -d "{\"sessionId\":\"$SESSION\",\"text\":\"Hi, my name is Jane\"}"
+```
+
+### Dev simulate (legacy)
 
 ```bash
 curl -X POST http://localhost:3001/dev/simulate-message \
@@ -105,13 +122,15 @@ AI_PROVIDER_ENCRYPTION_KEY=dev-local-ai-encryption-key-32ch
 
 The admin auth user exists but has no `staff_profiles` row for **API routes** (leads, notes, etc.). Primary fix: sign out and sign in again (`ensureStaffProfile` on login). Fallback: restart the backend — `ensureStaffProfileForAdmins()` creates missing profiles on startup. Set `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` in `.env` if you need a custom display name.
 
-## Deployment
+## Deployment (Railway)
 
 Target: **Railway**. Config: [`railway.toml`](railway.toml), [`Procfile`](Procfile).
 
-1. Set Railway root directory to `apps/backend`
-2. Add all vars from `.env.example` (production values)
-3. Deploy; health check: `GET /health`
-4. Register `https://<railway-host>/webhook` in Meta Developer Console
+1. Railway → New project → connect GitHub repo
+2. Set **Root directory** to `apps/backend`
+3. Add production env vars from `.env.example` (see [website chat plan](../../Documents/Bot/website-chat-implementation-plan.md) Step 4)
+4. Deploy; verify: `curl https://<railway-host>/health`
+5. Set Netlify **`BACKEND_URL`** to the Railway URL (no trailing slash) — see plan Step 5
+6. Set **`CORS_ORIGIN=https://www.enrollifyedu.com`** on Railway
 
-See [Phase 4 deploy doc](../../Documents/Bot/phase-4-messenger-deploy.md) for Meta setup, Vercel admin deploy, and troubleshooting.
+Facebook webhook registration is deferred — see [phase-4-messenger-deploy.md](../../Documents/Bot/phase-4-messenger-deploy.md).

@@ -100,21 +100,21 @@ The business has decided to introduce an AI admissions assistant as the primary 
 
 - Instagram integration (release 1)
 - WhatsApp integration (release 1)
-- Customer-facing website chat widget launch (release 1)
 - HubSpot integration (release 1)
 - Appointment booking workflow (release 1)
 - Advanced analytics and reporting beyond basic operational metrics (release 1)
+- Facebook Messenger production launch *(deferred — Meta business verification pending; webhook code remains in repo)*
 
 ### 3.3 Assumptions
 
-- Facebook Messenger is the first and only production channel in release 1.
-- The existing Enrollify website (enrollifyedu.com, React 19 + Vite + Tailwind v4 + Netlify) must remain unchanged except for required integration points.
+- **Website chat** is the first production channel (July 2026 pivot). Leads use `channel: webchat`, displayed as **Website** in admin.
+- Facebook Messenger webhook code is implemented but **not registered** until Meta verification completes.
+- The existing Enrollify website gains a floating chat widget on public pages (`SiteLayout`) and required `/api/chat` proxy wiring.
 - The admin panel is for internal use only in release 1; it is not publicly accessible.
-- Only one AI provider (Claude) will be used at launch.
-- Website chat will not be exposed to customers until Facebook implementation is stable and validated.
-- The backend will be deployed separately from the Netlify front-end (e.g., Railway or Render), with the admin UI hosted on Vercel or served from the same backend.
+- AI providers are managed via admin UI (Perplexity default; Claude optional failover).
+- The backend is deployed separately on Railway; admin UI and chat widget are served from the Netlify SPA with `/api/*` proxied to Railway.
 - Supabase will be used for all application data storage and Row-Level Security (RLS) policies will be applied to all tables.
-- JWT-based authentication will secure all admin panel routes.
+- Supabase JWT authentication secures all admin panel API routes.
 - Lead-scoring factor weights and thresholds are to be agreed with the business owner before implementation. *(TBD — see Open Questions OQ-1.)*
 - The business owner will provide qualification criteria and knowledge-base source content before build begins. *(TBD — see Open Questions OQ-2.)*
 

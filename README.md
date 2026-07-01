@@ -79,14 +79,15 @@ Set environment variables from [`.env.example`](.env.example):
 
 Blog OG injection uses Netlify edge function `blog-og` on `/blog/*`.
 
-## Enrollify AI (Messenger bot + admin panel)
+## Enrollify AI (website chat + admin panel)
 
-Separate backend under `apps/` — blog does not use it.
+Separate backend under `apps/` — blog does not use it. **Facebook Messenger is on hold; website chat is the active channel.**
 
 | App | Path | Docs |
 |-----|------|------|
-| Backend API | [`apps/backend/`](apps/backend/) | [Phase 4](Documents/Bot/phase-4-messenger-deploy.md) |
-| Admin panel | `/enrollify-manage` on Netlify site (`src/`) | [Phase 4](Documents/Bot/phase-4-messenger-deploy.md) |
+| Backend API | [`apps/backend/`](apps/backend/) | [Website chat plan](Documents/Bot/website-chat-implementation-plan.md) |
+| Chat widget | All public pages (`SiteLayout`) | [Website chat plan](Documents/Bot/website-chat-implementation-plan.md) |
+| Admin panel | `/enrollify-manage` on Netlify site (`src/`) | [Website chat plan](Documents/Bot/website-chat-implementation-plan.md) |
 | PRD | — | [`Documents/Bot/enrollify-ai-prd.md`](Documents/Bot/enrollify-ai-prd.md) |
 
 ### Admin routes (`/enrollify-manage`)
@@ -130,6 +131,7 @@ Backend env vars: [`apps/backend/.env.example`](apps/backend/.env.example) (serv
 | 3 — Core services | [`Documents/Bot/phase-3-core-services.md`](Documents/Bot/phase-3-core-services.md) |
 | 4 — Messenger + deploy | [`Documents/Bot/phase-4-messenger-deploy.md`](Documents/Bot/phase-4-messenger-deploy.md) |
 | 5 — Admin features (notes, profiles) | [`Documents/Bot/phase-5-admin-features.md`](Documents/Bot/phase-5-admin-features.md) |
+| Website chat (active) | [`Documents/Bot/website-chat-implementation-plan.md`](Documents/Bot/website-chat-implementation-plan.md) |
 | PRD | [`Documents/Bot/enrollify-ai-prd.md`](Documents/Bot/enrollify-ai-prd.md) |
 
 ## Design source

@@ -1,8 +1,10 @@
 import cors from 'cors'
 import express, { type Express } from 'express'
 import { pinoHttp } from 'pino-http'
+import { parseCorsOrigins } from './config/env.js'
 import type { Container } from './container.js'
 import { createAdminRouter } from './routes/admin/index.js'
+import { createChatRouter } from './routes/chat.js'
 import { createDevRouter } from './routes/dev/simulate.js'
 import { createHealthRouter } from './routes/health.js'
 import { createWebhookRouter } from './routes/webhook.js'
@@ -10,6 +12,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js'
 
 export function createApp(container: Container): Express {
   const app = express()
+  const allowedOrigins = parseCorsOrigins(container.env.CORS_ORIGIN)
 
   app.use(
     pinoHttp({
@@ -23,7 +26,13 @@ export function createApp(container: Container): Express {
 
   app.use(
     cors({
-      origin: container.env.CORS_ORIGIN,
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true)
+          return
+        }
+        callback(new Error('Not allowed by CORS'))
+      },
       credentials: true,
     }),
   )
@@ -31,6 +40,7 @@ export function createApp(container: Container): Express {
   app.use(express.json())
 
   app.use(createHealthRouter(container))
+  app.use('/api/chat', createChatRouter(container))
   app.use('/api/admin', createAdminRouter(container))
 
   if (container.env.NODE_ENV !== 'production') {

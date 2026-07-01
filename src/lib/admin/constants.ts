@@ -8,3 +8,11 @@ export const LEAD_BANDS: { id: LeadBand; label: string; description: string }[] 
   { id: 'warm', label: 'Warm', description: 'Score 40–69' },
   { id: 'cold', label: 'Cold', description: 'Score < 40' },
 ]
+
+export type LeadChannel = 'webchat' | 'facebook'
+
+export function channelLabel(channel: string): string {
+  if (channel === 'webchat') return 'Website'
+  if (channel === 'facebook') return 'Facebook'
+  return channel
+}

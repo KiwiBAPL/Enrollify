@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ErrorBanner } from '@/components/admin/ErrorBanner'
 import { LeadNotesModal } from '@/components/admin/LeadNotesModal'
-import { ADMIN_BASE, LEAD_BANDS, type LeadBand } from '@/lib/admin/constants'
+import { ADMIN_BASE, LEAD_BANDS, channelLabel, type LeadBand } from '@/lib/admin/constants'
 import { apiFetch } from '@/lib/admin/api'
 import { getStaffProfile } from '@/lib/admin/profile'
 
@@ -25,6 +25,7 @@ interface StudentRow {
   email: string | null
   phone: string | null
   country: string | null
+  channel: string
   enrolment_status: string
   last_activity_at: string | null
   overall_score: number
@@ -191,7 +192,7 @@ export function AdminDashboardPage() {
 
       {!result?.data.length ? (
         <p className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center text-gray-600">
-          No leads match this filter — conversations will appear once students message on Facebook.
+          No leads match this filter — conversations will appear once students chat on the website or Facebook.
         </p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
@@ -199,6 +200,7 @@ export function AdminDashboardPage() {
             <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
                 <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">Source</th>
                 <th className="px-4 py-3 font-medium">Email</th>
                 <th className="px-4 py-3 font-medium">Phone</th>
                 <th className="px-4 py-3 font-medium">Country</th>
@@ -219,6 +221,7 @@ export function AdminDashboardPage() {
                       {s.name ?? '—'}
                     </Link>
                   </td>
+                  <td className="px-4 py-3">{channelLabel(s.channel)}</td>
                   <td className="px-4 py-3">{s.email ?? '—'}</td>
                   <td className="px-4 py-3">{s.phone ?? '—'}</td>
                   <td className="px-4 py-3">{s.country ?? '—'}</td>

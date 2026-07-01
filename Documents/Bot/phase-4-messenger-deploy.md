@@ -3,14 +3,14 @@
 | Field | Details |
 |-------|---------|
 | Phase | 4 — Messenger integration and deployment (PRD §9.4) |
-| Status | Complete (code + deploy configs) |
+| Status | Complete (code + deploy configs); **Meta registration deferred** — see [website-chat-implementation-plan.md](./website-chat-implementation-plan.md) |
 | Date | 2026-06-23 |
 | Branch | `feature/enrollify-ai-backend` |
 | Linked PRD | [enrollify-ai-prd.md](./enrollify-ai-prd.md) |
 
 ## 1. Purpose
 
-Phase 4 connects Facebook Messenger to the existing conversation pipeline, adds webhook security controls, and documents production deployment to Railway (backend) and Vercel (admin).
+Phase 4 connects Facebook Messenger to the existing conversation pipeline, adds webhook security controls, and documents production deployment to Railway (backend). **As of July 2026, Facebook is on hold (Meta business verification). Website chat is the active channel** — see [website-chat-implementation-plan.md](./website-chat-implementation-plan.md). Meta webhook steps below remain valid when Facebook resumes.
 
 ---
 

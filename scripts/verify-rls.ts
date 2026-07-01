@@ -1,5 +1,5 @@
 /**
- * RLS verification script for blog_posts.
+ * RLS verification script for blog_posts and Enrollify AI tables.
  *
  * Usage:
  *   npm run test:security
@@ -297,6 +297,52 @@ async function verifyResourceLeads(
   }
 }
 
+async function verifyEnrollifyAiTables(
+  ok: (msg: string) => void,
+  fail: (msg: string, detail?: unknown) => void,
+) {
+  console.log('\n=== Enrollify AI tables RLS verification ===\n')
+
+  const tables = ['students', 'conversations', 'messages'] as const
+
+  for (const table of tables) {
+    console.log(`${table}: anonymous SELECT blocked`)
+    const { data, error } = await anonClient.from(table).select('id').limit(1)
+
+    if (error) {
+      if (error.message.includes('does not exist')) {
+        fail(`${table} table not found — apply Enrollify AI migrations first`, error.message)
+      } else {
+        ok(`Anonymous SELECT on ${table} rejected (${error.code ?? 'error'})`)
+      }
+    } else if ((data ?? []).length > 0) {
+      fail(`Anonymous SELECT on ${table} returned rows`)
+    } else {
+      ok(`Anonymous SELECT on ${table} returned 0 rows`)
+    }
+
+    console.log(`${table}: anonymous INSERT blocked`)
+    const insertPayload =
+      table === 'students'
+        ? { channel: 'webchat', channel_user_id: `rls-test-${Date.now()}` }
+        : table === 'conversations'
+          ? { student_id: '00000000-0000-4000-8000-000000000001', channel: 'webchat' }
+          : {
+              conversation_id: '00000000-0000-4000-8000-000000000001',
+              message_type: 'user',
+              content: 'test',
+            }
+
+    const { error: insertErr } = await anonClient.from(table).insert(insertPayload)
+
+    if (insertErr) {
+      ok(`Anonymous INSERT on ${table} rejected (${insertErr.code ?? 'error'})`)
+    } else {
+      fail(`Anonymous INSERT on ${table} should have been rejected by RLS`)
+    }
+  }
+}
+
 async function run() {
   let passed = 0
   let failed = 0
@@ -483,6 +529,7 @@ async function run() {
     }
   }
 
+  await verifyEnrollifyAiTables(ok, fail)
   await verifyResourceLeads(ok, fail)
 
   console.log(`\n=== Results: ${passed} passed, ${failed} failed ===\n`)

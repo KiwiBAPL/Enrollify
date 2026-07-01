@@ -1,6 +1,7 @@
 import type { Env } from './config/env.js'
 import { MockChannelAdapter } from './channels/MockChannelAdapter.js'
 import { MessengerChannelAdapter } from './channels/MessengerChannelAdapter.js'
+import { WebChatChannelAdapter } from './channels/WebChatChannelAdapter.js'
 import { createServiceClient } from './db/supabase.js'
 import { createLogger } from './lib/logger.js'
 import {
@@ -48,6 +49,7 @@ export function createContainer(env: Env) {
 
   const mockChannelAdapter = new MockChannelAdapter(logger)
   const messengerChannelAdapter = new MessengerChannelAdapter(env, logger)
+  const webChatChannelAdapter = new WebChatChannelAdapter()
 
   return {
     env,
@@ -63,6 +65,7 @@ export function createContainer(env: Env) {
     channels: {
       mock: mockChannelAdapter,
       messenger: messengerChannelAdapter,
+      webchat: webChatChannelAdapter,
     },
   }
 }
