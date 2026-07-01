@@ -1,4 +1,4 @@
-export type ChannelType = 'facebook' | 'webchat'
+export type ChannelType = 'facebook' | 'webchat' | 'lead_bot'
 export type MessageType = 'user' | 'assistant'
 export type EnrolmentStatus =
   | 'enquiry'
@@ -24,8 +24,13 @@ export interface Student {
   preferred_intake: string | null
   budget: string | null
   visa_status: string | null
+  funding_source: string | null
+  funds_available: string | null
+  english_test_completed: string | null
+  visa_refusal_history: string | null
   enrolment_status: EnrolmentStatus
   last_activity_at: string | null
+  archived_at: string | null
   created_at: string
   updated_at: string
 }
@@ -138,10 +143,12 @@ export type StaffProfileUpdate = Partial<
 export interface StudentListFilters {
   search?: string
   country?: string
+  channel?: ChannelType
   minScore?: number
   maxScore?: number
   page?: number
   pageSize?: number
+  includeArchived?: boolean
 }
 
 export interface PaginatedResult<T> {

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { finalCtaContent } from '@/content/final-cta'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { routes } from '@/lib/routes'
@@ -13,9 +14,7 @@ export function FinalCta() {
         </h2>
         <p className="m-0 text-text-primary">{finalCtaContent.body}</p>
         <div className="flex flex-wrap justify-center gap-3">
-          <Link to={routes.bookConsultation}>
-            <Button variant="primary">{finalCtaContent.primaryLabel}</Button>
-          </Link>
+          <ConsultationCta>{finalCtaContent.primaryLabel}</ConsultationCta>
           <Link to={routes.studyInNz}>
             <Button variant="secondary">{finalCtaContent.secondaryLabel}</Button>
           </Link>

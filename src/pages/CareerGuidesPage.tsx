@@ -4,6 +4,7 @@ import { CareerGuideCard } from '@/components/pages/CareerGuideCard'
 import { CareerGuidesFaq } from '@/components/pages/CareerGuidesFaq'
 import { GuideParagraph } from '@/components/pages/GuideContent'
 import { CareerGuidesMetaTags } from '@/components/seo/CareerGuidesMetaTags'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { careerGuidesContent } from '@/content/career-guides'
@@ -99,9 +100,7 @@ export function CareerGuidesPage() {
               ))}
             </ul>
             <p className="m-0">{advisoryCta.closing}</p>
-            <Link to={routes.bookConsultation}>
-              <Button>{advisoryCta.buttonLabel}</Button>
-            </Link>
+            <ConsultationCta>{advisoryCta.buttonLabel}</ConsultationCta>
           </section>
 
           <section id="how-to-use" className="scroll-mt-24 space-y-4">
@@ -131,9 +130,7 @@ export function CareerGuidesPage() {
             </h2>
             <p className="m-0 text-text-primary">{closingCta.body}</p>
             <div className="flex flex-col flex-wrap justify-center gap-3 sm:flex-row">
-              <Link to={routes.bookConsultation} className="w-full sm:w-auto">
-                <Button className="w-full sm:w-auto">{closingCta.primaryLabel}</Button>
-              </Link>
+              <ConsultationCta className="w-full sm:w-auto">{closingCta.primaryLabel}</ConsultationCta>
               <Link to={routes.findCourse} className="w-full sm:w-auto">
                 <Button variant="secondary" className="w-full sm:w-auto">
                   {closingCta.secondaryLabel}

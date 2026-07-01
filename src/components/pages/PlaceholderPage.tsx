@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/Button'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { SITE_NAME } from '@/lib/site'
-import { routes } from '@/lib/routes'
 
 interface PlaceholderPageProps {
   title: string
@@ -31,9 +29,7 @@ export function PlaceholderPage({
         <p className="mb-8 max-w-2xl font-body text-lg text-text-primary">{description}</p>
         {children}
         {showConsultationLink && !children ? (
-          <Link to={routes.bookConsultation}>
-            <Button>Book a Free Consultation</Button>
-          </Link>
+          <ConsultationCta>Book a Free Consultation</ConsultationCta>
         ) : null}
       </div>
     </>

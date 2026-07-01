@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { FounderBioMetaTags } from '@/components/seo/FounderBioMetaTags'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { founderBioContent } from '@/content/founder-bio'
@@ -35,9 +36,7 @@ export function FounderBioPage() {
             </h2>
             <p className="m-0 text-text-primary">{closingCta.body}</p>
             <div className="flex flex-col flex-wrap justify-center gap-3 sm:flex-row">
-              <Link to={routes.bookConsultation} className="w-full sm:w-auto">
-                <Button className="w-full sm:w-auto">{closingCta.primaryLabel}</Button>
-              </Link>
+              <ConsultationCta className="w-full sm:w-auto">{closingCta.primaryLabel}</ConsultationCta>
               <Link to={routes.contact} className="w-full sm:w-auto">
                 <Button variant="secondary" className="w-full sm:w-auto">
                   {closingCta.secondaryLabel}

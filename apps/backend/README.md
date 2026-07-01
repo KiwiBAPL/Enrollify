@@ -29,6 +29,7 @@ The server refuses to start if any required environment variable is missing or i
 | `npm run dev` | Start with hot reload (tsx) on port 3001 |
 | `npm run build` | Compile TypeScript to `dist/` |
 | `npm run start` | Run compiled output (production) |
+| `npm run purge-archived` | One-shot purge of leads archived 90+ days ago (cron / manual) |
 | `npm run typecheck` | Type-check without emit |
 
 ## Endpoints
@@ -37,6 +38,11 @@ The server refuses to start if any required environment variable is missing or i
 |--------|------|------|-------------|
 | `GET` | `/health` | Public | `{ status, database }` probe |
 | `POST` | `/api/chat/messages` | Public (rate limited) | Website chat — `{ sessionId, text }` → `{ reply, studentId, conversationId }`. `reply` is plain text (no markdown). |
+| `POST` | `/api/lead-bot/sessions` | Public (rate limited) | Consultation bot — create or resume session |
+| `POST` | `/api/lead-bot/sessions/:id/steps` | Public (rate limited) | Submit one consultation step |
+| `POST` | `/api/lead-bot/sessions/:id/complete` | Public (rate limited) | Complete consultation and score lead |
+| `POST` | `/api/admin/students/archive` | Supabase JWT | Bulk soft-delete — body `{ ids: string[] }` |
+| `POST` | `/api/internal/cron/purge-archived-students` | `Bearer CRON_SECRET` | Permanently delete leads archived 90+ days |
 | `GET/PATCH/…` | `/api/admin/*` | Supabase JWT | Students, notes, profile, pipeline, analytics, AI providers |
 | `GET` | `/webhook` | Public | Meta webhook verification (Facebook on hold) |
 | `POST` | `/webhook` | Signed | Inbound Messenger messages (Facebook on hold) |
@@ -59,6 +65,8 @@ Key vars for Phase 3:
 | `ADMIN_FIRST_NAME` / `ADMIN_LAST_NAME` | `Paul` / `Benn` | Staff profile name on bootstrap and backfill |
 | `AI_PROVIDER_ENCRYPTION_KEY` | Yes | Encrypts AI API keys in Supabase (min 32 chars) |
 | `CORS_ORIGIN` | Yes | Comma-separated allowed origins (e.g. `http://localhost:5180` or production URL) |
+| `CRON_SECRET` | Production purge | Bearer token for `POST /api/internal/cron/purge-archived-students` |
+| `ARCHIVE_RETENTION_DAYS` | Default `90` | Days before archived leads are permanently deleted |
 | `PERPLEXITY_API_KEY` | No | Bootstrap first provider if DB empty |
 | `FB_*` | No | Optional — Facebook Messenger on hold |
 
@@ -69,6 +77,18 @@ The chat widget renders replies as plain text only. Before returning a reply, bo
 Perplexity uses structured JSON output; the `reply` field description in `STRUCTURED_RESPONSE_SCHEMA` reinforces the same rules.
 
 ## Local dev test
+
+### Consultation lead bot
+
+Requires **both** Vite (`npm run dev` on port 5180) and backend (`npm run dev` in `apps/backend` on port 3001). Click **Book a Free Consultation** or open `/book-consultation`.
+
+```bash
+SESSION=$(uuidgen | tr '[:upper:]' '[:lower:]')
+curl -X POST http://localhost:3001/api/lead-bot/sessions \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://localhost:5180" \
+  -d "{\"sessionId\":\"$SESSION\"}"
+```
 
 ### Website chat API
 
@@ -138,5 +158,27 @@ Target: **Railway**. Config: [`railway.toml`](railway.toml), [`Procfile`](Procfi
 4. Deploy; verify: `curl https://<railway-host>/health`
 5. Set Netlify **`BACKEND_URL`** to the Railway URL (no trailing slash) — see plan Step 5
 6. Set **`CORS_ORIGIN=https://www.enrollifyedu.com`** on Railway
+
+### Archived lead purge (90-day retention)
+
+Bulk-deleted leads are soft-archived (`archived_at`) and permanently removed after **90 days**.
+
+**Production scheduler (GitHub Actions):**
+
+1. `CRON_SECRET` is set on the `enrollify-api` Railway service (generate with `openssl rand -hex 32` if missing).
+2. Add the same value to GitHub → **Settings → Secrets → Actions** as `ENROLLIFY_CRON_SECRET`.
+3. Workflow [`.github/workflows/purge-archived-leads.yml`](../../.github/workflows/purge-archived-leads.yml) calls `POST /api/internal/cron/purge-archived-students` daily at 03:00 UTC.
+
+Manual test:
+
+```bash
+curl -X POST "https://enrollify-api-production.up.railway.app/api/internal/cron/purge-archived-students" \
+  -H "Authorization: Bearer YOUR_CRON_SECRET"
+```
+
+**Optional Railway-native cron service** (same repo, `apps/backend` root):
+
+- Config: [`railway.purge-cron.toml`](railway.purge-cron.toml) — runs `npm run purge-archived` daily (direct DB purge, no HTTP).
+- Create a second Railway service `purge-archived-cron` from the GitHub repo, set **Config file path** to `railway.purge-cron.toml`, and copy `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` from `enrollify-api`.
 
 Facebook webhook registration is deferred — see [phase-4-messenger-deploy.md](../../Documents/Bot/phase-4-messenger-deploy.md).

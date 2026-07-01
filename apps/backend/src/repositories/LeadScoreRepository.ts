@@ -21,7 +21,14 @@ export class LeadScoreRepository {
 
   async upsert(studentId: string, factors: LeadScoreFactors): Promise<LeadScore> {
     const overallScore = this.computeOverallScore(factors)
+    return this.upsertWithOverallScore(studentId, overallScore, factors)
+  }
 
+  async upsertWithOverallScore(
+    studentId: string,
+    overallScore: number,
+    factors: LeadScoreFactors,
+  ): Promise<LeadScore> {
     const { data, error } = await this.db
       .from('lead_scores')
       .upsert(
@@ -63,8 +70,8 @@ export class LeadScoreRepository {
   }
 
   /**
-   * Provisional scoring (OQ-1): sum of seven factor scores (0–10 each).
-   * Scaled to 0–100 for pipeline bands (Hot ≥70, Warm 40–69, Cold <40).
+   * AI chat scoring: sum of seven factor scores (0–10 each), scaled to 0–100.
+   * Lead-bot leads use upsertWithOverallScore with the consultation formula instead.
    */
   computeOverallScore(factors: LeadScoreFactors): number {
     const raw =
@@ -79,9 +86,10 @@ export class LeadScoreRepository {
     return Math.min(100, Math.round((raw / 70) * 100))
   }
 
-  scoreBand(overallScore: number): 'hot' | 'warm' | 'cold' {
-    if (overallScore >= 70) return 'hot'
-    if (overallScore >= 40) return 'warm'
+  scoreBand(overallScore: number): 'hot' | 'warm' | 'nurture' | 'cold' {
+    if (overallScore >= 80) return 'hot'
+    if (overallScore >= 60) return 'warm'
+    if (overallScore >= 40) return 'nurture'
     return 'cold'
   }
 }

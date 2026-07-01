@@ -7,7 +7,7 @@ import {
 import { footerContent } from '@/content/site'
 import { routes } from '@/lib/routes'
 import { FooterLatestArticles } from '@/components/layout/FooterLatestArticles'
-import { Button } from '@/components/ui/Button'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { Logo } from '@/components/ui/Logo'
 import type { FooterSocialLink } from '@/types/content'
 
@@ -103,9 +103,7 @@ export function Footer() {
           <div>
             <p className="mb-2 text-sm font-semibold text-text-secondary">Book a Consultation</p>
             <p className="mb-4 text-sm text-text-muted">Ready to get started?</p>
-            <Link to={routes.bookConsultation}>
-              <Button size="sm">Book a Free Consultation</Button>
-            </Link>
+            <ConsultationCta size="sm">Book a Free Consultation</ConsultationCta>
           </div>
         </div>
 

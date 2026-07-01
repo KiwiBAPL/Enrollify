@@ -3,8 +3,7 @@ import { createPortal } from 'react-dom'
 import { Link, useLocation } from 'react-router-dom'
 import { navLinks } from '@/content/site'
 import { isNavLinkActive, mobileNavLinkClassName } from '@/lib/nav'
-import { routes } from '@/lib/routes'
-import { Button } from '@/components/ui/Button'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 
 export function MobileNav() {
   const [open, setOpen] = useState(false)
@@ -65,9 +64,9 @@ export function MobileNav() {
           </ul>
         </div>
         <div className="border-t-2 border-accent-primary/20 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <Link to={routes.bookConsultation} className="block w-full" onClick={close}>
-            <Button className="w-full">Book a Free Consultation</Button>
-          </Link>
+          <ConsultationCta className="w-full" onOpen={close}>
+            Book a Free Consultation
+          </ConsultationCta>
         </div>
       </nav>
     </div>

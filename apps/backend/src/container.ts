@@ -18,6 +18,7 @@ import { AIService } from './services/AIService.js'
 import { ConversationService } from './services/ConversationService.js'
 import { KnowledgeService } from './services/KnowledgeService.js'
 import { LeadScoringService } from './services/LeadScoringService.js'
+import { LeadBotService } from './services/LeadBotService.js'
 
 export function createContainer(env: Env) {
   const logger = createLogger(env)
@@ -37,6 +38,13 @@ export function createContainer(env: Env) {
   const knowledgeService = new KnowledgeService(repositories.knowledge)
   const aiService = new AIService(env, logger, repositories.aiProviders)
   const leadScoringService = new LeadScoringService(repositories.leadScores)
+  const leadBotService = new LeadBotService(
+    repositories.students,
+    repositories.conversations,
+    repositories.messages,
+    repositories.leadScores,
+    logger,
+  )
   const conversationService = new ConversationService(
     repositories.students,
     repositories.conversations,
@@ -60,6 +68,7 @@ export function createContainer(env: Env) {
       knowledge: knowledgeService,
       ai: aiService,
       leadScoring: leadScoringService,
+      leadBot: leadBotService,
       conversation: conversationService,
     },
     channels: {

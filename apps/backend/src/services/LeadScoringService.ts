@@ -8,7 +8,7 @@ export class LeadScoringService {
     return this.leadScoreRepository.upsert(studentId, factors)
   }
 
-  getBand(overallScore: number): 'hot' | 'warm' | 'cold' {
+  getBand(overallScore: number): 'hot' | 'warm' | 'nurture' | 'cold' {
     return this.leadScoreRepository.scoreBand(overallScore)
   }
 }

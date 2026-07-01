@@ -287,3 +287,20 @@ curl -X POST http://localhost:3001/api/chat/messages \
   -H "Content-Type: application/json" \
   -d "{\"sessionId\":\"$SESSION\",\"text\":\"Hi, my name is Jane\"}"
 ```
+
+---
+
+## Related: Lead generator bot
+
+Separate from website chat — a **scripted consultation modal** (not AI) opened by “Book a Free Consultation” CTAs.
+
+| | Website chat | Consultation lead bot |
+|--|--|--|
+| Channel | `webchat` | `lead_bot` |
+| Admin label | Website | Consultation |
+| UI | Floating widget | Modal overlay (`LeadBotModal`) |
+| Flow | AI conversation | Fixed 10-step script |
+
+- Script and scoring formula: [`Lead Bot.md`](./Lead%20Bot.md)
+- Backend routes: `POST /api/lead-bot/sessions`, `/sessions/:id/steps`, `/sessions/:id/complete`
+- Local dev: Vite + backend both required (same as admin API)

@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { z } from 'zod'
 import type { Container } from '../../container.js'
 import { createAuthMiddleware } from '../../middleware/authJwt.js'
 import { createAIProvidersRouter } from './aiProviders.js'
@@ -12,6 +13,10 @@ const ENROLMENT_STATUSES: EnrolmentStatus[] = [
   'enrolled',
   'not_qualified',
 ]
+
+const archiveStudentsSchema = z.object({
+  ids: z.array(z.string().uuid()).min(1).max(100),
+})
 
 function parseNoteContent(body: unknown): string | null {
   if (typeof body !== 'object' || body === null) return null
@@ -101,6 +106,21 @@ export function createAdminRouter(container: Container): Router {
     }
   })
 
+  router.post('/students/archive', async (req, res, next) => {
+    try {
+      const parsed = archiveStudentsSchema.safeParse(req.body)
+      if (!parsed.success) {
+        res.status(400).json({ error: 'Invalid request body' })
+        return
+      }
+
+      const archived = await container.repositories.students.archiveMany(parsed.data.ids)
+      res.json({ archived })
+    } catch (err) {
+      next(err)
+    }
+  })
+
   router.get('/students', async (req, res, next) => {
     try {
       const page = Number(req.query.page) || 1
@@ -108,26 +128,37 @@ export function createAdminRouter(container: Container): Router {
       const search = typeof req.query.search === 'string' ? req.query.search : undefined
       const country = typeof req.query.country === 'string' ? req.query.country : undefined
       const leadBand = typeof req.query.leadBand === 'string' ? req.query.leadBand : undefined
+      const channel = typeof req.query.channel === 'string' ? req.query.channel : undefined
 
       let minScore = req.query.minScore ? Number(req.query.minScore) : undefined
       let maxScore = req.query.maxScore ? Number(req.query.maxScore) : undefined
 
       if (leadBand === 'hot') {
-        minScore = 70
+        minScore = 80
         maxScore = undefined
       } else if (leadBand === 'warm') {
+        minScore = 60
+        maxScore = 79
+      } else if (leadBand === 'nurture') {
         minScore = 40
-        maxScore = 69
+        maxScore = 59
       } else if (leadBand === 'cold') {
         minScore = undefined
         maxScore = 39
       }
+
+      const validChannels = ['facebook', 'webchat', 'lead_bot'] as const
+      const channelFilter =
+        channel && validChannels.includes(channel as (typeof validChannels)[number])
+          ? (channel as (typeof validChannels)[number])
+          : undefined
 
       const result = await container.repositories.students.list({
         page,
         pageSize,
         search,
         country,
+        channel: channelFilter,
         minScore,
         maxScore,
       })
@@ -169,7 +200,11 @@ export function createAdminRouter(container: Container): Router {
       const from = typeof req.query.from === 'string' ? req.query.from : undefined
       const to = typeof req.query.to === 'string' ? req.query.to : undefined
 
-      let query = container.db.from('students').select('*').order('last_activity_at', {
+      let query = container.db
+        .from('students')
+        .select('*')
+        .is('archived_at', null)
+        .order('last_activity_at', {
         ascending: false,
       })
 
@@ -193,8 +228,12 @@ export function createAdminRouter(container: Container): Router {
         'preferred_intake',
         'budget',
         'visa_status',
+        'funding_source',
+        'funds_available',
+        'english_test_completed',
+        'visa_refusal_history',
+        'channel',
         'enrolment_status',
-        'overall_score',
         'ready_to_apply',
         'english_ability',
         'budget_fit',
@@ -221,6 +260,11 @@ export function createAdminRouter(container: Container): Router {
           student.preferred_intake,
           student.budget,
           student.visa_status,
+          student.funding_source,
+          student.funds_available,
+          student.english_test_completed,
+          student.visa_refusal_history,
+          student.channel,
           student.enrolment_status,
           score?.overall_score ?? 0,
           score?.ready_to_apply ?? 0,
@@ -364,27 +408,31 @@ export function createAdminRouter(container: Container): Router {
 
   router.get('/pipeline', async (_req, res, next) => {
     try {
-      const hot = await container.repositories.leadScores.listByScoreBand(70)
-      const warm = await container.repositories.leadScores.listByScoreBand(40, 69)
+      const hot = await container.repositories.leadScores.listByScoreBand(80)
+      const warm = await container.repositories.leadScores.listByScoreBand(60, 79)
+      const nurture = await container.repositories.leadScores.listByScoreBand(40, 59)
       const cold = await container.repositories.leadScores.listByScoreBand(0, 39)
 
       const enrich = async (scores: LeadScore[]) => {
-        return Promise.all(
+        const entries = await Promise.all(
           scores.map(async (score: LeadScore) => {
             const student = await container.repositories.students.findById(score.student_id)
+            if (!student) return null
             return {
               studentId: score.student_id,
-              name: student?.name ?? 'Unknown',
+              name: student.name ?? 'Unknown',
               overallScore: score.overall_score,
-              lastActivity: student?.last_activity_at,
+              lastActivity: student.last_activity_at,
             }
           }),
         )
+        return entries.filter((entry): entry is NonNullable<typeof entry> => entry !== null)
       }
 
       res.json({
         hot: await enrich(hot),
         warm: await enrich(warm),
+        nurture: await enrich(nurture),
         cold: await enrich(cold),
       })
     } catch (err) {
@@ -401,15 +449,18 @@ export function createAdminRouter(container: Container): Router {
       const { count: studentCount } = await container.db
         .from('students')
         .select('*', { count: 'exact', head: true })
+        .is('archived_at', null)
 
       const { data: studentsWithEmail } = await container.db
         .from('students')
         .select('id')
+        .is('archived_at', null)
         .not('email', 'is', null)
 
       const { data: appointed } = await container.db
         .from('students')
         .select('id')
+        .is('archived_at', null)
         .eq('enrolment_status', 'appointment_booked')
 
       const totalConversations = conversationCount ?? 0

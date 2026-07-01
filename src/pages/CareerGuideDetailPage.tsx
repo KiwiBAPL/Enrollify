@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async'
 import { Link, useParams } from 'react-router-dom'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { getCareerGuideBySlug } from '@/content/career-guides'
@@ -90,9 +91,7 @@ export function CareerGuideDetailPage() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link to={routes.bookConsultation} className="w-full sm:w-auto">
-              <Button className="w-full sm:w-auto">Book a Free Consultation</Button>
-            </Link>
+            <ConsultationCta className="w-full sm:w-auto">Book a Free Consultation</ConsultationCta>
             <Link to={routes.careerGuides} className="w-full sm:w-auto">
               <Button variant="secondary" className="w-full sm:w-auto">
                 Back to Career Guides

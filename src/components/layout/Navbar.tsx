@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { navLinks } from '@/content/site'
 import { isNavLinkActive, navLinkClassName } from '@/lib/nav'
 import { routes } from '@/lib/routes'
-import { Button } from '@/components/ui/Button'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { Logo } from '@/components/ui/Logo'
 import { MobileNav } from '@/components/layout/MobileNav'
 
@@ -31,9 +31,9 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center justify-end gap-3">
-          <Link to={routes.bookConsultation} className="hidden min-[900px]:inline-flex">
-            <Button size="sm">Book a Free Consultation</Button>
-          </Link>
+          <ConsultationCta size="sm" className="hidden min-[900px]:inline-flex">
+            Book a Free Consultation
+          </ConsultationCta>
           <MobileNav />
         </div>
       </div>

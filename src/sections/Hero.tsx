@@ -2,9 +2,19 @@ import { Link } from 'react-router-dom'
 import { heroContent } from '@/content/hero'
 import { HeroVisual } from '@/components/ui/HeroVisual'
 import { Button } from '@/components/ui/Button'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { handleNavClick } from '@/lib/scroll'
+import { routes } from '@/lib/routes'
 
 function HeroCta({ href, label, variant = 'primary' }: { href: string; label: string; variant?: 'primary' | 'secondary' }) {
+  if (href === routes.bookConsultation) {
+    return (
+      <ConsultationCta variant={variant} className="w-full sm:w-auto">
+        {label}
+      </ConsultationCta>
+    )
+  }
+
   const button = <Button variant={variant} className="w-full sm:w-auto">{label}</Button>
   const linkClassName = 'block w-full sm:w-auto'
 

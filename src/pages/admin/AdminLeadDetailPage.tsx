@@ -20,16 +20,38 @@ interface Message {
   created_at: string
 }
 
+interface StudentRecord {
+  id: string
+  name: string | null
+  email: string | null
+  phone: string | null
+  country: string | null
+  field_of_study: string | null
+  preferred_intake: string | null
+  funding_source: string | null
+  funds_available: string | null
+  english_test_completed: string | null
+  visa_refusal_history: string | null
+  channel: string
+  enrolment_status: string
+}
+
 interface StudentDetail {
-  student: {
-    id: string
-    name: string | null
-    email: string | null
-    channel: string
-    enrolment_status: string
-  }
+  student: StudentRecord
   leadScore: { overall_score: number } | null
 }
+
+const QUALIFICATION_FIELDS: { key: keyof StudentRecord; label: string }[] = [
+  { key: 'country', label: 'Country' },
+  { key: 'field_of_study', label: 'Field of study' },
+  { key: 'preferred_intake', label: 'Preferred intake' },
+  { key: 'funding_source', label: 'Funding source' },
+  { key: 'funds_available', label: 'Funds available' },
+  { key: 'english_test_completed', label: 'English test' },
+  { key: 'visa_refusal_history', label: 'Visa refusal history' },
+  { key: 'email', label: 'Email' },
+  { key: 'phone', label: 'Phone' },
+]
 
 export function AdminLeadDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -78,6 +100,8 @@ export function AdminLeadDetailPage() {
     }
   }
 
+  const student = detail?.student
+
   return (
     <>
       <Link
@@ -87,18 +111,33 @@ export function AdminLeadDetailPage() {
         ← Back to dashboard
       </Link>
 
-      <h2 className="mb-2 text-2xl font-bold">{detail?.student.name ?? 'Student'}</h2>
+      <h2 className="mb-2 text-2xl font-bold">{student?.name ?? 'Student'}</h2>
       <p className="mb-4 text-sm text-gray-600">
         <span className="mr-2 inline-block rounded-full bg-[var(--accent-mint)] px-2 py-0.5 text-xs font-medium text-gray-900">
-          {channelLabel(detail?.student.channel ?? 'webchat')}
+          {channelLabel(student?.channel ?? 'webchat')}
         </span>
-        Score: {detail?.leadScore?.overall_score ?? 0} · {detail?.student.email ?? 'No email'}
+        Score: {detail?.leadScore?.overall_score ?? 0} · {student?.email ?? 'No email'}
       </p>
+
+      {student && (
+        <div className="mb-6 grid gap-3 rounded-lg border border-gray-200 bg-white p-4 sm:grid-cols-2">
+          {QUALIFICATION_FIELDS.map(({ key, label }) => {
+            const value = student[key]
+            if (typeof value !== 'string' || !value) return null
+            return (
+              <div key={key}>
+                <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
+                <p className="text-sm text-gray-900">{value}</p>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       <label className="mb-6 block max-w-xs">
         <span className="mb-1 block text-sm font-medium">Enrolment status</span>
         <select
-          value={detail?.student.enrolment_status ?? 'enquiry'}
+          value={student?.enrolment_status ?? 'enquiry'}
           onChange={(e) => updateStatus(e.target.value)}
           className="w-full rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
         >

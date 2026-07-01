@@ -3,6 +3,8 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { ChatWidget } from '@/components/chat/ChatWidget'
+import { LeadBotProvider } from '@/components/lead-bot/LeadBotProvider'
+import { LeadBotModal } from '@/components/lead-bot/LeadBotModal'
 import { trackPageview } from '@/lib/analytics'
 import { scrollToSection } from '@/lib/scroll'
 
@@ -21,16 +23,19 @@ export function SiteLayout() {
   }, [location.pathname, location.hash])
 
   return (
-    <div className="min-h-screen overflow-x-clip bg-background-primary">
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
-      <Navbar />
-      <main id="main-content">
-        <Outlet />
-      </main>
-      <Footer />
-      <ChatWidget />
-    </div>
+    <LeadBotProvider>
+      <div className="min-h-screen overflow-x-clip bg-background-primary">
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <Navbar />
+        <main id="main-content">
+          <Outlet />
+        </main>
+        <Footer />
+        <ChatWidget />
+        <LeadBotModal />
+      </div>
+    </LeadBotProvider>
   )
 }

@@ -1,16 +1,19 @@
+import { useEffect } from 'react'
 import { PlaceholderPage } from '@/components/pages/PlaceholderPage'
-import { StudentInterestForm } from '@/components/forms/StudentInterestForm'
+import { useLeadBot } from '@/components/lead-bot/LeadBotProvider'
 
 export function BookConsultationPage() {
+  const { openLeadBot } = useLeadBot()
+
+  useEffect(() => {
+    openLeadBot()
+  }, [openLeadBot])
+
   return (
     <PlaceholderPage
       title="Book a Free Consultation"
-      description="Planning to study in New Zealand? Share a few details and our local experts will help you explore courses, careers, visas and costs — at no obligation."
+      description="Planning to study in New Zealand? Our consultation chat should open automatically. If it didn't, use the Book a Free Consultation button in the menu to start."
       showConsultationLink={false}
-    >
-      <div className="mx-auto max-w-3xl rounded-card border-2 border-accent-lavender bg-background-primary p-6 sm:p-8">
-        <StudentInterestForm />
-      </div>
-    </PlaceholderPage>
+    />
   )
 }

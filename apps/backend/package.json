@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "purge-archived": "node dist/scripts/purge-archived-students.js",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

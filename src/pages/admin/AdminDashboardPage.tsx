@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ErrorBanner } from '@/components/admin/ErrorBanner'
 import { LeadNotesModal } from '@/components/admin/LeadNotesModal'
-import { ADMIN_BASE, LEAD_BANDS, channelLabel, type LeadBand } from '@/lib/admin/constants'
+import { ADMIN_BASE, LEAD_BANDS, LEAD_CHANNELS, channelLabel, type LeadBand, type LeadChannel } from '@/lib/admin/constants'
 import { apiFetch } from '@/lib/admin/api'
 import { getStaffProfile } from '@/lib/admin/profile'
 
@@ -47,6 +47,8 @@ function bandClass(band: LeadBand, active: boolean): string {
       return `${base} bg-red-100 text-red-800 ring-2 ring-red-300`
     case 'warm':
       return `${base} bg-amber-100 text-amber-800 ring-2 ring-amber-300`
+    case 'nurture':
+      return `${base} bg-yellow-100 text-yellow-900 ring-2 ring-yellow-300`
     case 'cold':
       return `${base} bg-blue-100 text-blue-800 ring-2 ring-blue-300`
     default:
@@ -60,6 +62,7 @@ function truncateNote(text: string, max = 60): string {
 
 export function AdminDashboardPage() {
   const [leadBand, setLeadBand] = useState<LeadBand>('all')
+  const [channel, setChannel] = useState<LeadChannel | 'all'>('all')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
@@ -69,6 +72,8 @@ export function AdminDashboardPage() {
     null,
   )
   const [welcomeName, setWelcomeName] = useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set())
+  const [archiving, setArchiving] = useState(false)
 
   useEffect(() => {
     getStaffProfile()
@@ -82,6 +87,7 @@ export function AdminDashboardPage() {
       const params = new URLSearchParams({ page: String(page), pageSize: '25' })
       if (search) params.set('search', search)
       if (leadBand !== 'all') params.set('leadBand', leadBand)
+      if (channel !== 'all') params.set('channel', channel)
 
       const [analyticsData, studentsData] = await Promise.all([
         apiFetch<Analytics>('/api/admin/analytics'),
@@ -92,14 +98,73 @@ export function AdminDashboardPage() {
     } catch {
       setError('Failed to load dashboard')
     }
-  }, [page, search, leadBand])
+  }, [page, search, leadBand, channel])
 
   useEffect(() => {
     load()
   }, [load])
 
+  useEffect(() => {
+    setSelectedIds(new Set())
+  }, [page, search, leadBand, channel])
+
+  const pageIds = result?.data.map((s) => s.id) ?? []
+  const allOnPageSelected =
+    pageIds.length > 0 && pageIds.every((id) => selectedIds.has(id))
+  const someOnPageSelected = pageIds.some((id) => selectedIds.has(id))
+
+  function toggleRowSelection(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAllOnPage() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (allOnPageSelected) {
+        for (const id of pageIds) next.delete(id)
+      } else {
+        for (const id of pageIds) next.add(id)
+      }
+      return next
+    })
+  }
+
+  async function handleBulkDelete() {
+    if (selectedIds.size === 0) return
+
+    const confirmed = window.confirm(
+      `Delete ${selectedIds.size} selected lead${selectedIds.size === 1 ? '' : 's'}? They will be removed from this dashboard and permanently deleted from the system after 90 days.`,
+    )
+    if (!confirmed) return
+
+    setArchiving(true)
+    setError('')
+    try {
+      await apiFetch<{ archived: number }>('/api/admin/students/archive', {
+        method: 'POST',
+        body: JSON.stringify({ ids: [...selectedIds] }),
+      })
+      setSelectedIds(new Set())
+      await load()
+    } catch {
+      setError('Failed to delete selected leads')
+    } finally {
+      setArchiving(false)
+    }
+  }
+
   function selectBand(band: LeadBand) {
     setLeadBand(band)
+    setPage(1)
+  }
+
+  function selectChannel(next: LeadChannel | 'all') {
+    setChannel(next)
     setPage(1)
   }
 
@@ -167,6 +232,19 @@ export function AdminDashboardPage() {
         ))}
       </div>
 
+      <div className="mb-4 flex flex-wrap gap-2">
+        {LEAD_CHANNELS.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => selectChannel(c.id)}
+            className={bandClass('all', channel === c.id)}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+
       <form
         className="mb-4 flex gap-2"
         onSubmit={(e) => {
@@ -190,6 +268,30 @@ export function AdminDashboardPage() {
         </button>
       </form>
 
+      {selectedIds.size > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+          <span className="text-sm text-red-900">
+            {selectedIds.size} selected on this page
+          </span>
+          <button
+            type="button"
+            onClick={() => void handleBulkDelete()}
+            disabled={archiving}
+            className="rounded bg-red-700 px-4 py-2 text-sm font-medium text-white hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-50"
+          >
+            {archiving ? 'Deleting…' : `Delete selected (${selectedIds.size})`}
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedIds(new Set())}
+            disabled={archiving}
+            className="text-sm text-red-800 underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-red-600"
+          >
+            Clear selection
+          </button>
+        </div>
+      )}
+
       {!result?.data.length ? (
         <p className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center text-gray-600">
           No leads match this filter — conversations will appear once students chat on the website or Facebook.
@@ -199,6 +301,18 @@ export function AdminDashboardPage() {
           <table className="w-full text-left text-sm">
             <thead className="border-b border-gray-200 bg-gray-50">
               <tr>
+                <th className="w-10 px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={allOnPageSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = someOnPageSelected && !allOnPageSelected
+                    }}
+                    onChange={toggleSelectAllOnPage}
+                    aria-label="Select all leads on this page"
+                    className="h-4 w-4 rounded border-gray-300 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+                  />
+                </th>
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Source</th>
                 <th className="px-4 py-3 font-medium">Email</th>
@@ -213,6 +327,15 @@ export function AdminDashboardPage() {
             <tbody>
               {result.data.map((s) => (
                 <tr key={s.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(s.id)}
+                      onChange={() => toggleRowSelection(s.id)}
+                      aria-label={`Select ${s.name ?? 'lead'}`}
+                      className="h-4 w-4 rounded border-gray-300 text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
+                    />
+                  </td>
                   <td className="px-4 py-3">
                     <Link
                       to={`${ADMIN_BASE}/leads/${s.id}`}

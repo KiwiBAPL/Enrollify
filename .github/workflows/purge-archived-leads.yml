@@ -1,0 +1,29 @@
+name: Purge archived leads
+
+on:
+  schedule:
+    # Daily at 03:00 UTC — permanent delete 90+ days after archive
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge expired archived students
+        env:
+          PURGE_URL: https://enrollify-api-production.up.railway.app/api/internal/cron/purge-archived-students
+          CRON_SECRET: ${{ secrets.ENROLLIFY_CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "ENROLLIFY_CRON_SECRET is not set in GitHub repository secrets"
+            exit 1
+          fi
+          response=$(curl -sf -w "\n%{http_code}" -X POST "$PURGE_URL" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+          echo "Response ($http_code): $body"
+          if [ "$http_code" != "200" ]; then
+            exit 1
+          fi

@@ -14,7 +14,7 @@ npm run dev
 
 Open **http://localhost:5180** (Vite strict port).
 
-Blog and admin features require Supabase env vars in `.env.local`. For Enrollify AI admin API routes, also run the backend (see below).
+Blog and admin features require Supabase env vars in `.env.local`. For Enrollify AI admin API routes and the consultation lead bot, also run the backend (see below).
 
 For Netlify Forms testing (submissions require Netlify handler):
 
@@ -37,7 +37,7 @@ npm run netlify:dev
 | `/student-resources/accommodation/tips` | Accommodation tips guide — lead form + PDF viewer |
 | `/student-resources/:topic` | Student resource topic pages with CTAs to downloads |
 | `/city-guides` | City guides hub (placeholder) |
-| `/book-consultation` | Free consultation booking |
+| `/book-consultation` | Free consultation — opens the scripted **lead bot modal** (10-step flow; requires backend) |
 | `/contact` | Contact page |
 | `/about/paul-benn` | Founder bio — Paul Benn on Enrollify and Enrollify AI |
 | `/blog` | Blog listing (filters, search, sort) |
@@ -75,20 +75,24 @@ Set environment variables from [`.env.example`](.env.example):
 
 - `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` — required for blog, admin auth, and build-time feeds
 - `VITE_ANALYTICS_PROVIDER` and `VITE_ANALYTICS_ID` — optional analytics
-- `BACKEND_URL` — Railway backend URL for `/api/*` proxy (Enrollify AI admin)
+- `BACKEND_URL` — Railway backend URL for `/api/*` proxy (Enrollify AI admin, website chat, lead bot)
+- **GitHub Actions:** `ENROLLIFY_CRON_SECRET` — same value as Railway `CRON_SECRET`; powers nightly archived-lead purge (see [`apps/backend/README.md`](apps/backend/README.md))
 
 Blog OG injection uses Netlify edge function `blog-og` on `/blog/*`.
 
-## Enrollify AI (website chat + admin panel)
+## Enrollify AI (website chat, consultation bot, admin panel)
 
-Separate backend under `apps/` — blog does not use it. **Facebook Messenger is on hold; website chat is the active channel.**
+Separate backend under `apps/` — blog does not use it. **Facebook Messenger is on hold; website chat and the consultation lead bot are active.**
 
 | App | Path | Docs |
 |-----|------|------|
 | Backend API | [`apps/backend/`](apps/backend/) | [Website chat plan](Documents/Bot/website-chat-implementation-plan.md) |
-| Chat widget | All public pages (`SiteLayout`) | [Website chat plan](Documents/Bot/website-chat-implementation-plan.md) |
+| Website chat widget | All public pages (`SiteLayout`) | [Website chat plan](Documents/Bot/website-chat-implementation-plan.md) |
+| Lead generator bot | `LeadBotModal` on all “Book a Free Consultation” CTAs | [Lead Bot script](Documents/Bot/Lead%20Bot.md) |
 | Admin panel | `/enrollify-manage` on Netlify site (`src/`) | [Website chat plan](Documents/Bot/website-chat-implementation-plan.md) |
 | PRD | — | [`Documents/Bot/enrollify-ai-prd.md`](Documents/Bot/enrollify-ai-prd.md) |
+
+The **consultation bot** (`channel: lead_bot`, admin label **Consultation**) is separate from the floating **website chat** widget (`channel: webchat`, admin label **Website**).
 
 ### Admin routes (`/enrollify-manage`)
 
@@ -97,8 +101,8 @@ Not linked in public nav; blocked in `robots.txt`.
 | Route | Purpose |
 |-------|---------|
 | `/enrollify-manage/login` | Supabase Auth login |
-| `/enrollify-manage` | Leads dashboard |
-| `/enrollify-manage/leads/:id` | Lead conversation |
+| `/enrollify-manage` | Leads dashboard — filter by Hot/Warm/Nurture/Cold bands and source (Website / Consultation); bulk select and delete (soft archive) |
+| `/enrollify-manage/leads/:id` | Lead detail — conversation, qualification fields, enrolment status |
 | `/enrollify-manage/posts` | Blog post list |
 | `/enrollify-manage/posts/new` | Create blog post |
 | `/enrollify-manage/posts/:id` | Edit blog post |
@@ -132,6 +136,8 @@ Backend env vars: [`apps/backend/.env.example`](apps/backend/.env.example) (serv
 | 4 — Messenger + deploy | [`Documents/Bot/phase-4-messenger-deploy.md`](Documents/Bot/phase-4-messenger-deploy.md) |
 | 5 — Admin features (notes, profiles) | [`Documents/Bot/phase-5-admin-features.md`](Documents/Bot/phase-5-admin-features.md) |
 | Website chat (active) | [`Documents/Bot/website-chat-implementation-plan.md`](Documents/Bot/website-chat-implementation-plan.md) |
+| Lead generator bot (script + scoring) | [`Documents/Bot/Lead Bot.md`](Documents/Bot/Lead%20Bot.md) |
+| Archived lead purge (ops) | [`apps/backend/README.md`](apps/backend/README.md#archived-lead-purge-90-day-retention) |
 | PRD | [`Documents/Bot/enrollify-ai-prd.md`](Documents/Bot/enrollify-ai-prd.md) |
 
 ## Design source

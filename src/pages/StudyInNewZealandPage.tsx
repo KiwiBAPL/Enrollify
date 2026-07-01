@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import studyInNzHeroImage from '@/assets/card 1.jpeg'
 import { GuideContent, GuideParagraph, GuideTableOfContents } from '@/components/pages/GuideContent'
 import { StudyInNewZealandMetaTags } from '@/components/seo/StudyInNewZealandMetaTags'
+import { ConsultationCta } from '@/components/lead-bot/ConsultationCta'
 import { Button } from '@/components/ui/Button'
 import { Section } from '@/components/ui/Section'
 import { studyInNewZealandContent } from '@/content/study-in-new-zealand'
@@ -48,9 +49,7 @@ export function StudyInNewZealandPage() {
             <h2 className="m-0 font-display text-2xl font-semibold text-text-secondary">{cta.heading}</h2>
             <p className="m-0 text-text-primary">{cta.body}</p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Link to={routes.bookConsultation}>
-                <Button variant="primary">{cta.primaryLabel}</Button>
-              </Link>
+              <ConsultationCta>{cta.primaryLabel}</ConsultationCta>
               <Link to={routes.findCourse}>
                 <Button variant="secondary">{cta.secondaryLabel}</Button>
               </Link>

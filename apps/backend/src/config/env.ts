@@ -21,6 +21,8 @@ const envSchema = z.object({
   ADMIN_FIRST_NAME: z.string().min(1).default('Paul'),
   ADMIN_LAST_NAME: z.string().min(1).default('Benn'),
   CORS_ORIGIN: z.string().default('http://localhost:5180'),
+  CRON_SECRET: z.string().optional(),
+  ARCHIVE_RETENTION_DAYS: z.coerce.number().int().positive().default(90),
 })
 
 export type Env = z.infer<typeof envSchema>

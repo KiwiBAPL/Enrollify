@@ -1,4 +1,5 @@
 import type { ServiceSupabaseClient } from '../db/supabase.js'
+import { archivePurgeCutoff } from '../lib/archiveRetention.js'
 import type {
   ChannelType,
   EnrolmentStatus,
@@ -22,6 +23,7 @@ export class StudentRepository {
       .select('*')
       .eq('channel', channel)
       .eq('channel_user_id', channelUserId)
+      .is('archived_at', null)
       .maybeSingle()
 
     if (error) {
@@ -31,8 +33,13 @@ export class StudentRepository {
     return data as Student | null
   }
 
-  async findById(id: string): Promise<Student | null> {
-    const { data, error } = await this.db.from('students').select('*').eq('id', id).maybeSingle()
+  async findById(id: string, options?: { includeArchived?: boolean }): Promise<Student | null> {
+    let query = this.db.from('students').select('*').eq('id', id)
+    if (!options?.includeArchived) {
+      query = query.is('archived_at', null)
+    }
+
+    const { data, error } = await query.maybeSingle()
 
     if (error) {
       throw new RepositoryError('Failed to find student by id', error)
@@ -81,6 +88,41 @@ export class StudentRepository {
     }
   }
 
+  async archiveMany(ids: string[]): Promise<number> {
+    if (ids.length === 0) return 0
+
+    const now = new Date().toISOString()
+    const { data, error } = await this.db
+      .from('students')
+      .update({ archived_at: now })
+      .in('id', ids)
+      .is('archived_at', null)
+      .select('id')
+
+    if (error) {
+      throw new RepositoryError('Failed to archive students', error)
+    }
+
+    return data?.length ?? 0
+  }
+
+  async purgeExpiredArchives(retentionDays: number): Promise<number> {
+    const cutoff = archivePurgeCutoff(retentionDays).toISOString()
+
+    const { data, error } = await this.db
+      .from('students')
+      .delete()
+      .not('archived_at', 'is', null)
+      .lt('archived_at', cutoff)
+      .select('id')
+
+    if (error) {
+      throw new RepositoryError('Failed to purge archived students', error)
+    }
+
+    return data?.length ?? 0
+  }
+
   async list(filters: StudentListFilters = {}): Promise<PaginatedResult<Student>> {
     const page = filters.page ?? 1
     const pageSize = filters.pageSize ?? 25
@@ -92,6 +134,10 @@ export class StudentRepository {
       .select('*', { count: 'exact' })
       .order('last_activity_at', { ascending: false, nullsFirst: false })
 
+    if (!filters.includeArchived) {
+      query = query.is('archived_at', null)
+    }
+
     if (filters.search) {
       const term = `%${filters.search}%`
       query = query.or(`name.ilike.${term},email.ilike.${term},phone.ilike.${term}`)
@@ -99,6 +145,10 @@ export class StudentRepository {
 
     if (filters.country) {
       query = query.ilike('country', `%${filters.country}%`)
+    }
+
+    if (filters.channel) {
+      query = query.eq('channel', filters.channel)
     }
 
     const { data, error, count } = await query.range(from, to)
