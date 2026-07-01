@@ -118,7 +118,7 @@ Location: **`/enrollify-manage`** on the Netlify site ([`src/pages/admin/`](../.
 | Route | Feature |
 |-------|---------|
 | `/enrollify-manage/login` | Email/password → Supabase Auth session |
-| `/enrollify-manage` | Unified dashboard — welcome message, leads, notes, Hot/Warm/Cold filters, search, CSV export |
+| `/enrollify-manage` | Unified dashboard — welcome message, metric cards (`GET /api/admin/analytics`, scoped to non-archived leads), leads table, notes, Hot/Warm/Cold filters, search, CSV export |
 | `/enrollify-manage/leads/[id]` | Chat view, enrolment status |
 | `/enrollify-manage/posts` | Blog post list (Supabase direct — not `/api/admin/*`) |
 | `/enrollify-manage/posts/new` | Create blog post |

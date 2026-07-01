@@ -161,7 +161,7 @@ Target: **Railway**. Config: [`railway.toml`](railway.toml), [`Procfile`](Procfi
 
 ### Archived lead purge (90-day retention)
 
-Bulk-deleted leads are soft-archived (`archived_at`) and permanently removed after **90 days**.
+Bulk-deleted leads are soft-archived (`archived_at`) and permanently removed after **90 days**. The Leads Dashboard refetches analytics immediately after bulk delete; metric cards use the same active-lead scope as the list and export (see **Dashboard analytics** below).
 
 **Production scheduler (GitHub Actions):**
 
@@ -180,5 +180,20 @@ curl -X POST "https://enrollify-api-production.up.railway.app/api/internal/cron/
 
 - Config: [`railway.purge-cron.toml`](railway.purge-cron.toml) — runs `npm run purge-archived` daily (direct DB purge, no HTTP).
 - Create a second Railway service `purge-archived-cron` from the GitHub repo, set **Config file path** to `railway.purge-cron.toml`, and copy `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` from `enrollify-api`.
+
+### Dashboard analytics
+
+`GET /api/admin/analytics` powers the four metric cards on the Leads Dashboard (`/enrollify-manage`).
+
+All metrics scope to **non-archived** students (`archived_at IS NULL`) — the same scope as `GET /api/admin/students` and CSV export.
+
+| Metric | Source |
+|--------|--------|
+| **Conversations** | Count of `conversations` rows joined to active students (excludes archived leads) |
+| **Lead capture** | Percentage of active students with a non-null `email` |
+| **Conversion** | Percentage of active students with `enrolment_status = appointment_booked` |
+| **Avg response** | Placeholder `—` (not implemented) |
+
+Logic lives in [`src/lib/adminAnalytics.ts`](src/lib/adminAnalytics.ts). Unit tests: [`src/lib/__tests__/admin-analytics.test.ts`](../../src/lib/__tests__/admin-analytics.test.ts).
 
 Facebook webhook registration is deferred — see [phase-4-messenger-deploy.md](../../Documents/Bot/phase-4-messenger-deploy.md).

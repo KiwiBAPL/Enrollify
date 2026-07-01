@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import type { Container } from '../../container.js'
+import { buildAdminAnalytics } from '../../lib/adminAnalytics.js'
 import { createAuthMiddleware } from '../../middleware/authJwt.js'
 import { createAIProvidersRouter } from './aiProviders.js'
 import type { EnrolmentStatus, LeadScore, Student } from '../../types/domain.js'
@@ -444,7 +445,8 @@ export function createAdminRouter(container: Container): Router {
     try {
       const { count: conversationCount } = await container.db
         .from('conversations')
-        .select('*', { count: 'exact', head: true })
+        .select('id, students!inner(archived_at)', { count: 'exact', head: true })
+        .is('students.archived_at', null)
 
       const { count: studentCount } = await container.db
         .from('students')
@@ -463,22 +465,14 @@ export function createAdminRouter(container: Container): Router {
         .is('archived_at', null)
         .eq('enrolment_status', 'appointment_booked')
 
-      const totalConversations = conversationCount ?? 0
-      const totalStudents = studentCount ?? 0
-      const leadsWithEmail = studentsWithEmail?.length ?? 0
-
-      const leadCaptureRate =
-        totalStudents > 0 ? Math.round((leadsWithEmail / totalStudents) * 100) : null
-
-      const conversionRate =
-        totalStudents > 0 ? Math.round(((appointed?.length ?? 0) / totalStudents) * 100) : null
-
-      res.json({
-        totalConversations: totalConversations || '—',
-        averageFirstResponseTimeSeconds: '—',
-        leadCaptureRate: leadCaptureRate !== null ? `${leadCaptureRate}%` : '—',
-        conversionRate: conversionRate !== null ? `${conversionRate}%` : '—',
-      })
+      res.json(
+        buildAdminAnalytics({
+          conversationCount: conversationCount ?? 0,
+          studentCount: studentCount ?? 0,
+          leadsWithEmail: studentsWithEmail?.length ?? 0,
+          appointedCount: appointed?.length ?? 0,
+        }),
+      )
     } catch (err) {
       next(err)
     }

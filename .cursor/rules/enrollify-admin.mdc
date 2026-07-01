@@ -41,6 +41,9 @@ Missing profile on API routes → `401 Staff profile not found`. Fix: sign in ag
 - **Notes = `student_notes`** — one-to-many per student; full CRUD via `/api/admin/students/:id/notes`
 - Dashboard list includes `latest_note`; full history in `LeadNotesModal`
 - Note author: use `req.auth.email` (not raw `sub` unless aliased)
+- **Bulk delete** = `POST /api/admin/students/archive` (soft archive via `archived_at`, max 100 IDs per request)
+- Dashboard metric cards use active-lead scope (`archived_at IS NULL`); refetch via `load()` after archive
+- Post-delete: if the current page is empty but earlier pages still have leads, reset to page 1
 
 ## Staff profiles
 

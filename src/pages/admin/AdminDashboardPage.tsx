@@ -150,6 +150,18 @@ export function AdminDashboardPage() {
         body: JSON.stringify({ ids: [...selectedIds] }),
       })
       setSelectedIds(new Set())
+
+      const params = new URLSearchParams({ page: String(page), pageSize: '25' })
+      if (search) params.set('search', search)
+      if (leadBand !== 'all') params.set('leadBand', leadBand)
+      if (channel !== 'all') params.set('channel', channel)
+
+      const studentsData = await apiFetch<StudentsResponse>(`/api/admin/students?${params}`)
+      if (studentsData.data.length === 0 && page > 1 && studentsData.total > 0) {
+        setPage(1)
+        return
+      }
+
       await load()
     } catch {
       setError('Failed to delete selected leads')
