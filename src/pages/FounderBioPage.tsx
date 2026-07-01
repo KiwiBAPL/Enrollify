@@ -7,6 +7,7 @@ import { routes } from '@/lib/routes'
 
 export function FounderBioPage() {
   const { sections, closingCta } = founderBioContent
+  const section = sections[0]
 
   return (
     <>
@@ -14,24 +15,16 @@ export function FounderBioPage() {
 
       <Section id="founder-bio-body" variant="primary" className="py-12">
         <div className="mx-auto max-w-3xl space-y-12 blog-body">
-          {sections.map((section, index) => (
-            <section key={section.id} id={section.id} className="scroll-mt-24 space-y-4">
-              {index === 0 ? (
-                <h1 className="m-0 font-display text-[clamp(2rem,4vw,3rem)] font-bold leading-tight text-text-secondary">
-                  {section.title}
-                </h1>
-              ) : (
-                <h2 className="font-display text-2xl font-semibold text-text-secondary">
-                  {section.title}
-                </h2>
-              )}
-              {section.paragraphs.map((paragraph) => (
-                <p key={paragraph.slice(0, 48)} className="m-0">
-                  {paragraph}
-                </p>
-              ))}
-            </section>
-          ))}
+          <section id={section.id} className="scroll-mt-24 space-y-4">
+            <h1 className="m-0 font-display text-[clamp(2rem,4vw,3rem)] font-bold leading-tight text-text-secondary">
+              {section.title}
+            </h1>
+            {section.paragraphs.map((paragraph) => (
+              <p key={paragraph.slice(0, 48)} className="m-0">
+                {paragraph}
+              </p>
+            ))}
+          </section>
 
           <section
             id="founder-bio-cta"
@@ -42,10 +35,10 @@ export function FounderBioPage() {
             </h2>
             <p className="m-0 text-text-primary">{closingCta.body}</p>
             <div className="flex flex-col flex-wrap justify-center gap-3 sm:flex-row">
-              <Link to={routes.contact} className="w-full sm:w-auto">
+              <Link to={routes.bookConsultation} className="w-full sm:w-auto">
                 <Button className="w-full sm:w-auto">{closingCta.primaryLabel}</Button>
               </Link>
-              <Link to={routes.bookConsultation} className="w-full sm:w-auto">
+              <Link to={routes.contact} className="w-full sm:w-auto">
                 <Button variant="secondary" className="w-full sm:w-auto">
                   {closingCta.secondaryLabel}
                 </Button>
