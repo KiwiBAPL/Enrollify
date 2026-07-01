@@ -18,8 +18,17 @@ export interface IncomingMessageParams {
 
 export interface WebChatResult {
   reply: string
+  consultationInvite: string | null
   studentId: string
   conversationId: string
+}
+
+export interface WebChatMessageParams {
+  channelUserId: string
+  text: string
+  timestamp: Date
+  channel: ChannelType
+  leadBotCompleted?: boolean
 }
 
 export class ConversationService {
@@ -47,16 +56,16 @@ export class ConversationService {
     }
   }
 
-  async handleIncomingMessageForWeb(
-    params: Omit<IncomingMessageParams, 'adapter'>,
-  ): Promise<WebChatResult> {
+  async handleIncomingMessageForWeb(params: WebChatMessageParams): Promise<WebChatResult> {
     return this.processIncomingMessage(params)
   }
 
   private async processIncomingMessage(
-    params: Omit<IncomingMessageParams, 'adapter'>,
+    params: Omit<IncomingMessageParams, 'adapter'> | WebChatMessageParams,
   ): Promise<WebChatResult> {
     const { channelUserId, text, timestamp, channel } = params
+    const leadBotCompleted =
+      'leadBotCompleted' in params ? (params.leadBotCompleted ?? false) : false
 
     let student = await this.studentRepository.findByChannelUserId(channel, channelUserId)
     if (!student) {
@@ -77,12 +86,10 @@ export class ConversationService {
       limit: 100,
     })
 
-    const { reply, fieldUpdates, scoreFactors } = await this.aiService.generate(
-      student,
-      history,
-      text,
-      knowledgeArticles,
-    )
+    const { reply, fieldUpdates, scoreFactors, consultationInvite } =
+      await this.aiService.generate(student, history, text, knowledgeArticles, {
+        suppressConsultationInvite: leadBotCompleted,
+      })
 
     if (Object.keys(fieldUpdates).length > 0) {
       student = await this.studentRepository.update(student.id, fieldUpdates)
@@ -112,6 +119,7 @@ export class ConversationService {
 
     return {
       reply,
+      consultationInvite,
       studentId: student.id,
       conversationId: conversation.id,
     }

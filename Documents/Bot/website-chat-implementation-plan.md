@@ -18,8 +18,10 @@ Ship a floating chat widget on all public pages that reuses the existing Express
 Browser → POST /api/chat/messages (Netlify proxy)
        → Railway Express (ConversationService, AIService, LeadScoring)
        → Supabase (students, conversations, messages, lead_scores)
-       → JSON reply to browser (plain text — no markdown)
+       → JSON { reply, consultationInvite, studentId, conversationId }
 ```
+
+After each AI reply, the widget may show a contextual **consultation invite** plus a **Book a free consultation** button that opens the scripted Lead Bot modal (`LeadBotProvider.openLeadBot()`). Structured lead capture stays in the lead bot; chat focuses on Q&A. See [Chat-to-lead-bot CTA](#chat-to-lead-bot-cta) below.
 
 ## Reply formatting
 
@@ -90,9 +92,10 @@ Implement and verify **one step at a time**. Check off self-tests before moving 
 | File | Purpose |
 |------|---------|
 | `src/lib/chat/session.ts` | UUID in `localStorage` |
-| `src/lib/chat/api.ts` | `sendChatMessage()` |
-| `src/components/chat/ChatWidget.tsx` | FAB + panel UI |
-| `src/components/layout/SiteLayout.tsx` | Mount widget |
+| `src/lib/chat/api.ts` | `sendChatMessage()` — optional `leadBotCompleted` |
+| `src/components/chat/ChatWidget.tsx` | FAB + panel UI + consultation CTA |
+| `src/components/chat/ChatConsultationCta.tsx` | Invite text + link-style button → Lead Bot |
+| `src/components/layout/SiteLayout.tsx` | Mount widget + `LeadBotProvider` |
 
 ### Self-test
 
@@ -304,3 +307,43 @@ Separate from website chat — a **scripted consultation modal** (not AI) opened
 - Script and scoring formula: [`Lead Bot.md`](./Lead%20Bot.md)
 - Backend routes: `POST /api/lead-bot/sessions`, `/sessions/:id/steps`, `/sessions/:id/complete`
 - Local dev: Vite + backend both required (same as admin API)
+
+---
+
+## Chat-to-lead-bot CTA
+
+**Status:** Complete (2026-07-01)
+
+The floating AI chat answers general questions; **structured qualification** is delegated to the consultation Lead Bot. Every assistant reply (and the welcome message) can show a consultation CTA unless the student has already completed the lead bot form.
+
+### Flow
+
+```text
+Student asks in ChatWidget
+  → POST /api/chat/messages { sessionId, text, leadBotCompleted? }
+  → AIService returns reply + consultationInvite (AI-generated or topic fallback)
+  → Widget renders reply + invite + "Book a free consultation" button
+  → Click → close chat panel, open LeadBotModal (z-[60])
+  → Complete 10-step script → markLeadBotCompleted() in localStorage
+  → Future chat replies omit CTA (frontend + backend suppressConsultationInvite)
+```
+
+### Key files
+
+| Layer | File | Role |
+|-------|------|------|
+| Prompt | `apps/backend/src/prompts/system.ts` | Q&A only; separate `consultation_invite` field |
+| Fallback | `apps/backend/src/services/ai/consultationInvite.ts` | Topic-aware invite when AI omits text |
+| API | `apps/backend/src/routes/chat.ts` | Accepts optional `leadBotCompleted` |
+| Widget | `src/components/chat/ChatWidget.tsx` | Renders CTA; calls `openLeadBot()` |
+| Completion | `src/lib/lead-bot/session.ts` | `markLeadBotCompleted()` / `isLeadBotCompleted()` |
+| Analytics | `chat_consultation_cta_click` | Fired on button click |
+
+### Self-test
+
+- [ ] Ask about visas in chat → contextual invite + button appear
+- [ ] Click button → chat closes, consultation modal opens
+- [ ] Complete lead bot → reopen chat → no CTA on new replies
+- [ ] Refresh page after completion → CTA still hidden
+
+Unit tests: `src/lib/__tests__/consultation-invite.test.ts`

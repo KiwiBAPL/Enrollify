@@ -8,6 +8,7 @@ import {
   buildChatMessages,
   buildKnowledgeContext,
   buildStudentContext,
+  sanitizeConsultationInvite,
   sanitizeFieldUpdates,
   sanitizeScoreFactors,
 } from './types.js'
@@ -119,6 +120,8 @@ export class PerplexityProvider implements AIProvider {
       scoreFactors = sanitizeScoreFactors(parsed.score_factors as Record<string, unknown>)
     }
 
-    return { reply: formatChatReply(reply), fieldUpdates, scoreFactors }
+    const consultationInvite = sanitizeConsultationInvite(parsed.consultation_invite)
+
+    return { reply: formatChatReply(reply), consultationInvite, fieldUpdates, scoreFactors }
   }
 }

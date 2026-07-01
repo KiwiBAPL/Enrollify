@@ -8,6 +8,7 @@ import {
   buildChatMessages,
   buildKnowledgeContext,
   buildStudentContext,
+  sanitizeConsultationInvite,
   sanitizeFieldUpdates,
   sanitizeScoreFactors,
 } from './types.js'
@@ -46,6 +47,22 @@ const LEAD_FIELDS_TOOL = {
   },
 }
 
+const CONSULTATION_INVITE_TOOL = {
+  name: 'provide_consultation_invite',
+  description:
+    'Provide a warm one-sentence invitation to book a free consultation, referencing what the student asked about.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      invite_text: {
+        type: 'string',
+        description: 'One sentence inviting them to book a free consultation',
+      },
+    },
+    required: ['invite_text'],
+  },
+}
+
 export class ClaudeProvider implements AIProvider {
   readonly type = 'claude' as const
 
@@ -71,7 +88,7 @@ export class ClaudeProvider implements AIProvider {
           model: config.model,
           max_tokens: 1024,
           system,
-          tools: [LEAD_FIELDS_TOOL],
+          tools: [LEAD_FIELDS_TOOL, CONSULTATION_INVITE_TOOL],
           messages: buildChatMessages(input.history, input.userMessage),
         },
         { signal: controller.signal },
@@ -80,6 +97,7 @@ export class ClaudeProvider implements AIProvider {
       let reply = ''
       let fieldUpdates: StudentUpdate = {}
       let scoreFactors: LeadScoreFactors | null = null
+      let consultationInvite: string | null = null
 
       for (const block of response.content) {
         if (block.type === 'text') {
@@ -93,6 +111,10 @@ export class ClaudeProvider implements AIProvider {
             scoreFactors = sanitizeScoreFactors(sf as Record<string, unknown>)
           }
         }
+        if (block.type === 'tool_use' && block.name === 'provide_consultation_invite') {
+          const toolInput = block.input as Record<string, unknown>
+          consultationInvite = sanitizeConsultationInvite(toolInput.invite_text)
+        }
       }
 
       if (!reply.trim()) {
@@ -100,7 +122,12 @@ export class ClaudeProvider implements AIProvider {
           "Thanks for reaching out! I'm here to help you explore study options in New Zealand. What would you like to know?"
       }
 
-      return { reply: formatChatReply(reply.trim()), fieldUpdates, scoreFactors }
+      return {
+        reply: formatChatReply(reply.trim()),
+        consultationInvite,
+        fieldUpdates,
+        scoreFactors,
+      }
     } finally {
       clearTimeout(timeout)
     }

@@ -37,7 +37,7 @@ The server refuses to start if any required environment variable is missing or i
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/health` | Public | `{ status, database }` probe |
-| `POST` | `/api/chat/messages` | Public (rate limited) | Website chat — `{ sessionId, text }` → `{ reply, studentId, conversationId }`. `reply` is plain text (no markdown). |
+| `POST` | `/api/chat/messages` | Public (rate limited) | Website chat — `{ sessionId, text, leadBotCompleted? }` → `{ reply, consultationInvite, studentId, conversationId }`. `reply` is plain text (no markdown). `consultationInvite` is null when `leadBotCompleted` is true. |
 | `POST` | `/api/lead-bot/sessions` | Public (rate limited) | Consultation bot — create or resume session |
 | `POST` | `/api/lead-bot/sessions/:id/steps` | Public (rate limited) | Submit one consultation step |
 | `POST` | `/api/lead-bot/sessions/:id/complete` | Public (rate limited) | Complete consultation and score lead |
@@ -74,7 +74,11 @@ Key vars for Phase 3:
 
 The chat widget renders replies as plain text only. Before returning a reply, both AI providers run it through `formatChatReply()` (`src/services/ai/formatChatReply.ts`), which strips markdown, Perplexity citation markers (`[1][4]`), and URLs. The shared system prompt in `src/prompts/system.ts` also instructs the model to write short, conversational plain text.
 
-Perplexity uses structured JSON output; the `reply` field description in `STRUCTURED_RESPONSE_SCHEMA` reinforces the same rules.
+Perplexity uses structured JSON output; the `reply` and `consultation_invite` field descriptions in `STRUCTURED_RESPONSE_SCHEMA` reinforce the same rules. Topic-aware fallbacks live in `src/services/ai/consultationInvite.ts`.
+
+### Chat → consultation handoff
+
+Website chat does **not** collect lead fields inline. Each reply includes a separate `consultationInvite` string; the widget renders it with a **Book a free consultation** button that opens `LeadBotModal`. Completion is tracked in `localStorage` (`enrollify_lead_bot_completed`) so CTAs are hidden afterward. See [website chat plan — Chat-to-lead-bot CTA](../../Documents/Bot/website-chat-implementation-plan.md#chat-to-lead-bot-cta).
 
 ## Local dev test
 
@@ -96,7 +100,8 @@ curl -X POST http://localhost:3001/api/lead-bot/sessions \
 SESSION=$(uuidgen | tr '[:upper:]' '[:lower:]')
 curl -X POST http://localhost:3001/api/chat/messages \
   -H "Content-Type: application/json" \
-  -d "{\"sessionId\":\"$SESSION\",\"text\":\"Hi, my name is Jane\"}"
+  -d "{\"sessionId\":\"$SESSION\",\"text\":\"How do student visas work?\"}"
+# Expect: reply, consultationInvite (contextual), studentId, conversationId
 ```
 
 ### Dev simulate (legacy)

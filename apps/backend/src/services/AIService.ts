@@ -13,10 +13,12 @@ import type {
 import type { AIProviderRow } from '../types/aiProvider.js'
 import { getProviderImplementation } from './ai/factory.js'
 import { generateMockFromMessage } from './ai/MockProvider.js'
-import type { AIGenerateInput } from './ai/types.js'
+import { resolveConsultationInvite } from './ai/consultationInvite.js'
+import type { AIGenerateInput, AIGenerateOutput } from './ai/types.js'
 
 export interface AIGenerateResult {
   reply: string
+  consultationInvite: string | null
   fieldUpdates: StudentUpdate
   scoreFactors: LeadScoreFactors | null
 }
@@ -39,6 +41,7 @@ export class AIService {
     history: Message[],
     userMessage: string,
     knowledgeArticles: KnowledgeArticle[],
+    options?: { suppressConsultationInvite?: boolean },
   ): Promise<AIGenerateResult> {
     await this.ensureBootstrapped()
 
@@ -50,12 +53,13 @@ export class AIService {
       knowledgeArticles,
       timeoutMs: this.env.AI_REQUEST_TIMEOUT_MS,
     }
+    const suppressInvite = options?.suppressConsultationInvite ?? false
 
     if (providers.length === 0) {
       if (this.env.NODE_ENV !== 'production') {
-        return generateMockFromMessage(student, userMessage)
+        return this.withInviteFallback(generateMockFromMessage(student, userMessage), userMessage, suppressInvite)
       }
-      return this.fallbackError()
+      return this.fallbackError(suppressInvite)
     }
 
     for (const provider of providers) {
@@ -66,7 +70,7 @@ export class AIService {
         )
         const impl = getProviderImplementation(provider.provider_type)
         const result = await impl.generate(provider, apiKey, input)
-        return result
+        return this.withInviteFallback(result, userMessage, suppressInvite)
       } catch (err) {
         this.logger.error(
           { err, providerId: provider.id, providerType: provider.provider_type },
@@ -76,10 +80,10 @@ export class AIService {
     }
 
     if (this.env.NODE_ENV !== 'production') {
-      return generateMockFromMessage(student, userMessage)
+      return this.withInviteFallback(generateMockFromMessage(student, userMessage), userMessage, suppressInvite)
     }
 
-    return this.fallbackError()
+    return this.fallbackError(suppressInvite)
   }
 
   async testProvider(provider: AIProviderRow): Promise<void> {
@@ -134,9 +138,25 @@ export class AIService {
     this.invalidateCache()
   }
 
-  private fallbackError(): AIGenerateResult {
+  private withInviteFallback(
+    result: AIGenerateOutput,
+    userMessage: string,
+    suppress: boolean,
+  ): AIGenerateResult {
+    return {
+      ...result,
+      consultationInvite: resolveConsultationInvite(
+        result.consultationInvite,
+        userMessage,
+        suppress,
+      ),
+    }
+  }
+
+  private fallbackError(suppressInvite: boolean): AIGenerateResult {
     return {
       reply: "I'm having trouble right now, please try again in a moment.",
+      consultationInvite: suppressInvite ? null : null,
       fieldUpdates: {},
       scoreFactors: null,
     }

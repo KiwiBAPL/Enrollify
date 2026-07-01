@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLeadBot } from '@/components/lead-bot/LeadBotProvider'
+import {
+  ChatConsultationCta,
+  WELCOME_CONSULTATION_INVITE,
+} from '@/components/chat/ChatConsultationCta'
 import { ChatApiError, sendChatMessage } from '@/lib/chat/api'
 import { getOrCreateSessionId } from '@/lib/chat/session'
+import { isLeadBotCompleted } from '@/lib/lead-bot/session'
 
 interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
   text: string
+  consultationInvite?: string | null
 }
 
 const WELCOME =
@@ -17,12 +24,14 @@ function isChatEnabled(): boolean {
 }
 
 export function ChatWidget() {
+  const { openLeadBot } = useLeadBot()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [welcomed, setWelcomed] = useState(false)
+  const [leadBotCompleted, setLeadBotCompleted] = useState(() => isLeadBotCompleted())
   const panelRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const sessionIdRef = useRef<string>('')
@@ -32,11 +41,32 @@ export function ChatWidget() {
   }, [])
 
   useEffect(() => {
+    function syncCompleted() {
+      setLeadBotCompleted(isLeadBotCompleted())
+    }
+
+    syncCompleted()
+    window.addEventListener('storage', syncCompleted)
+    window.addEventListener('enrollify-lead-bot-completed', syncCompleted)
+    return () => {
+      window.removeEventListener('storage', syncCompleted)
+      window.removeEventListener('enrollify-lead-bot-completed', syncCompleted)
+    }
+  }, [])
+
+  useEffect(() => {
     if (open && !welcomed) {
-      setMessages([{ id: 'welcome', role: 'assistant', text: WELCOME }])
+      setMessages([
+        {
+          id: 'welcome',
+          role: 'assistant',
+          text: WELCOME,
+          consultationInvite: leadBotCompleted ? null : WELCOME_CONSULTATION_INVITE,
+        },
+      ])
       setWelcomed(true)
     }
-  }, [open, welcomed])
+  }, [open, welcomed, leadBotCompleted])
 
   useEffect(() => {
     if (!open) return
@@ -50,6 +80,11 @@ export function ChatWidget() {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [open])
 
+  const handleBookConsultation = useCallback(() => {
+    setOpen(false)
+    openLeadBot()
+  }, [openLeadBot])
+
   const handleSend = useCallback(async () => {
     const text = input.trim()
     if (!text || loading) return
@@ -60,8 +95,19 @@ export function ChatWidget() {
     setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'user', text }])
 
     try {
-      const { reply } = await sendChatMessage(sessionIdRef.current, text)
-      setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: 'assistant', text: reply }])
+      const completed = isLeadBotCompleted()
+      const { reply, consultationInvite } = await sendChatMessage(sessionIdRef.current, text, {
+        leadBotCompleted: completed,
+      })
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          text: reply,
+          consultationInvite: completed ? null : consultationInvite,
+        },
+      ])
     } catch (err) {
       const message =
         err instanceof ChatApiError
@@ -103,7 +149,7 @@ export function ChatWidget() {
             {messages.map((m) => (
               <div
                 key={m.id}
-                className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
                   className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-wrap ${
@@ -114,6 +160,12 @@ export function ChatWidget() {
                 >
                   {m.text}
                 </div>
+                {m.role === 'assistant' && m.consultationInvite && !leadBotCompleted && (
+                  <ChatConsultationCta
+                    invite={m.consultationInvite}
+                    onBookConsultation={handleBookConsultation}
+                  />
+                )}
               </div>
             ))}
             {loading && (

@@ -8,7 +8,7 @@ import {
 } from '@/lib/lead-bot/api'
 import { defaultPhoneDialCodeValue } from '@/lib/lead-bot/country-to-dial-code'
 import { formatPhoneSubmission, validateStepValue } from '@/lib/lead-bot/flow'
-import { getOrCreateLeadBotSessionId } from '@/lib/lead-bot/session'
+import { getOrCreateLeadBotSessionId, markLeadBotCompleted } from '@/lib/lead-bot/session'
 import { useLeadBot } from '@/components/lead-bot/LeadBotProvider'
 import { LeadBotChoices } from '@/components/lead-bot/LeadBotChoices'
 import { LeadBotInput } from '@/components/lead-bot/LeadBotInput'
@@ -23,6 +23,11 @@ import {
 } from '@/components/lead-bot/LeadBotPhoneInput'
 
 const TYPING_DELAY_MS = 550
+
+function notifyLeadBotCompleted(): void {
+  markLeadBotCompleted()
+  window.dispatchEvent(new Event('enrollify-lead-bot-completed'))
+}
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -79,6 +84,7 @@ export function LeadBotModal() {
       setCompleted(state.completed)
 
       if (state.completed) {
+        notifyLeadBotCompleted()
         setMessages([
           {
             id: 'completed',
@@ -163,6 +169,9 @@ export function LeadBotModal() {
         }
 
         setCompleted(result.completed)
+        if (result.completed) {
+          notifyLeadBotCompleted()
+        }
         setSessionState((prev) =>
           prev
             ? {
@@ -226,7 +235,7 @@ export function LeadBotModal() {
 
   const overlay = (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
+      className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4"
       onClick={(e) => {
         if (e.target === e.currentTarget) closeLeadBot()
       }}

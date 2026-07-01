@@ -1,4 +1,5 @@
 import type { LeadScoreFactors, Student, StudentUpdate } from '../../types/domain.js'
+import { buildConsultationInviteFallback } from './consultationInvite.js'
 import type { AIGenerateInput, AIGenerateOutput } from './types.js'
 
 const DEFAULT_FACTORS: LeadScoreFactors = {
@@ -15,7 +16,7 @@ export function generateMock(input: AIGenerateInput): AIGenerateOutput {
   return generateMockFromMessage(input.student, input.userMessage)
 }
 
-export function generateMockFromMessage(student: Student, userMessage: string): AIGenerateOutput {
+export function generateMockFromMessage(_student: Student, userMessage: string): AIGenerateOutput {
   const fieldUpdates: StudentUpdate = {}
   const lower = userMessage.toLowerCase()
 
@@ -31,12 +32,12 @@ export function generateMockFromMessage(student: Student, userMessage: string): 
     fieldUpdates.country = 'New Zealand'
   }
 
-  const reply = student.name
-    ? `Thanks for your message! I'd love to help you explore study options in New Zealand. What qualification level are you interested in — for example a diploma, bachelor's, or master's?`
-    : `Kia ora! Welcome to Enrollify. I'd be happy to help you explore studying in New Zealand. To get started, could you tell me your name?`
+  const reply =
+    'Thanks for your question! New Zealand offers great study options across many fields. I can share general guidance here — for personalised next steps, use the consultation link below.'
 
   return {
     reply,
+    consultationInvite: buildConsultationInviteFallback(userMessage),
     fieldUpdates,
     scoreFactors: Object.keys(fieldUpdates).length > 0 ? DEFAULT_FACTORS : null,
   }

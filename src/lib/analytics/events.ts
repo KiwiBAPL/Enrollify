@@ -4,6 +4,7 @@ export const ANALYTICS_EVENTS = {
   studentInterestSubmit: 'student_interest_submit',
   providerContactSubmitError: 'provider_contact_submit_error',
   studentInterestSubmitError: 'student_interest_submit_error',
+  chatConsultationCtaClick: 'chat_consultation_cta_click',
 } as const
 
 export type AnalyticsEvent = (typeof ANALYTICS_EVENTS)[keyof typeof ANALYTICS_EVENTS]

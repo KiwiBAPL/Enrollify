@@ -13,6 +13,7 @@ const chatMessageSchema = z.object({
     .trim()
     .min(1, 'text is required')
     .max(2000, 'text must be at most 2000 characters'),
+  leadBotCompleted: z.boolean().optional(),
 })
 
 export function createChatRouter(container: Container): Router {
@@ -31,7 +32,7 @@ export function createChatRouter(container: Container): Router {
         return
       }
 
-      const { sessionId, text } = parsed.data
+      const { sessionId, text, leadBotCompleted } = parsed.data
 
       if (!checkChatSessionRateLimit(sessionId)) {
         res.status(429).json({ error: 'Too many requests' })
@@ -43,6 +44,7 @@ export function createChatRouter(container: Container): Router {
         text,
         timestamp: new Date(),
         channel: 'webchat',
+        leadBotCompleted: leadBotCompleted ?? false,
       })
 
       res.json(result)

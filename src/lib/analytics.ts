@@ -22,6 +22,10 @@ export function trackStudentInterestSubmit(): void {
   dispatchAnalyticsEvent(ANALYTICS_EVENTS.studentInterestSubmit)
 }
 
+export function trackChatConsultationCtaClick(): void {
+  dispatchAnalyticsEvent(ANALYTICS_EVENTS.chatConsultationCtaClick)
+}
+
 export function trackFormSubmitError(form: FormAnalyticsContext, reason: FormSubmitErrorReason): void {
   dispatchAnalyticsEvent(FORM_SUBMIT_ERROR_EVENTS[form])
   if (import.meta.env.DEV) {

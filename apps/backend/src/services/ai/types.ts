@@ -7,6 +7,12 @@ import type {
 } from '../../types/domain.js'
 import type { AIProviderRow } from '../../types/aiProvider.js'
 
+export {
+  buildConsultationInviteFallback,
+  resolveConsultationInvite,
+  sanitizeConsultationInvite,
+} from './consultationInvite.js'
+
 export interface AIGenerateInput {
   student: Student
   history: Message[]
@@ -17,6 +23,7 @@ export interface AIGenerateInput {
 
 export interface AIGenerateOutput {
   reply: string
+  consultationInvite: string | null
   fieldUpdates: StudentUpdate
   scoreFactors: LeadScoreFactors | null
 }
@@ -130,6 +137,11 @@ export const STRUCTURED_RESPONSE_SCHEMA = {
         },
         additionalProperties: false,
       },
+      consultation_invite: {
+        type: 'string',
+        description:
+          'One warm sentence inviting the student to book a free consultation, referencing their question — separate from reply',
+      },
       score_factors: {
         type: 'object',
         properties: {
@@ -144,7 +156,7 @@ export const STRUCTURED_RESPONSE_SCHEMA = {
         additionalProperties: false,
       },
     },
-    required: ['reply', 'field_updates'],
+    required: ['reply', 'consultation_invite', 'field_updates'],
     additionalProperties: false,
   },
 }

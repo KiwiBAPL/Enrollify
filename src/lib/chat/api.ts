@@ -1,5 +1,6 @@
 export interface ChatMessageResponse {
   reply: string
+  consultationInvite: string | null
   studentId: string
   conversationId: string
 }
@@ -17,11 +18,16 @@ export class ChatApiError extends Error {
 export async function sendChatMessage(
   sessionId: string,
   text: string,
+  options?: { leadBotCompleted?: boolean },
 ): Promise<ChatMessageResponse> {
   const response = await fetch('/api/chat/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionId, text }),
+    body: JSON.stringify({
+      sessionId,
+      text,
+      leadBotCompleted: options?.leadBotCompleted ?? false,
+    }),
   })
 
   const body = (await response.json().catch(() => ({}))) as { error?: string; reply?: string }
