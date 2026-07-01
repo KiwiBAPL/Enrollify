@@ -107,7 +107,11 @@ export const STRUCTURED_RESPONSE_SCHEMA = {
   schema: {
     type: 'object',
     properties: {
-      reply: { type: 'string', description: 'The conversational reply to the student' },
+      reply: {
+        type: 'string',
+        description:
+          'Plain-text conversational reply — no markdown, citations, footnotes, or URLs',
+      },
       field_updates: {
         type: 'object',
         properties: {

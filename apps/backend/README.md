@@ -36,7 +36,7 @@ The server refuses to start if any required environment variable is missing or i
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/health` | Public | `{ status, database }` probe |
-| `POST` | `/api/chat/messages` | Public (rate limited) | Website chat — `{ sessionId, text }` → `{ reply, studentId, conversationId }` |
+| `POST` | `/api/chat/messages` | Public (rate limited) | Website chat — `{ sessionId, text }` → `{ reply, studentId, conversationId }`. `reply` is plain text (no markdown). |
 | `GET/PATCH/…` | `/api/admin/*` | Supabase JWT | Students, notes, profile, pipeline, analytics, AI providers |
 | `GET` | `/webhook` | Public | Meta webhook verification (Facebook on hold) |
 | `POST` | `/webhook` | Signed | Inbound Messenger messages (Facebook on hold) |
@@ -61,6 +61,12 @@ Key vars for Phase 3:
 | `CORS_ORIGIN` | Yes | Comma-separated allowed origins (e.g. `http://localhost:5180` or production URL) |
 | `PERPLEXITY_API_KEY` | No | Bootstrap first provider if DB empty |
 | `FB_*` | No | Optional — Facebook Messenger on hold |
+
+### AI reply formatting (website chat)
+
+The chat widget renders replies as plain text only. Before returning a reply, both AI providers run it through `formatChatReply()` (`src/services/ai/formatChatReply.ts`), which strips markdown, Perplexity citation markers (`[1][4]`), and URLs. The shared system prompt in `src/prompts/system.ts` also instructs the model to write short, conversational plain text.
+
+Perplexity uses structured JSON output; the `reply` field description in `STRUCTURED_RESPONSE_SCHEMA` reinforces the same rules.
 
 ## Local dev test
 

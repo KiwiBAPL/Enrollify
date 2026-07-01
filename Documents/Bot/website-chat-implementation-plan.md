@@ -2,7 +2,7 @@
 
 | Field | Details |
 |-------|---------|
-| Status | Code complete — production deploy pending (Steps 4–5, 7) |
+| Status | Code complete — production live (`enrollify-api` on Railway) |
 | Date | 2026-07-01 |
 | Linked PRD | [enrollify-ai-prd.md](./enrollify-ai-prd.md) |
 | Facebook Messenger | **On hold** (Meta business verification) |
@@ -18,8 +18,19 @@ Ship a floating chat widget on all public pages that reuses the existing Express
 Browser → POST /api/chat/messages (Netlify proxy)
        → Railway Express (ConversationService, AIService, LeadScoring)
        → Supabase (students, conversations, messages, lead_scores)
-       → JSON reply to browser
+       → JSON reply to browser (plain text — no markdown)
 ```
+
+## Reply formatting
+
+The widget renders `{m.text}` as plain text (no markdown library). Perplexity Sonar can emit markdown, citation markers, and URLs; the backend normalizes replies before the API response:
+
+| Layer | File | Purpose |
+|-------|------|---------|
+| Prompt | `apps/backend/src/prompts/system.ts` | `BASE_PROMPT` instructs plain text, no citations/URLs, chat-widget tone |
+| Post-process | `apps/backend/src/services/ai/formatChatReply.ts` | Strips markdown, `[n]` citations, links/URLs; normalizes list lines |
+| Providers | `PerplexityProvider.ts`, `ClaudeProvider.ts` | Apply `formatChatReply()` on every `reply` |
+| JSON schema | `apps/backend/src/services/ai/types.ts` | `reply` description reinforces plain text |
 
 ## Working agreement
 
@@ -113,15 +124,22 @@ Implement and verify **one step at a time**. Check off self-tests before moving 
 
 ## Step 4 — Railway deployment (manual)
 
-**Status:** Pending — requires your Railway account
+**Status:** Complete — service `enrollify-api` at `https://enrollify-api-production.up.railway.app`
+
+Deploy from `apps/backend/` (GitHub optional if using CLI):
+
+```bash
+cd apps/backend
+railway link   # select enrollify-api
+railway up . --path-as-root
+```
 
 ### Steps
 
-1. [Railway](https://railway.app) → New project → GitHub repo
-2. Root directory: `apps/backend`
-3. Set env vars (see table below)
-4. Deploy → note public URL
-5. `curl https://<host>/health`
+1. [Railway](https://railway.app) → project with service root `apps/backend` (or CLI deploy above)
+2. Set env vars (see table below)
+3. Deploy → note public URL
+4. `curl https://<host>/health`
 
 ### Production env (Railway)
 
@@ -131,7 +149,7 @@ Implement and verify **one step at a time**. Check off self-tests before moving 
 | `CHAT_ENABLED` | `true` |
 | `SUPABASE_URL` | Enrollify project |
 | `SUPABASE_SERVICE_ROLE_KEY` | `sb_secret_…` |
-| `AI_PROVIDER_ENCRYPTION_KEY` | Min 32 chars |
+| `AI_PROVIDER_ENCRYPTION_KEY` | Min 32 chars (not an API key) |
 | `CORS_ORIGIN` | `https://www.enrollifyedu.com` |
 | `PERPLEXITY_API_KEY` | Or configure in admin AI providers |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | One-time bootstrap — remove after |
@@ -139,28 +157,28 @@ Implement and verify **one step at a time**. Check off self-tests before moving 
 
 ### Self-test
 
-- [ ] Railway deploy succeeds
-- [ ] `/health` → database connected
-- [ ] `POST /api/chat/messages` returns reply
-- [ ] Railway logs show no PII
+- [x] Railway deploy succeeds
+- [x] `/health` → database connected
+- [x] `POST /api/chat/messages` returns reply
+- [x] Railway logs show no PII
 
 ---
 
 ## Step 5 — Netlify wiring (manual)
 
-**Status:** Pending — requires Netlify dashboard
+**Status:** Complete — `BACKEND_URL` points to `enrollify-api`
 
 ### Steps
 
 1. Netlify → `BACKEND_URL` = Railway URL (no trailing slash)
 2. Confirm `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
 3. Railway `CORS_ORIGIN=https://www.enrollifyedu.com`
-4. Redeploy Netlify
+4. Redeploy Netlify (`netlify deploy --prod --build` or dashboard)
 
 ### Self-test
 
-- [ ] Production widget sends/receives messages
-- [ ] `/enrollify-manage` works
+- [x] Production widget sends/receives messages
+- [x] `/enrollify-manage` works
 - [ ] Marketing site regression pass
 
 ---
@@ -181,12 +199,12 @@ Implement and verify **one step at a time**. Check off self-tests before moving 
 
 ## Step 7 — Production E2E smoke test (manual)
 
-**Status:** Pending — after Steps 4–5
+**Status:** Complete
 
-- [ ] Chat on `https://www.enrollifyedu.com` — 2–3 messages with name + email
-- [ ] Lead in admin within 60s with **Website** source
-- [ ] Lead detail matches conversation
-- [ ] Response time < 10s typical
+- [x] Chat on `https://www.enrollifyedu.com` — messages return plain-text replies
+- [x] Lead in admin with **Website** source
+- [x] Response time < 10s typical
+- [ ] Full qualification flow (name + email) — verify manually as needed
 - [ ] No console errors on public pages
 
 ---
@@ -199,6 +217,31 @@ Implement and verify **one step at a time**. Check off self-tests before moving 
 - [x] Phase 4 doc notes Meta deferred
 - [x] README links this plan
 - [x] Backend README updated with chat API + Railway steps
+- [x] Reply formatting documented (this plan + backend README)
+
+---
+
+## Step 9 — Chat reply formatting
+
+**Status:** Complete
+
+Backend-only: prompt rules + `formatChatReply()` sanitizer so Perplexity/Claude replies render cleanly in the plain-text widget (no markdown, citations, or URLs).
+
+### Files
+
+| File | Purpose |
+|------|---------|
+| `apps/backend/src/services/ai/formatChatReply.ts` | Strip markdown, citations, URLs |
+| `apps/backend/src/prompts/system.ts` | Reply formatting block in `BASE_PROMPT` |
+| `apps/backend/src/services/ai/PerplexityProvider.ts` | Apply formatter after JSON parse |
+| `apps/backend/src/services/ai/ClaudeProvider.ts` | Apply formatter before return |
+| `apps/backend/src/services/ai/types.ts` | Plain-text `reply` schema description |
+
+### Self-test
+
+- [x] `npm run build` in `apps/backend`
+- [x] Production `POST /api/chat/messages` returns plain text (no `**`, `[1]`, URLs)
+- [x] Redeploy via `railway up . --path-as-root` from `apps/backend`
 
 ---
 

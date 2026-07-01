@@ -3,6 +3,7 @@ import type { AIProviderRow } from '../../types/aiProvider.js'
 import type { LeadScoreFactors } from '../../types/domain.js'
 import type { StudentUpdate } from '../../types/domain.js'
 import type { AIProvider, AIGenerateInput, AIGenerateOutput } from './types.js'
+import { formatChatReply } from './formatChatReply.js'
 import {
   buildChatMessages,
   buildKnowledgeContext,
@@ -99,7 +100,7 @@ export class ClaudeProvider implements AIProvider {
           "Thanks for reaching out! I'm here to help you explore study options in New Zealand. What would you like to know?"
       }
 
-      return { reply: reply.trim(), fieldUpdates, scoreFactors }
+      return { reply: formatChatReply(reply.trim()), fieldUpdates, scoreFactors }
     } finally {
       clearTimeout(timeout)
     }

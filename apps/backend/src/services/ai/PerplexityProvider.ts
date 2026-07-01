@@ -2,6 +2,7 @@ import { ENROLLIFY_JSON_SYSTEM_PROMPT } from '../../prompts/system.js'
 import type { AIProviderRow } from '../../types/aiProvider.js'
 import type { LeadScoreFactors } from '../../types/domain.js'
 import type { AIProvider, AIGenerateInput, AIGenerateOutput } from './types.js'
+import { formatChatReply } from './formatChatReply.js'
 import {
   STRUCTURED_RESPONSE_SCHEMA,
   buildChatMessages,
@@ -118,6 +119,6 @@ export class PerplexityProvider implements AIProvider {
       scoreFactors = sanitizeScoreFactors(parsed.score_factors as Record<string, unknown>)
     }
 
-    return { reply, fieldUpdates, scoreFactors }
+    return { reply: formatChatReply(reply), fieldUpdates, scoreFactors }
   }
 }
