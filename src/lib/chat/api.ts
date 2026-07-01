@@ -1,8 +1,9 @@
 export interface ChatMessageResponse {
   reply: string
   consultationInvite: string | null
-  studentId: string
-  conversationId: string
+  sessionId: string
+  studentId?: string
+  conversationId?: string
 }
 
 export class ChatApiError extends Error {
@@ -43,6 +44,7 @@ export async function sendChatMessage(
   return {
     reply: body.reply ?? '',
     consultationInvite: body.consultationInvite ?? null,
+    sessionId: (body as ChatMessageResponse).sessionId ?? sessionId,
     studentId: (body as ChatMessageResponse).studentId,
     conversationId: (body as ChatMessageResponse).conversationId,
   }

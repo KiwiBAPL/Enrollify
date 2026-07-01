@@ -10,12 +10,11 @@ export const LEAD_BANDS: { id: LeadBand; label: string; description: string }[] 
   { id: 'cold', label: 'Cold', description: 'Score < 40' },
 ]
 
-export type LeadChannel = 'webchat' | 'facebook' | 'lead_bot'
+export type LeadChannel = 'facebook' | 'lead_bot'
 
 export const LEAD_CHANNELS: { id: LeadChannel | 'all'; label: string }[] = [
-  { id: 'all', label: 'All sources' },
+  { id: 'all', label: 'Consultation leads' },
   { id: 'lead_bot', label: 'Consultation' },
-  { id: 'webchat', label: 'Website chat' },
   { id: 'facebook', label: 'Facebook' },
 ]
 

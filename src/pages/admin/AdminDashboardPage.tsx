@@ -306,7 +306,7 @@ export function AdminDashboardPage() {
 
       {!result?.data.length ? (
         <p className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center text-gray-600">
-          No leads match this filter — conversations will appear once students chat on the website or Facebook.
+          No leads match this filter — consultation form submissions will appear here once students book through the Lead Bot.
         </p>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">

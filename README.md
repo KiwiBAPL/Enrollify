@@ -92,7 +92,7 @@ Separate backend under `apps/` — blog does not use it. **Facebook Messenger is
 | Admin panel | `/enrollify-manage` on Netlify site (`src/`) | [Website chat plan](Documents/Bot/website-chat-implementation-plan.md) |
 | PRD | — | [`Documents/Bot/enrollify-ai-prd.md`](Documents/Bot/enrollify-ai-prd.md) |
 
-The **consultation bot** (`channel: lead_bot`, admin label **Consultation**) is separate from the floating **website chat** widget (`channel: webchat`, admin label **Website**).
+The **consultation bot** (`channel: lead_bot`, admin label **Consultation**) captures leads on the **Leads dashboard**. The floating **website chat** widget is analytics-only — questions appear on **Chat Insights**, not as leads.
 
 ### Admin routes (`/enrollify-manage`)
 
@@ -101,7 +101,8 @@ Not linked in public nav; blocked in `robots.txt`.
 | Route | Purpose |
 |-------|---------|
 | `/enrollify-manage/login` | Supabase Auth login |
-| `/enrollify-manage` | Leads dashboard — filter by Hot/Warm/Nurture/Cold bands and source (Website / Consultation); bulk select and delete (soft archive) |
+| `/enrollify-manage` | Leads dashboard — consultation form leads only; filter by Hot/Warm/Nurture/Cold bands; bulk select and delete (soft archive) |
+| `/enrollify-manage/chat-insights` | Chat Insights — website AI chat questions by category |
 | `/enrollify-manage/leads/:id` | Lead detail — conversation, qualification fields, enrolment status |
 | `/enrollify-manage/posts` | Blog post list |
 | `/enrollify-manage/posts/new` | Create blog post |

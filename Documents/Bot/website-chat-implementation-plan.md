@@ -10,15 +10,18 @@
 
 ## Context
 
-Ship a floating chat widget on all public pages that reuses the existing Express conversation pipeline. Leads are stored with `channel: 'webchat'` and displayed as **Website** in the admin panel. Facebook webhook integration remains in the codebase but is not required for launch.
+Ship a floating chat widget on all public pages. **Website chat is analytics-only** — questions and AI replies are stored in `webchat_sessions` / `webchat_messages` (categorized for the **Chat Insights** admin page). **Consultation leads** come only from the Lead Bot (`channel: lead_bot` on `students`). Facebook webhook integration remains in the codebase but is not required for launch.
 
 ## Architecture
 
 ```text
 Browser → POST /api/chat/messages (Netlify proxy)
-       → Railway Express (ConversationService, AIService, LeadScoring)
-       → Supabase (students, conversations, messages, lead_scores)
-       → JSON { reply, consultationInvite, studentId, conversationId }
+       → Railway Express (WebChatService, AIService)
+       → Supabase (webchat_sessions, webchat_messages)
+       → JSON { reply, consultationInvite, sessionId }
+
+Lead Bot → LeadBotService → students / conversations / messages (channel: lead_bot)
+       → Leads Dashboard (/enrollify-manage) — consultation leads only
 ```
 
 After the student's first message, each AI reply may show a contextual **consultation invite** plus a **Book a free consultation** button that opens the scripted Lead Bot modal (`LeadBotProvider.openLeadBot()`). The static welcome invites a question only — no CTA until the first reply. Structured lead capture stays in the lead bot; chat focuses on Q&A. See [Chat-to-lead-bot CTA](#chat-to-lead-bot-cta) below.
@@ -57,7 +60,8 @@ Implement and verify **one step at a time**. Check off self-tests before moving 
 
 | File | Purpose |
 |------|---------|
-| `apps/backend/src/services/ConversationService.ts` | `handleIncomingMessageForWeb()` returns reply |
+| `apps/backend/src/services/WebChatService.ts` | Website chat — analytics storage, no student rows |
+| `apps/backend/src/services/ConversationService.ts` | Facebook Messenger (when enabled) |
 | `apps/backend/src/channels/WebChatChannelAdapter.ts` | No-op adapter |
 | `apps/backend/src/routes/chat.ts` | Public chat route |
 | `apps/backend/src/middleware/chatRateLimit.ts` | 30/min IP, 20/min session |
@@ -69,10 +73,10 @@ Implement and verify **one step at a time**. Check off self-tests before moving 
 - [x] `cd apps/backend && npm run dev` starts without real `FB_*` values
 - [x] `curl http://localhost:3001/health` → `{ "status": "ok", "database": "connected" }`
 - [x] `POST /api/chat/messages` with UUID → `200` with `reply`
-- [x] Same `sessionId` → same student; messages append
+- [x] Same `sessionId` → same webchat session; messages append in `webchat_messages`
 - [x] Invalid UUID → `400`
 - [ ] 31 requests in 1 min from same IP → `429` *(run manually if needed)*
-- [x] Logs contain student/conversation UUID only — no PII
+- [x] Logs contain session UUID only — no PII
 
 ### Security
 
@@ -299,8 +303,8 @@ Separate from website chat — a **scripted consultation modal** (not AI) opened
 
 | | Website chat | Consultation lead bot |
 |--|--|--|
-| Channel | `webchat` | `lead_bot` |
-| Admin label | Website | Consultation |
+| Storage | `webchat_sessions` / `webchat_messages` | `students` / `conversations` / `messages` |
+| Admin UI | **Chat Insights** | **Leads dashboard** |
 | UI | Floating widget | Modal overlay (`LeadBotModal`) |
 | Flow | AI conversation | Fixed 10-step script |
 

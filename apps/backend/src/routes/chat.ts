@@ -39,11 +39,10 @@ export function createChatRouter(container: Container): Router {
         return
       }
 
-      const result = await container.services.conversation.handleIncomingMessageForWeb({
-        channelUserId: sessionId,
+      const result = await container.services.webChat.handleMessage({
+        sessionId,
         text,
         timestamp: new Date(),
-        channel: 'webchat',
         leadBotCompleted: leadBotCompleted ?? false,
       })
 

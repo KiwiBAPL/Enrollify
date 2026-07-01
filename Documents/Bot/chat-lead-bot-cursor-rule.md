@@ -5,25 +5,26 @@ This file documents the recommended project rule. Copy its frontmatter + body in
 ```yaml
 ---
 description: Enrollify website chat and consultation lead bot — two-channel lead capture, CTA handoff, and z-index conventions
-globs: src/components/chat/**,src/lib/chat/**,src/components/lead-bot/**,src/lib/lead-bot/**,apps/backend/src/routes/chat.ts,apps/backend/src/services/ConversationService.ts,apps/backend/src/services/AIService.ts,apps/backend/src/services/ai/**,apps/backend/src/prompts/system.ts
+globs: src/components/chat/**,src/lib/chat/**,src/components/lead-bot/**,src/lib/lead-bot/**,apps/backend/src/routes/chat.ts,apps/backend/src/services/WebChatService.ts,apps/backend/src/services/AIService.ts,apps/backend/src/services/ai/**,apps/backend/src/prompts/system.ts
 alwaysApply: false
 ---
 ```
 
 ## Two channels — do not merge
 
-| Channel | UI | Purpose | Admin label |
-|---------|-----|---------|-------------|
-| `webchat` | `ChatWidget` (floating FAB) | AI Q&A + consultation CTA | Website |
-| `lead_bot` | `LeadBotModal` (portaled overlay) | Scripted 10-step qualification | Consultation |
+| Channel | UI | Purpose | Admin |
+|---------|-----|---------|-------|
+| Website chat | `ChatWidget` (floating FAB) | AI Q&A + consultation CTA | **Chat Insights** (`webchat_messages`) — not leads |
+| `lead_bot` | `LeadBotModal` (portaled overlay) | Scripted 10-step qualification | **Leads Dashboard** |
 
+- **Do not** create `students` rows from website chat — `WebChatService` writes to `webchat_sessions` / `webchat_messages` only.
 - **Do not** collect structured lead fields in chat prompts — the Lead Bot owns qualification.
 - **Do not** use Perplexity/Claude for lead bot question delivery — scripted flow in `src/lib/lead-bot/flow.ts`.
 - Separate `localStorage` session keys: `enrollify_chat_session` vs `enrollify_lead_bot_session`.
 
 ## Chat-to-lead-bot CTA
 
-Every AI chat reply **after the student's first message** returns `{ reply, consultationInvite }` from `POST /api/chat/messages`. The static welcome screen does **not** show a CTA — only a friendly invite to ask a question.
+Every AI chat reply **after the student's first message** returns `{ reply, consultationInvite, sessionId }` from `POST /api/chat/messages`. The static welcome screen does **not** show a CTA — only a friendly invite to ask a question.
 
 - `reply` — answer only (plain text, no URLs/markdown).
 - `consultationInvite` — one contextual sentence; rendered by `ChatConsultationCta` with fixed button label **Book a free consultation**.

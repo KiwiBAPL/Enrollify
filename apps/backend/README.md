@@ -37,7 +37,7 @@ The server refuses to start if any required environment variable is missing or i
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/health` | Public | `{ status, database }` probe |
-| `POST` | `/api/chat/messages` | Public (rate limited) | Website chat — `{ sessionId, text, leadBotCompleted? }` → `{ reply, consultationInvite, studentId, conversationId }`. `reply` is plain text (no markdown). `consultationInvite` is null when `leadBotCompleted` is true. |
+| `POST` | `/api/chat/messages` | Public (rate limited) | Website chat — `{ sessionId, text, leadBotCompleted? }` → `{ reply, consultationInvite, sessionId }`. `reply` is plain text (no markdown). `consultationInvite` is null when `leadBotCompleted` is true. Does not create student/lead rows. |
 | `POST` | `/api/lead-bot/sessions` | Public (rate limited) | Consultation bot — create or resume session |
 | `POST` | `/api/lead-bot/sessions/:id/steps` | Public (rate limited) | Submit one consultation step |
 | `POST` | `/api/lead-bot/sessions/:id/complete` | Public (rate limited) | Complete consultation and score lead |
@@ -101,7 +101,7 @@ SESSION=$(uuidgen | tr '[:upper:]' '[:lower:]')
 curl -X POST http://localhost:3001/api/chat/messages \
   -H "Content-Type: application/json" \
   -d "{\"sessionId\":\"$SESSION\",\"text\":\"How do student visas work?\"}"
-# Expect: reply, consultationInvite (contextual), studentId, conversationId
+# Expect: reply, consultationInvite (contextual), sessionId
 ```
 
 ### Dev simulate (legacy)
@@ -190,15 +190,30 @@ curl -X POST "https://enrollify-api-production.up.railway.app/api/internal/cron/
 
 `GET /api/admin/analytics` powers the four metric cards on the Leads Dashboard (`/enrollify-manage`).
 
-All metrics scope to **non-archived** students (`archived_at IS NULL`) — the same scope as `GET /api/admin/students` and CSV export.
+All metrics scope to **non-archived consultation leads** (`channel = lead_bot`, `archived_at IS NULL`) — the same scope as `GET /api/admin/students` and CSV export.
 
 | Metric | Source |
 |--------|--------|
-| **Conversations** | Count of `conversations` rows joined to active students (excludes archived leads) |
-| **Lead capture** | Percentage of active students with a non-null `email` |
-| **Conversion** | Percentage of active students with `enrolment_status = appointment_booked` |
+| **Conversations** | Count of `conversations` for active `lead_bot` students |
+| **Lead capture** | Percentage of active `lead_bot` students with a non-null `email` |
+| **Conversion** | Percentage of active `lead_bot` students with `enrolment_status = appointment_booked` |
 | **Avg response** | Placeholder `—` (not implemented) |
 
 Logic lives in [`src/lib/adminAnalytics.ts`](src/lib/adminAnalytics.ts). Unit tests: [`src/lib/__tests__/admin-analytics.test.ts`](../../src/lib/__tests__/admin-analytics.test.ts).
+
+### Chat insights
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/api/admin/chat-insights/summary` | Category counts + total questions (default last 30 days) |
+| `GET` | `/api/admin/chat-insights/questions?category=…&page=1` | Paginated user questions for drill-down |
+
+Admin UI: `/enrollify-manage/chat-insights`.
+
+Website chat API response shape:
+
+```json
+{ "reply": "…", "consultationInvite": "…", "sessionId": "uuid" }
+```
 
 Facebook webhook registration is deferred — see [phase-4-messenger-deploy.md](../../Documents/Bot/phase-4-messenger-deploy.md).

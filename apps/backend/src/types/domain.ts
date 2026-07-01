@@ -1,5 +1,13 @@
 export type ChannelType = 'facebook' | 'webchat' | 'lead_bot'
 export type MessageType = 'user' | 'assistant'
+export type ChatQuestionCategory =
+  | 'visas_immigration'
+  | 'courses_study'
+  | 'costs_funding'
+  | 'english_requirements'
+  | 'work_rights'
+  | 'accommodation'
+  | 'general'
 export type EnrolmentStatus =
   | 'enquiry'
   | 'qualified_lead'
@@ -157,3 +165,24 @@ export interface PaginatedResult<T> {
   page: number
   pageSize: number
 }
+
+export interface WebchatSession {
+  id: string
+  last_activity_at: string | null
+  created_at: string
+}
+
+export interface WebchatMessage {
+  id: string
+  session_id: string
+  message_type: MessageType
+  content: string
+  category: ChatQuestionCategory | null
+  created_at: string
+}
+
+export type WebchatMessageInsert = Pick<
+  WebchatMessage,
+  'session_id' | 'message_type' | 'content'
+> &
+  Partial<Pick<WebchatMessage, 'category' | 'created_at'>>

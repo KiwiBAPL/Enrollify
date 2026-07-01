@@ -108,7 +108,8 @@ Location: [`src/pages/admin/`](../../src/pages/admin/)
 | Route | Feature |
 |-------|---------|
 | `/enrollify-manage/login` | Supabase Auth login + forgot password |
-| `/enrollify-manage` | Leads dashboard — **Welcome, {name}** + Notes column |
+| `/enrollify-manage` | Leads dashboard — **Welcome, {name}** + Notes column (consultation leads only) |
+| `/enrollify-manage/chat-insights` | Chat Insights — website AI chat questions by category |
 | `/enrollify-manage/posts` | Blog post list — Supabase direct (`src/lib/blog.ts`) |
 | `/enrollify-manage/posts/new` | Create blog post |
 | `/enrollify-manage/posts/:id` | Edit blog post |

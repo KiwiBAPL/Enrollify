@@ -107,7 +107,7 @@ The business has decided to introduce an AI admissions assistant as the primary 
 
 ### 3.3 Assumptions
 
-- **Website chat** is the first production channel (July 2026 pivot). Leads use `channel: webchat`, displayed as **Website** in admin.
+- **Website chat** is the first production channel (July 2026 pivot). It is **analytics-only** — questions are stored in `webchat_messages` and viewed on the **Chat Insights** admin page; it does not create leads. **Consultation leads** use `channel: lead_bot` (Lead Bot modal) and appear on the Leads dashboard.
 - Facebook Messenger webhook code is implemented but **not registered** until Meta verification completes.
 - The existing Enrollify website gains a floating chat widget on public pages (`SiteLayout`) and required `/api/chat` proxy wiring.
 - The admin panel is for internal use only in release 1; it is not publicly accessible.

@@ -2,6 +2,10 @@ import { Router } from 'express'
 import { z } from 'zod'
 import type { Container } from '../../container.js'
 import { buildAdminAnalytics } from '../../lib/adminAnalytics.js'
+import {
+  CHAT_QUESTION_CATEGORIES,
+  isChatQuestionCategory,
+} from '../../lib/questionCategories.js'
 import { createAuthMiddleware } from '../../middleware/authJwt.js'
 import { createAIProvidersRouter } from './aiProviders.js'
 import type { EnrolmentStatus, LeadScore, Student } from '../../types/domain.js'
@@ -25,6 +29,21 @@ function parseNoteContent(body: unknown): string | null {
   if (typeof content !== 'string') return null
   const trimmed = content.trim()
   return trimmed.length > 0 ? trimmed : null
+}
+
+function defaultInsightsDateRange(): { from: string; to: string } {
+  const to = new Date()
+  const from = new Date()
+  from.setUTCDate(from.getUTCDate() - 30)
+  return { from: from.toISOString(), to: to.toISOString() }
+}
+
+function parseInsightsDateRange(
+  from?: string,
+  to?: string,
+): { from?: string; to?: string } {
+  if (!from && !to) return defaultInsightsDateRange()
+  return { from, to }
 }
 
 export function createAdminRouter(container: Container): Router {
@@ -148,11 +167,11 @@ export function createAdminRouter(container: Container): Router {
         maxScore = 39
       }
 
-      const validChannels = ['facebook', 'webchat', 'lead_bot'] as const
+      const validChannels = ['facebook', 'lead_bot'] as const
       const channelFilter =
         channel && validChannels.includes(channel as (typeof validChannels)[number])
           ? (channel as (typeof validChannels)[number])
-          : undefined
+          : 'lead_bot'
 
       const result = await container.repositories.students.list({
         page,
@@ -205,6 +224,7 @@ export function createAdminRouter(container: Container): Router {
         .from('students')
         .select('*')
         .is('archived_at', null)
+        .eq('channel', 'lead_bot')
         .order('last_activity_at', {
         ascending: false,
       })
@@ -445,24 +465,28 @@ export function createAdminRouter(container: Container): Router {
     try {
       const { count: conversationCount } = await container.db
         .from('conversations')
-        .select('id, students!inner(archived_at)', { count: 'exact', head: true })
+        .select('id, students!inner(archived_at, channel)', { count: 'exact', head: true })
         .is('students.archived_at', null)
+        .eq('students.channel', 'lead_bot')
 
       const { count: studentCount } = await container.db
         .from('students')
         .select('*', { count: 'exact', head: true })
         .is('archived_at', null)
+        .eq('channel', 'lead_bot')
 
       const { data: studentsWithEmail } = await container.db
         .from('students')
         .select('id')
         .is('archived_at', null)
+        .eq('channel', 'lead_bot')
         .not('email', 'is', null)
 
       const { data: appointed } = await container.db
         .from('students')
         .select('id')
         .is('archived_at', null)
+        .eq('channel', 'lead_bot')
         .eq('enrolment_status', 'appointment_booked')
 
       res.json(
@@ -473,6 +497,69 @@ export function createAdminRouter(container: Container): Router {
           appointedCount: appointed?.length ?? 0,
         }),
       )
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.get('/chat-insights/summary', async (req, res, next) => {
+    try {
+      const from = typeof req.query.from === 'string' ? req.query.from : undefined
+      const to = typeof req.query.to === 'string' ? req.query.to : undefined
+      const range = parseInsightsDateRange(from, to)
+
+      const [counts, totalQuestions] = await Promise.all([
+        container.repositories.webchatMessages.countByCategory(range),
+        container.repositories.webchatMessages.countUserQuestions(range),
+      ])
+
+      const countMap = new Map(counts.map((row) => [row.category, row.count]))
+      const categories = CHAT_QUESTION_CATEGORIES.map((entry) => ({
+        slug: entry.slug,
+        label: entry.label,
+        count: countMap.get(entry.slug) ?? 0,
+      })).sort((a, b) => b.count - a.count)
+
+      res.json({
+        categories,
+        totalQuestions,
+        dateRange: range,
+      })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.get('/chat-insights/questions', async (req, res, next) => {
+    try {
+      const categoryParam = req.query.category
+      if (typeof categoryParam !== 'string' || !isChatQuestionCategory(categoryParam)) {
+        res.status(400).json({ error: 'Invalid category' })
+        return
+      }
+
+      const page = Number(req.query.page) || 1
+      const from = typeof req.query.from === 'string' ? req.query.from : undefined
+      const to = typeof req.query.to === 'string' ? req.query.to : undefined
+
+      const result = await container.repositories.webchatMessages.listByCategory(categoryParam, {
+        page,
+        pageSize: 25,
+        from,
+        to,
+      })
+
+      res.json({
+        data: result.data.map((message) => ({
+          id: message.id,
+          content: message.content,
+          category: message.category,
+          createdAt: message.created_at,
+        })),
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+      })
     } catch (err) {
       next(err)
     }
