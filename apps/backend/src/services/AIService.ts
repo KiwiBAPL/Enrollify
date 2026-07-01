@@ -13,7 +13,7 @@ import type {
 import type { AIProviderRow } from '../types/aiProvider.js'
 import { getProviderImplementation } from './ai/factory.js'
 import { generateMockFromMessage } from './ai/MockProvider.js'
-import { resolveConsultationInvite } from './ai/consultationInvite.js'
+import { buildConsultationInviteFallback, resolveConsultationInvite } from './ai/consultationInvite.js'
 import type { AIGenerateInput, AIGenerateOutput } from './ai/types.js'
 
 export interface AIGenerateResult {
@@ -59,7 +59,7 @@ export class AIService {
       if (this.env.NODE_ENV !== 'production') {
         return this.withInviteFallback(generateMockFromMessage(student, userMessage), userMessage, suppressInvite)
       }
-      return this.fallbackError(suppressInvite)
+      return this.fallbackError(suppressInvite, userMessage)
     }
 
     for (const provider of providers) {
@@ -83,7 +83,7 @@ export class AIService {
       return this.withInviteFallback(generateMockFromMessage(student, userMessage), userMessage, suppressInvite)
     }
 
-    return this.fallbackError(suppressInvite)
+    return this.fallbackError(suppressInvite, userMessage)
   }
 
   async testProvider(provider: AIProviderRow): Promise<void> {
@@ -153,10 +153,10 @@ export class AIService {
     }
   }
 
-  private fallbackError(suppressInvite: boolean): AIGenerateResult {
+  private fallbackError(suppressInvite: boolean, userMessage: string): AIGenerateResult {
     return {
       reply: "I'm having trouble right now, please try again in a moment.",
-      consultationInvite: suppressInvite ? null : null,
+      consultationInvite: suppressInvite ? null : buildConsultationInviteFallback(userMessage),
       fieldUpdates: {},
       scoreFactors: null,
     }

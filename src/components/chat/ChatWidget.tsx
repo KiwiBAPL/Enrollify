@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLeadBot } from '@/components/lead-bot/LeadBotProvider'
 import { ChatConsultationCta } from '@/components/chat/ChatConsultationCta'
 import { ChatApiError, sendChatMessage } from '@/lib/chat/api'
+import { resolveChatConsultationInvite } from '@/lib/chat/consultationInvite'
 import { getOrCreateSessionId } from '@/lib/chat/session'
 import { isLeadBotCompleted } from '@/lib/lead-bot/session'
 
@@ -101,7 +102,7 @@ export function ChatWidget() {
           id: crypto.randomUUID(),
           role: 'assistant',
           text: reply,
-          consultationInvite: completed ? null : consultationInvite,
+          consultationInvite: resolveChatConsultationInvite(consultationInvite, text, completed),
         },
       ])
     } catch (err) {

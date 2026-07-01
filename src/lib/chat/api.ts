@@ -30,11 +30,20 @@ export async function sendChatMessage(
     }),
   })
 
-  const body = (await response.json().catch(() => ({}))) as { error?: string; reply?: string }
+  const body = (await response.json().catch(() => ({}))) as {
+    error?: string
+    reply?: string
+    consultationInvite?: string | null
+  }
 
   if (!response.ok) {
     throw new ChatApiError(body.error ?? 'Something went wrong. Please try again.', response.status)
   }
 
-  return body as ChatMessageResponse
+  return {
+    reply: body.reply ?? '',
+    consultationInvite: body.consultationInvite ?? null,
+    studentId: (body as ChatMessageResponse).studentId,
+    conversationId: (body as ChatMessageResponse).conversationId,
+  }
 }
