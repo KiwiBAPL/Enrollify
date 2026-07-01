@@ -162,7 +162,9 @@ Target: **Railway**. Config: [`railway.toml`](railway.toml), [`Procfile`](Procfi
 3. Add production env vars from `.env.example` (see [website chat plan](../../Documents/Bot/website-chat-implementation-plan.md) Step 4)
 4. Deploy; verify: `curl https://<railway-host>/health`
 5. Set Netlify **`BACKEND_URL`** to the Railway URL (no trailing slash) — see plan Step 5
-6. Set **`CORS_ORIGIN=https://www.enrollifyedu.com`** on Railway
+6. Set **`CORS_ORIGIN=https://www.enrollifyedu.com,https://enrollifyedu.com`** on Railway (comma-separated; include both apex and www)
+
+After pushing backend changes to `main`, confirm Railway redeploys (GitHub integration) or run `railway up` from `apps/backend`. Chat Insights requires the deploy that includes `GET /api/admin/chat-insights/*` — an old deployment returns **404** to authenticated admin requests.
 
 ### Archived lead purge (90-day retention)
 
